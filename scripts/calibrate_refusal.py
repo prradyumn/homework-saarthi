@@ -1,0 +1,242 @@
+"""Refusal calibration: sweep the gate and plot accuracy against coverage (PRD §8.1).
+
+This calibrates the GATE, not the generator. §8.1's full curve needs generation,
+which needs Groq; the decision this measures is narrower and comes first: given a
+question, should we answer at all?
+
+Labelling follows §8.1's asymmetry. Of the two error types:
+
+  answering a should-refuse question   SERIOUS. The parent cannot detect it and
+                                       may teach a child something false.
+  refusing a should-answer question    mild. Honest, obvious, and recoverable,
+                                       and the refusal ships a textbook page.
+
+So the operating point is chosen as the **highest coverage whose
+wrong-answer rate stays at or below 2%**, exactly as the PRD specifies.
+
+Signals per question (§8.1 step 2):
+  top1        cosine similarity of the best chunk
+  margin      top1 minus top5 — a foreign question sits roughly equidistant
+              from everything, so its margin is small
+  in_class5   whether the best chunk is Class 5 Maths rather than a decoy.
+              Meaningless without the decoy corpus, which is why it exists
+              (DECISIONS.md D1-PRELIM)
+
+Usage: python scripts/calibrate_refusal.py [--embed]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import pathlib
+import sys
+
+import numpy as np
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "eval"))
+
+CHUNKS = ROOT / "ingest" / "chunks.json"
+DECOYS = ROOT / "ingest" / "decoy_chunks.json"
+INDEX = ROOT / "ingest" / "index_combined.npz"
+QSET = ROOT / "eval" / "refusal_set.json"
+REPORT = ROOT / "eval" / "refusal_calibration.json"
+CURVE = ROOT / "eval" / "accuracy_vs_coverage.csv"
+
+MODEL = "BAAI/bge-m3"
+TOP_K = 5
+WRONG_ANSWER_BUDGET = 0.02  # §7.3 guardrail: 2% maximum, non-negotiable
+
+
+def embedding_text(c: dict) -> str:
+    parts = [
+        f"अध्याय {c['chapter']}: {c.get('chapter_title_hi', '')}",
+        c.get("section_header_hi", ""),
+        c["text_hi"],
+    ]
+    if c.get("fractions"):
+        parts.append(" ".join(c["fractions"]))
+    return "\n".join(p for p in parts if p)
+
+
+def load_all_chunks() -> list[dict]:
+    main = json.loads(CHUNKS.read_text(encoding="utf-8"))
+    for c in main:
+        c["in_syllabus"] = True
+    decoys = json.loads(DECOYS.read_text(encoding="utf-8")) if DECOYS.exists() else []
+    return main + decoys
+
+
+def build_index() -> None:
+    from sentence_transformers import SentenceTransformer
+
+    chunks = load_all_chunks()
+    model = SentenceTransformer(MODEL, device="cpu")
+    vecs = model.encode(
+        [embedding_text(c) for c in chunks], batch_size=4,
+        normalize_embeddings=True, show_progress_bar=True, convert_to_numpy=True,
+    )
+    np.savez_compressed(
+        INDEX, vectors=vecs.astype(np.float32),
+        ids=np.array([c["id"] for c in chunks]),
+    )
+    n5 = sum(c["in_syllabus"] for c in chunks)
+    print(f"  indexed {len(chunks)} chunks ({n5} class 5, {len(chunks) - n5} decoy)")
+
+
+def signals() -> list[dict]:
+    from sentence_transformers import SentenceTransformer
+
+    chunks = load_all_chunks()
+    by_id = {c["id"]: c for c in chunks}
+    data = np.load(INDEX, allow_pickle=False)
+    vectors, ids = data["vectors"], [str(x) for x in data["ids"]]
+
+    qs = json.loads(QSET.read_text(encoding="utf-8"))
+    model = SentenceTransformer(MODEL, device="cpu")
+    qvecs = model.encode(
+        [q["question_hi"] for q in qs], batch_size=4,
+        normalize_embeddings=True, convert_to_numpy=True,
+    )
+
+    rows = []
+    for q, qv in zip(qs, qvecs):
+        sims = vectors @ qv
+        order = np.argsort(-sims)[:TOP_K]
+        top = [by_id[ids[i]] for i in order]
+        scores = [float(sims[i]) for i in order]
+        rows.append(
+            {
+                **q,
+                "top1": round(scores[0], 4),
+                "margin": round(scores[0] - scores[-1], 4),
+                "in_class5": bool(top[0]["in_syllabus"]),
+                "top1_class": top[0]["class"],
+                "top1_chapter": top[0]["chapter"],
+                "top1_header": top[0].get("section_header_hi", ""),
+                "chapter_hit": (
+                    top[0]["chapter"] == q.get("expected_chapter")
+                    if q["label"] == "answer" and top[0]["in_syllabus"] else None
+                ),
+                "class5_in_topk": any(c["in_syllabus"] for c in top),
+            }
+        )
+    return rows
+
+
+def sweep(rows: list[dict]) -> list[dict]:
+    """Coverage and wrong-answer rate at every threshold, for four gate designs."""
+    should_answer = [r for r in rows if r["label"] == "answer"]
+    should_refuse = [r for r in rows if r["label"] == "refuse"]
+
+    designs = {
+        "similarity_only": lambda r, t: r["top1"] >= t,
+        "similarity_and_class5": lambda r, t: r["top1"] >= t and r["in_class5"],
+        "class5_only": lambda r, _t: r["in_class5"],
+        "similarity_class5_and_margin": (
+            lambda r, t: r["top1"] >= t and r["in_class5"] and r["margin"] >= 0.03
+        ),
+    }
+
+    out = []
+    for name, rule in designs.items():
+        thresholds = [round(x, 3) for x in np.arange(0.30, 0.78, 0.005)]
+        if name == "class5_only":
+            thresholds = [0.0]
+        for t in thresholds:
+            answered_ok = [r for r in should_answer if rule(r, t)]
+            answered_bad = [r for r in should_refuse if rule(r, t)]
+            n_answered = len(answered_ok) + len(answered_bad)
+            coverage = len(answered_ok) / len(should_answer)
+            wrong_rate = len(answered_bad) / max(n_answered, 1)
+            out.append(
+                {
+                    "design": name, "threshold": t,
+                    "coverage_of_answerable": round(coverage, 4),
+                    "wrong_answer_rate": round(wrong_rate, 4),
+                    "answered_total": n_answered,
+                    "answered_correctly_allowed": len(answered_ok),
+                    "answered_should_have_refused": len(answered_bad),
+                    "refusal_rate_overall": round(1 - n_answered / len(rows), 4),
+                }
+            )
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--embed", action="store_true")
+    args = ap.parse_args()
+    if args.embed or not INDEX.exists():
+        build_index()
+
+    rows = signals()
+    curve = sweep(rows)
+
+    # --- signal separation, the D1-PRELIM check at full scale ---
+    ans = [r for r in rows if r["label"] == "answer"]
+    ref = [r for r in rows if r["label"] == "refuse"]
+    print(f"\n  {'set':28}{'n':>4}{'top1 min':>10}{'mean':>8}{'max':>8}{'margin mean':>13}")
+    print("  " + "-" * 71)
+    for name, group in (("should answer", ans), ("should refuse", ref)):
+        t = [r["top1"] for r in group]
+        m = [r["margin"] for r in group]
+        print(
+            f"  {name:28}{len(group):>4}{min(t):>10.3f}{sum(t) / len(t):>8.3f}"
+            f"{max(t):>8.3f}{sum(m) / len(m):>13.3f}"
+        )
+    print(f"\n  overlap: lowest answerable {min(r['top1'] for r in ans):.3f} "
+          f"vs highest refusable {max(r['top1'] for r in ref):.3f}")
+
+    # --- how well does the decoy metadata signal work on its own? ---
+    print(f"\n  decoy signal (top-1 chunk is Class 5):")
+    print(f"    of {len(ans)} answerable: {sum(r['in_class5'] for r in ans)} "
+          f"({sum(r['in_class5'] for r in ans) / len(ans):.0%}) hit a Class 5 chunk")
+    print(f"    of {len(ref)} refusable:  {sum(r['in_class5'] for r in ref)} "
+          f"({sum(r['in_class5'] for r in ref) / len(ref):.0%}) wrongly hit a Class 5 chunk")
+
+    # --- the operating point per design ---
+    print(f"\n  {'design':30}{'thr':>7}{'coverage':>10}{'wrong':>8}{'refusal':>9}")
+    print("  " + "-" * 64)
+    best = {}
+    for name in dict.fromkeys(r["design"] for r in curve):
+        pts = [r for r in curve if r["design"] == name]
+        ok = [p for p in pts if p["wrong_answer_rate"] <= WRONG_ANSWER_BUDGET]
+        pick = max(ok, key=lambda p: p["coverage_of_answerable"]) if ok else None
+        best[name] = pick
+        if pick:
+            print(
+                f"  {name:30}{pick['threshold']:>7.3f}"
+                f"{pick['coverage_of_answerable']:>10.1%}"
+                f"{pick['wrong_answer_rate']:>8.1%}{pick['refusal_rate_overall']:>9.1%}"
+            )
+        else:
+            floor = min(p["wrong_answer_rate"] for p in pts)
+            print(f"  {name:30}{'—':>7}{'—':>10}{'—':>8}   cannot reach 2% "
+                  f"(floor {floor:.1%})")
+
+    CURVE.write_text(
+        "design,threshold,coverage,wrong_answer_rate,refusal_rate\n"
+        + "\n".join(
+            f"{r['design']},{r['threshold']},{r['coverage_of_answerable']},"
+            f"{r['wrong_answer_rate']},{r['refusal_rate_overall']}"
+            for r in curve
+        ),
+        encoding="utf-8",
+    )
+    REPORT.write_text(
+        json.dumps(
+            {"model": MODEL, "top_k": TOP_K, "budget": WRONG_ANSWER_BUDGET,
+             "operating_points": best, "signals": rows},
+            ensure_ascii=False, indent=2,
+        ),
+        encoding="utf-8",
+    )
+    print(f"\n  curve -> {CURVE}\n  report -> {REPORT}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
