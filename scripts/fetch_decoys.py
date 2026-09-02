@@ -76,6 +76,35 @@ BEYOND_CLASS5 = [
 ]
 _BEYOND_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(BEYOND_CLASS5) + r")")
 
+# Presence of a beyond-Class-5 marker is NOT enough. A Class 7 chapter on large
+# numbers mentions दशमलव once in passing and then teaches column addition — a
+# Class 5 topic — so the chunk passed the filter and then outranked the Class 5
+# corpus on questions like "बड़ी संख्याओं को जोड़ने में हासिल कैसे लगाते हैं?"
+# and "सम और विषम संख्या में क्या फर्क है?". Higher-class books cover Class 5
+# topics at greater length, so they win on similarity.
+#
+# So a decoy must be PREDOMINANTLY beyond Class 5: it needs real beyond-syllabus
+# density, and it must not be mostly Class 5 vocabulary. The Class 5 topic list
+# is imported from the query gate so there is one definition of "Class 5 topic".
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from query_gate import TOPIC_WORDS as CLASS5_TOPIC_WORDS  # noqa: E402
+
+_C5_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(CLASS5_TOPIC_WORDS) + r")")
+
+# Kept deliberately permissive at INGEST time, with the density signals recorded
+# on every chunk, so the filter can be swept during calibration from a single
+# embedding run. A per-setting re-embed costs ~3 minutes; sweeping at scoring
+# time costs nothing and lets the trade-off be seen whole.
+MIN_BEYOND_HITS = 1
+MAX_C5_RATIO = 0.0
+
+
+def is_out_of_syllabus(text: str) -> tuple[bool, int, int]:
+    beyond = len(_BEYOND_RX.findall(text))
+    c5 = len(_C5_RX.findall(text))
+    ok = beyond >= MIN_BEYOND_HITS and beyond >= c5 * MAX_C5_RATIO
+    return ok, beyond, c5
+
 
 def fetch(code: str, chapter: int, attempts: int = 3) -> pathlib.Path | None:
     dest = RAW / f"{code}{chapter:02d}.pdf"
@@ -136,7 +165,8 @@ def _emit(chunks, klass, code, title, chapter, page_idx, buf) -> None:
     text = " ".join(buf).strip()
     if len(text) < MIN_CHARS:
         return
-    if not _BEYOND_RX.search(text):
+    ok, beyond, c5 = is_out_of_syllabus(text)
+    if not ok:
         return  # a Class 5 topic taught later; not a valid decoy
     chunks.append(
         {
@@ -155,6 +185,8 @@ def _emit(chunks, klass, code, title, chapter, page_idx, buf) -> None:
             "text_hi": text,
             "fractions": [],
             "in_syllabus": False,
+            "beyond_hits": beyond,
+            "class5_hits": c5,
             "needs_review": False,
             "figure_dependent": False,
             "unrepaired_conjuncts": 0,

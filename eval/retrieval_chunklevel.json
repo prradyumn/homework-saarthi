@@ -1,0 +1,476 @@
+{
+  "k": 3,
+  "n": 30,
+  "by_weight": {
+    "lexical_0": {
+      "term_in_context": 0.7666666666666667,
+      "questions_whose_term_is_absent_from_corpus": 0
+    },
+    "lexical_0.2": {
+      "term_in_context": 0.8,
+      "questions_whose_term_is_absent_from_corpus": 0
+    },
+    "lexical_0.35": {
+      "term_in_context": 0.8666666666666667,
+      "questions_whose_term_is_absent_from_corpus": 0
+    },
+    "lexical_0.5": {
+      "term_in_context": 0.8666666666666667,
+      "questions_whose_term_is_absent_from_corpus": 0
+    },
+    "lexical_0.8": {
+      "term_in_context": 0.8666666666666667,
+      "questions_whose_term_is_absent_from_corpus": 0
+    }
+  },
+  "detail": [
+    {
+      "id": "rs-in-001",
+      "question_hi": "दस हजार के बाद कौन सी संख्या आती है और कैसे लिखते हैं?",
+      "key_terms": [
+        "आती",
+        "लिखते"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        1,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "rs-in-008",
+      "question_hi": "एक जैसी भिन्न कौन सी होती हैं?",
+      "key_terms": [
+        "भिन्न"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        7,
+        3,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-017",
+      "question_hi": "समकोण क्या होता है? बेटी पूछ रही है",
+      "key_terms": [
+        "पूछ",
+        "समकोण"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        3,
+        3,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-023",
+      "question_hi": "बड़ी संख्याओं का घटाना कैसे सिखाऊँ?",
+      "key_terms": [
+        "घटाना",
+        "बड़ी"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        4,
+        6,
+        3
+      ]
+    },
+    {
+      "id": "rs-in-030",
+      "question_hi": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "key_terms": [
+        "बदलते",
+        "किलोमीटर"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        5,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-037",
+      "question_hi": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "key_terms": [
+        "गुणा",
+        "100"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        6,
+        5,
+        2
+      ]
+    },
+    {
+      "id": "rs-in-045",
+      "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "key_terms": [
+        "पाती",
+        "पंचभुज"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        7,
+        4,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-052",
+      "question_hi": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "key_terms": [
+        "ग्राम",
+        "किलोग्राम"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "rs-in-059",
+      "question_hi": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "key_terms": [
+        "भाजक",
+        "भाज्य"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        9,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "rs-in-066",
+      "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
+      "key_terms": [
+        "सममिति",
+        "बनाना"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        4,
+        4,
+        2
+      ]
+    },
+    {
+      "id": "rs-in-072",
+      "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
+      "key_terms": [
+        "रजाई",
+        "जमाते"
+      ],
+      "term_in_context": false,
+      "term_in_corpus": true,
+      "top_chapters": [
+        11,
+        11,
+        11
+      ]
+    },
+    {
+      "id": "rs-in-077",
+      "question_hi": "1 मिनट में कितने सेकंड होते हैं?",
+      "key_terms": [
+        "सेकंड",
+        "मिनट"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "id": "rs-in-084",
+      "question_hi": "जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?",
+      "key_terms": [
+        "सिखाया",
+        "जानवरों"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        13,
+        13,
+        13
+      ]
+    },
+    {
+      "id": "rs-in-089",
+      "question_hi": "मानचित्र में दिशाएँ कैसे देखते हैं?",
+      "key_terms": [
+        "दिशाएँ",
+        "मानचित्र"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "id": "rs-in-095",
+      "question_hi": "दंड आरेख कैसे बनाते हैं? बच्चे को होमवर्क मिला है",
+      "key_terms": [
+        "होमवर्क",
+        "मिला"
+      ],
+      "term_in_context": false,
+      "term_in_corpus": true,
+      "top_chapters": [
+        15,
+        15,
+        1
+      ]
+    },
+    {
+      "id": "rs-in-002",
+      "question_hi": "मेरे बच्चे को दस हजार से बड़ी संख्या लिखना नहीं आ रहा, ये कैसे सिखाऊँ?",
+      "key_terms": [
+        "लिखना",
+        "हजार"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "rs-in-009",
+      "question_hi": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "key_terms": [
+        "तुल्य",
+        "2/6"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "rs-in-018",
+      "question_hi": "चौथाई घुमाव का मतलब क्या है?",
+      "key_terms": [
+        "चौथाई",
+        "घुमाव"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "rs-in-024",
+      "question_hi": "बड़ी संख्याओं को जोड़ने में हासिल कैसे लगाते हैं?",
+      "key_terms": [
+        "हासिल",
+        "लगाते"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        4,
+        2,
+        13
+      ]
+    },
+    {
+      "id": "rs-in-031",
+      "question_hi": "मीटर और सेंटीमीटर में क्या संबंध है?",
+      "key_terms": [
+        "संबंध",
+        "मीटर"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        7,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "rs-in-038",
+      "question_hi": "गुणा करने के और कौन कौन से तरीके हैं?",
+      "key_terms": [
+        "तरीके",
+        "गुणा"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "rs-in-046",
+      "question_hi": "सम त्रिभुज एक बिंदु के चारों ओर कैसे जमते हैं?",
+      "key_terms": [
+        "जमते",
+        "चारों"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        7,
+        7,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-053",
+      "question_hi": "धारिता या क्षमता कैसे मापते हैं?",
+      "key_terms": [
+        "धारिता",
+        "क्षमता"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        8,
+        8,
+        7
+      ]
+    },
+    {
+      "id": "rs-in-060",
+      "question_hi": "स्थानीय मान का उपयोग करके भाग कैसे देते हैं?",
+      "key_terms": [
+        "देते",
+        "स्थानीय"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        3,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "rs-in-067",
+      "question_hi": "दर्पण जैसी आकृति कैसे बनाते हैं?",
+      "key_terms": [
+        "दर्पण",
+        "बनाते"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        7,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "rs-in-073",
+      "question_hi": "चौकोर टुकड़ों से डिजाइन कैसे बनाएँ?",
+      "key_terms": [
+        "बनाएँ",
+        "डिजाइन"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "rs-in-078",
+      "question_hi": "घंटों को मिनटों में कैसे बदलें?",
+      "key_terms": [
+        "बदलें",
+        "मिनटों"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        12,
+        12,
+        15
+      ]
+    },
+    {
+      "id": "rs-in-085",
+      "question_hi": "गुणज क्या होते हैं, आसान भाषा में?",
+      "key_terms": [
+        "आसान",
+        "भाषा"
+      ],
+      "term_in_context": false,
+      "term_in_corpus": true,
+      "top_chapters": [
+        5,
+        13,
+        5
+      ]
+    },
+    {
+      "id": "rs-in-090",
+      "question_hi": "नक्शे में जगह कैसे ढूँढ़ते हैं?",
+      "key_terms": [
+        "नक्शे",
+        "जगह"
+      ],
+      "term_in_context": false,
+      "term_in_corpus": true,
+      "top_chapters": [
+        14,
+        14,
+        5
+      ]
+    },
+    {
+      "id": "rs-in-096",
+      "question_hi": "चित्रालेख क्या होता है?",
+      "key_terms": [
+        "चित्रालेख"
+      ],
+      "term_in_context": true,
+      "term_in_corpus": true,
+      "top_chapters": [
+        15,
+        15,
+        15
+      ]
+    }
+  ]
+}

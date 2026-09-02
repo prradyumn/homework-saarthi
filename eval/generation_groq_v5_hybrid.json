@@ -1,0 +1,395 @@
+{
+  "backend": "groq",
+  "n": 30,
+  "conformance": 0.2,
+  "gate_refusals": 9,
+  "contract_failures": 15,
+  "retries": 2,
+  "chapter_precision": 0.8333333333333334,
+  "latency_median": 0.88,
+  "failure_codes": {
+    "gate:answer_is_in_a_chart": 2,
+    "gate:passage_does_not_cover_question": 4,
+    "gate:out_of_syllabus_by_margin": 3
+  },
+  "rows": [
+    {
+      "id": "rs-in-001",
+      "question_hi": "दस हजार के बाद कौन सी संख्या आती है और कैसे लिखते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 1,
+      "note": "place value",
+      "answered": true,
+      "retried": true,
+      "seconds": 15.81,
+      "failures": [],
+      "words": 50,
+      "cited_chapter": 1
+    },
+    {
+      "id": "rs-in-008",
+      "question_hi": "एक जैसी भिन्न कौन सी होती हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 2,
+      "note": "equivalent, parent wording",
+      "answered": true,
+      "retried": false,
+      "seconds": 2.77,
+      "failures": [],
+      "words": 72,
+      "cited_chapter": 7
+    },
+    {
+      "id": "rs-in-017",
+      "question_hi": "समकोण क्या होता है? बेटी पूछ रही है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 3,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.34,
+      "failures": [
+        "gate:answer_is_in_a_chart"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-023",
+      "question_hi": "बड़ी संख्याओं का घटाना कैसे सिखाऊँ?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 4,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.76,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 6
+    },
+    {
+      "id": "rs-in-030",
+      "question_hi": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 5,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 0.97,
+      "failures": [],
+      "words": 49,
+      "cited_chapter": 5
+    },
+    {
+      "id": "rs-in-037",
+      "question_hi": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 6,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.79,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 6
+    },
+    {
+      "id": "rs-in-045",
+      "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 7,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.8,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 7
+    },
+    {
+      "id": "rs-in-052",
+      "question_hi": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 8,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 0.88,
+      "failures": [],
+      "words": 45,
+      "cited_chapter": 8
+    },
+    {
+      "id": "rs-in-059",
+      "question_hi": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 9,
+      "note": "seed",
+      "answered": true,
+      "retried": true,
+      "seconds": 1.97,
+      "failures": [],
+      "words": 70,
+      "cited_chapter": 9
+    },
+    {
+      "id": "rs-in-066",
+      "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 10,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.71,
+      "failures": [
+        "gate:out_of_syllabus_by_margin"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-072",
+      "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 11,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.24,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 11
+    },
+    {
+      "id": "rs-in-077",
+      "question_hi": "1 मिनट में कितने सेकंड होते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 12,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 2.78,
+      "failures": [],
+      "words": 59,
+      "cited_chapter": 12
+    },
+    {
+      "id": "rs-in-084",
+      "question_hi": "जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 13,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.07,
+      "failures": [
+        "gate:answer_is_in_a_chart"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-089",
+      "question_hi": "मानचित्र में दिशाएँ कैसे देखते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 14,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 200000, Requested 2103. Please try again in 15m8.496s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-095",
+      "question_hi": "दंड आरेख कैसे बनाते हैं? बच्चे को होमवर्क मिला है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 15,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199965, Requested 2115. Please try again in 14m58.56s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-002",
+      "question_hi": "मेरे बच्चे को दस हजार से बड़ी संख्या लिखना नहीं आ रहा, ये कैसे सिखाऊँ?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 1,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199929, Requested 2489. Please try again in 17m24.576s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-009",
+      "question_hi": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 2,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199894, Requested 2307. Please try again in 15m50.831999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-018",
+      "question_hi": "चौथाई घुमाव का मतलब क्या है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 3,
+      "note": "quarter turn",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199858, Requested 2282. Please try again in 15m24.479999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-024",
+      "question_hi": "बड़ी संख्याओं को जोड़ने में हासिल कैसे लगाते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 4,
+      "note": "carrying",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199823, Requested 2485. Please try again in 16m37.056s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-031",
+      "question_hi": "मीटर और सेंटीमीटर में क्या संबंध है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 5,
+      "note": "unit conversion",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199787, Requested 1994. Please try again in 12m49.392s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-038",
+      "question_hi": "गुणा करने के और कौन कौन से तरीके हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 6,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.16,
+      "failures": [
+        "gate:out_of_syllabus_by_margin"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-046",
+      "question_hi": "सम त्रिभुज एक बिंदु के चारों ओर कैसे जमते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 7,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199717, Requested 2194. Please try again in 13m45.551999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-053",
+      "question_hi": "धारिता या क्षमता कैसे मापते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 8,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199681, Requested 2231. Please try again in 13m45.984s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-060",
+      "question_hi": "स्थानीय मान का उपयोग करके भाग कैसे देते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 9,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199646, Requested 2123. Please try again in 12m44.208s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-067",
+      "question_hi": "दर्पण जैसी आकृति कैसे बनाते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 10,
+      "note": "mirror symmetry",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199610, Requested 2290. Please try again in 13m40.8s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-073",
+      "question_hi": "चौकोर टुकड़ों से डिजाइन कैसे बनाएँ?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 11,
+      "note": "square tiles",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199575, Requested 2291. Please try again in 13m26.112s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-078",
+      "question_hi": "घंटों को मिनटों में कैसे बदलें?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 12,
+      "note": "seed",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199539, Requested 2379. Please try again in 13m48.575999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-085",
+      "question_hi": "गुणज क्या होते हैं, आसान भाषा में?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 13,
+      "note": "multiples",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.19,
+      "failures": [
+        "gate:out_of_syllabus_by_margin"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-090",
+      "question_hi": "नक्शे में जगह कैसे ढूँढ़ते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 14,
+      "note": "locating on map",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199469, Requested 2163. Please try again in 11m45.024s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    },
+    {
+      "id": "rs-in-096",
+      "question_hi": "चित्रालेख क्या होता है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 15,
+      "note": "pictograph",
+      "answered": false,
+      "error": "groq: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1hx9rqqe4zr093facy1p1zv` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199433, Requested 2066. Please try again in 10m47.568s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+    }
+  ]
+}

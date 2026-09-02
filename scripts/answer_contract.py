@@ -45,8 +45,6 @@ QUOTE_CHARS = "\"'“”‘’«»"
 # have. §8.2 gives the canonical example: "denominator" must become
 # "नीचे वाला अंक". Each of these must be glossed if used at all.
 JARGON = {
-    "अंश": "ऊपर वाला अंक",
-    "हर": "नीचे वाला अंक",
     "भाज्य": "जिसे बाँटना है",
     "भाजक": "जिससे बाँट रहे हैं",
     "भागफल": "बाँटने पर जो मिला",
@@ -63,6 +61,17 @@ JARGON = {
     "धारिता": "कितना समा सकता है",
     "परिमाप": "चारों तरफ की लंबाई",
     "क्षेत्रफल": "कितनी जगह घेरता है",
+}
+
+# Suggested in the prompt but NOT failed on, because each collides with an
+# extremely common ordinary word and the check cannot tell them apart:
+#   हर   = "denominator", but also "every" ("हर घंटे में 60 मिनट")
+#   अंश  = "numerator", but also "portion / passage" — the prompt's own word for
+#          the retrieved text, so the model echoed it and was penalised for it
+# Flagging these produced 6 false failures out of 30 questions.
+JARGON_ADVISORY = {
+    "अंश": "ऊपर वाला अंक",
+    "हर": "नीचे वाला अंक",
 }
 
 _SENT_SPLIT = re.compile(r"[।?!\n]+")
@@ -208,29 +217,44 @@ def validate(raw: str, question: str, context: str | None = None) -> dict:
                 failures.append({"code": "not_one_sentence", "part": name, "sentences": n})
 
     # --- part 3 must use DIFFERENT numbers from the question (§10, §12.1) ---
+    #
+    # These checks only apply to a NUMERIC concept. §10 calls part 3 "a worked
+    # parallel example", and the different-numbers rule exists to stop the parent
+    # transcribing a computed answer. Where there is no computation there is
+    # nothing to transcribe: "दर्पण जैसी आकृति कैसे बनाते हैं?" and
+    # "सम पंचभुज से टाइल क्यों नहीं बन पाती?" have perfectly good worked examples
+    # with no numbers in them. Demanding numbers there produced 4 false failures
+    # out of 30 and would push the model to invent figures — the opposite of what
+    # the groundedness rule wants.
     q_nums = set(numbers_in(question))
-    if "example" in parts:
+    numeric_concept = bool(q_nums) or bool(numbers_in(context or "", words=False))
+    if "example" in parts and numeric_concept:
         ex_nums = set(numbers_in(parts["example"]))
         if not ex_nums:
             failures.append({"code": "example_has_no_numbers"})
-        # §10: the worked example must use DIFFERENT numbers, to block direct
-        # transcription of the homework. Enforced as strict zero overlap.
+        # §10: the worked example must use DIFFERENT numbers from the homework,
+        # so the parent cannot transcribe its result into the exercise.
         #
-        # A relaxation was tried — "introduces at least one new number" — because
-        # strict overlap is unsatisfiable when the concept IS a number: asked what
-        # multiplying by 10 and 100 does, any honest example mentions 10 or 100.
-        # The relaxation then let real transcription through ("जैसे 1/3 को 2 से गुणा
-        # करें तो 2/6 मिलता है" re-solves the exact question and passed), so it was
-        # reverted. Given §8.1's asymmetry — a transcribed answer is catastrophic
-        # and undetectable, a refusal is cheap and honest — the strict rule is the
-        # right default, and the false refusal on "multiply by 10 and 100" style
-        # questions is a known, accepted cost. Fixing it properly needs the
-        # operator/operand distinction, which is a prompt-side job: ask for the
-        # example to keep the operator and change the operand.
-        shared = q_nums & ex_nums
-        if shared:
+        # Strict zero overlap is UNSATISFIABLE for conceptual questions. Asked
+        # "10 और 100 से गुणा करने पर क्या होता है?", no honest example can avoid
+        # mentioning 10 — the number IS the concept. Requiring mere novelty is too
+        # weak in the other direction: "जैसे 1/3 को 2 से गुणा करें तो 2/6 मिलता है"
+        # introduces 2 and still re-derives the exact question.
+        #
+        # What actually distinguishes them is how much genuinely new arithmetic the
+        # example carries. A transcription reproduces every number the question
+        # gave and adds almost nothing; a real parallel example brings fresh
+        # operands even when it must reuse the operator.
+        new_nums = ex_nums - q_nums
+        if not new_nums:
             failures.append(
-                {"code": "example_reuses_question_numbers", "shared": sorted(shared)}
+                {"code": "example_introduces_no_new_numbers",
+                 "question_numbers": sorted(q_nums)}
+            )
+        elif q_nums and q_nums <= ex_nums and len(new_nums) <= 1:
+            failures.append(
+                {"code": "example_reuses_question_numbers",
+                 "shared": sorted(q_nums), "new": sorted(new_nums)}
             )
 
     # --- part 4 must be a quoted sentence the parent can say aloud (§10) ---
@@ -243,7 +267,13 @@ def validate(raw: str, question: str, context: str | None = None) -> dict:
 
     # --- no unglossed jargon (§8.2) ---
     body = _norm(raw)
+    q_norm = _norm(question)
     for term, plain in JARGON.items():
+        # A term the parent used themselves is vocabulary they already have; the
+        # rule exists to stop US introducing words they do not know (§8.2).
+        # "धारिता या क्षमता कैसे मापते हैं?" must not be failed for saying धारिता.
+        if re.search(rf"(?<![ऀ-ॿ]){term}(?![ऀ-ॿ])", q_norm):
+            continue
         if re.search(rf"(?<![ऀ-ॿ]){term}(?![ऀ-ॿ])", body):
             # a term is acceptable when its plain-language gloss sits beside it
             gloss_near = re.search(
@@ -257,8 +287,12 @@ def validate(raw: str, question: str, context: str | None = None) -> dict:
     # --- Devanagari, not transliteration or English ---
     dev = len(re.findall(r"[ऀ-ॿ]", body))
     latin = len(re.findall(r"[A-Za-z]", body))
-    if dev < 40:
-        failures.append({"code": "not_hindi", "devanagari_chars": dev})
+    letters = dev + latin
+    # Proportional, not an absolute character count: a short honest decline
+    # ("पाठ में समकोण की बात नहीं है।") is 23 Devanagari characters and was being
+    # failed as "not Hindi" for being brief.
+    if letters and dev / letters < 0.7:
+        failures.append({"code": "not_hindi", "devanagari_chars": dev, "latin": latin})
     elif latin > dev * 0.15:
         failures.append({"code": "too_much_latin", "latin": latin, "devanagari": dev})
 
@@ -317,8 +351,13 @@ def failures_as_instruction(failures: list[dict]) -> str:
             )
         elif code == "example_reuses_question_numbers":
             lines.append(
-                f"- भाग 3 में वही संख्याएँ हैं जो सवाल में हैं ({', '.join(f['shared'])}); "
-                "अलग संख्याओं से उदाहरण दीजिए।"
+                f"- भाग 3 सवाल को ही दोहरा रहा है ({', '.join(f['shared'])}); "
+                "उसी तरीके को बिलकुल नई संख्याओं पर लगाकर दिखाइए।"
+            )
+        elif code == "example_introduces_no_new_numbers":
+            lines.append(
+                "- भाग 3 में कोई नई संख्या नहीं है; वही तरीका नई संख्याओं पर "
+                "हल कर के दिखाइए।"
             )
         elif code == "example_has_no_numbers":
             lines.append("- भाग 3 में कोई संख्या नहीं है; अलग संख्याओं से हल कर के दिखाइए।")

@@ -47,6 +47,9 @@ REPORT = ROOT / "eval" / "refusal_calibration.json"
 CURVE = ROOT / "eval" / "accuracy_vs_coverage.csv"
 
 MODEL = "BAAI/bge-m3"
+# (min beyond-syllabus marker hits, min beyond:class5 hit ratio) — the decoy
+# corpus is the binding constraint on coverage, so its definition is swept.
+DECOY_FILTERS = [(1, 0.0), (1, 0.5), (2, 0.0), (2, 0.5), (2, 1.0), (3, 0.5)]
 TOP_K = 5
 WRONG_ANSWER_BUDGET = 0.02  # §7.3 guardrail: 2% maximum, non-negotiable
 
@@ -90,7 +93,7 @@ def build_index() -> None:
 def signals() -> list[dict]:
     from sentence_transformers import SentenceTransformer
 
-    from query_gate import is_value_seeking, pre_check
+    from query_gate import has_beyond_class5_word, is_value_seeking, pre_check
 
     chunks = load_all_chunks()
     by_id = {c["id"]: c for c in chunks}
@@ -110,6 +113,25 @@ def signals() -> list[dict]:
         order = np.argsort(-sims)[:TOP_K]
         top = [by_id[ids[i]] for i in order]
         scores = [float(sims[i]) for i in order]
+        # Best score within each corpus, over the whole index. A decoy that wins
+        # by a hair is not evidence a question is out of syllabus; the gap is.
+        best_c5 = max((float(sims[i]) for i, cid in enumerate(ids)
+                       if by_id[cid]["in_syllabus"]), default=0.0)
+        best_decoy = max((float(sims[i]) for i, cid in enumerate(ids)
+                          if not by_id[cid]["in_syllabus"]), default=0.0)
+        # Best decoy score under each candidate density filter, so the decoy
+        # corpus can be tuned without re-embedding. A decoy only "counts" if it
+        # is predominantly beyond Class 5 by that setting's definition.
+        best_decoy_at = {}
+        for hits, ratio in DECOY_FILTERS:
+            best_decoy_at[f"{hits}_{ratio:g}"] = max(
+                (float(sims[i]) for i, cid in enumerate(ids)
+                 if not by_id[cid]["in_syllabus"]
+                 and by_id[cid].get("beyond_hits", 0) >= hits
+                 and by_id[cid].get("beyond_hits", 0)
+                 >= by_id[cid].get("class5_hits", 0) * ratio),
+                default=0.0,
+            )
         rows.append(
             {
                 **q,
@@ -128,8 +150,13 @@ def signals() -> list[dict]:
                 "top1_needs_review": bool(top[0].get("needs_review")),
                 "pre_check": pre_check(q["question_hi"]),
                 "value_seeking": is_value_seeking(q["question_hi"]),
+                "q_beyond_word": has_beyond_class5_word(q["question_hi"]),
                 "top1_has_numbers": bool(re.search(r"\d", top[0]["text_hi"])),
                 "top1_has_chart_axis": bool(top[0].get("has_chart_axis")),
+                "best_class5": round(best_c5, 4),
+                "best_decoy": round(best_decoy, 4),
+                "decoy_lead": round(best_decoy - best_c5, 4),
+                "best_decoy_at": {k: round(v, 4) for k, v in best_decoy_at.items()},
             }
         )
     return rows
@@ -185,6 +212,73 @@ def sweep(rows: list[dict]) -> list[dict]:
             )
         ),
     }
+
+    # Read the QUESTION's vocabulary instead of comparing corpora. No decoys, no
+    # margin, no threshold on the decoy side — just "does the question name a
+    # topic the Class 5 book does not contain".
+    designs["topic_first"] = (
+        lambda r, t: (
+            r["pre_check"]["outcome"] == "pass"
+            and not r["q_beyond_word"]
+            and not r["top1_needs_review"]
+            and not (r["value_seeking"] and r["top1_has_chart_axis"])
+            and not (r["value_seeking"] and not r["top1_has_numbers"])
+            and r["best_class5"] >= t
+        )
+    )
+    # Question vocabulary catches 17 of 20 out-of-syllabus maths questions with
+    # ZERO false positives on the 100 legitimate ones — but the 3 it misses are
+    # enough to force the threshold up on its own, so it is combined with the
+    # decoy corpus rather than replacing it. Vocabulary handles the clear cases
+    # categorically; the decoy margin backstops the vocabulary's blind spots, and
+    # can therefore be looser than it could be alone.
+    for gap in (0.01, 0.02, 0.03, 0.05):
+        designs[f"topic+decoy_{gap:g}"] = (
+            lambda r, t, g=gap: (
+                r["pre_check"]["outcome"] == "pass"
+                and not r["q_beyond_word"]
+                and r["decoy_lead"] < g
+                and not r["top1_needs_review"]
+                and not (r["value_seeking"] and r["top1_has_chart_axis"])
+                and not (r["value_seeking"] and not r["top1_has_numbers"])
+                and r["best_class5"] >= t
+            )
+        )
+
+    # Sweep the DECOY CORPUS DEFINITION. Thinning it recovers legitimate questions
+    # (79% -> 98% reached a Class 5 chunk) but guts out-of-syllabus detection
+    # (28% -> 52% of refusables wrongly reached Class 5), collapsing coverage from
+    # 71% to 15%. The corpus size trades one against the other, so the setting is
+    # an empirical question, measured here from one embedding run.
+    for hits, ratio in DECOY_FILTERS:
+        key = f"{hits}_{ratio:g}"
+        designs[f"decoy_{key}"] = (
+            lambda r, t, k=key: (
+                r["pre_check"]["outcome"] == "pass"
+                and r["best_class5"] >= r["best_decoy_at"][k]
+                and not r["top1_needs_review"]
+                and not (r["value_seeking"] and r["top1_has_chart_axis"])
+                and not (r["value_seeking"] and not r["top1_has_numbers"])
+                and r["best_class5"] >= t
+            )
+        )
+
+    # The decoy signal as a MARGIN rather than a rank. Requiring the decoy to beat
+    # the best Class 5 chunk by a gap, instead of merely ranking first, is the
+    # lever on the remaining constraint: 21 of 100 legitimate questions still had
+    # a decoy as their nearest neighbour, which caps coverage at 79% before any
+    # threshold is applied. Swept, because the right gap is an empirical question.
+    for gap in (0.005, 0.01, 0.02, 0.03, 0.05, 0.08):
+        designs[f"margin_{gap:g}"] = (
+            lambda r, t, g=gap: (
+                r["pre_check"]["outcome"] == "pass"
+                and r["decoy_lead"] < g
+                and not r["top1_needs_review"]
+                and not (r["value_seeking"] and r["top1_has_chart_axis"])
+                and not (r["value_seeking"] and not r["top1_has_numbers"])
+                and max(r["best_class5"], 0.0) >= t
+            )
+        )
 
     out = []
     for name, rule in designs.items():

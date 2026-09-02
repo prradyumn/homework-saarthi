@@ -2,75 +2,160 @@
 
 Track A asserts contract conformance — all four parts present, and part 3's
 different-numbers rule — alongside answer accuracy. Conformance is the half that
-can be measured without a human, so it is measured here.
+can be measured without a human, so it is measured here. The bar to ship is 100%
+contract conformance (§12.1); anything less is the gap to close.
 
-The number that matters for the tiering decision (DECISIONS.md D4): a backend
-that cannot clear the contract does not produce wrong answers, it produces
-refusals. That is safe but useless, and it is worth knowing which.
+Questions are drawn from the labelled set's in-syllabus half and **stratified by
+chapter**, because an 8-question ad-hoc list was too small to tell a real change
+from noise, and it under-sampled the thin figure-heavy chapters where generation
+has least to work with.
+
+The number that matters for the tiering decision (DECISIONS.md D4): a backend that
+cannot clear the contract does not produce wrong answers, it produces refusals.
+That is safe but useless, and it is worth knowing which.
+
+Usage:
+  python scripts/eval_generation.py groq            # 30 questions, 2 per chapter
+  python scripts/eval_generation.py groq --n 45
+  python scripts/eval_generation.py ollama --n 8
 """
-import json, pathlib, sys, time
+
+from __future__ import annotations
+
+import argparse
+import json
+import pathlib
+import sys
+import time
+from collections import Counter, defaultdict
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-from answer import answer  # noqa: E402
 
-QUESTIONS = [
-    "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
-    "1 किलोग्राम में कितने ग्राम होते हैं?",
-    "1 मिनट में कितने सेकंड होते हैं?",
-    "समकोण क्या होता है? बेटी पूछ रही है",
-    "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
-    "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
-    "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
-    "किलोमीटर को मीटर में कैसे बदलते हैं?",
-]
+from answer import RateLimited, RateLimitExhausted, answer  # noqa: E402
+
+QSET = ROOT / "eval" / "refusal_set.json"
+
+# Free-tier limit read off the live response headers: 8,000 tokens per MINUTE
+# (not requests per day, as the PRD assumed). At ~1,800 tokens per call including
+# the retry that is ~4/min, so calls are paced rather than eating 429s.
+GROQ_PACE_SECONDS = 15.0
+
+
+def stratified_questions(n: int) -> list[dict]:
+    """Even coverage across chapters, deterministic, no random seed to remember."""
+    qs = [q for q in json.loads(QSET.read_text(encoding="utf-8")) if q["label"] == "answer"]
+    by_chapter: dict[int, list[dict]] = defaultdict(list)
+    for q in qs:
+        by_chapter[q["expected_chapter"]].append(q)
+    picked: list[dict] = []
+    round_no = 0
+    while len(picked) < n:
+        added = False
+        for ch in sorted(by_chapter):
+            if round_no < len(by_chapter[ch]) and len(picked) < n:
+                picked.append(by_chapter[ch][round_no])
+                added = True
+        if not added:
+            break
+        round_no += 1
+    return picked
+
 
 def main() -> int:
-    backend = sys.argv[1] if len(sys.argv) > 1 else "groq"
+    ap = argparse.ArgumentParser()
+    ap.add_argument("backend", nargs="?", default="groq", choices=["groq", "ollama"])
+    ap.add_argument("--n", type=int, default=30)
+    ap.add_argument("--tag", default="", help="label this run in the output filename")
+    args = ap.parse_args()
+
+    questions = stratified_questions(args.n)
+    pace = GROQ_PACE_SECONDS if args.backend == "groq" else 0.0
     rows, t0 = [], time.time()
-    # Free-tier limit measured off the live response headers: 8,000 tokens per
-    # MINUTE (not requests per day, as the PRD assumed). At ~1,500 tokens per
-    # call that is ~5 calls/min, so space them out rather than eat 429s.
-    pace = 13.0 if backend == "groq" else 0.0
-    for i, q in enumerate(QUESTIONS):
+
+    for i, q in enumerate(questions):
         if i and pace:
             time.sleep(pace)
         try:
-            out = answer(q, backend=backend, verbose=False)
+            try:
+                out = answer(q["question_hi"], backend=args.backend, verbose=False)
+            except RateLimited as exc:
+                # per-minute cap: wait it out once rather than record a failure
+                print(f"  ... per-minute limit hit, pausing 30s", flush=True)
+                time.sleep(30)
+                out = answer(q["question_hi"], backend=args.backend, verbose=False)
+        except RateLimitExhausted as exc:
+            print(f"\n  ABORTING at {i}/{len(questions)}: {exc}")
+            print("  Partial results are NOT a conformance score — rerun after reset.")
+            break
         except Exception as exc:  # noqa: BLE001
-            print(f"  FAIL {q[:38]}: {exc}", flush=True)
-            rows.append({"q": q, "answered": False, "error": str(exc)})
+            print(f"  ERR  ch{q['expected_chapter']:>2}  {q['question_hi'][:40]:42} {exc}",
+                  flush=True)
+            rows.append({**q, "answered": False, "error": str(exc)})
             continue
-        ok = out.get("answered", False)
-        codes = []
-        if not ok and out.get("attempts"):
-            codes = [f["code"] for f in out["attempts"][-1]["validation"]["failures"]]
-        rows.append({"q": q, "answered": ok, "retried": out.get("retried"),
-                     "seconds": out.get("seconds"), "failures": codes,
-                     "words": (out.get("stats") or {}).get("words")})
-        print(f"  {'OK ' if ok else 'REF'} {out.get('seconds', 0):>6.1f}s  "
-              f"{q[:40]:42} {'' if ok else codes}", flush=True)
+
+        answered = out.get("answered", False)
+        codes: list[str] = []
+        if not answered:
+            if out.get("attempts"):
+                codes = [f["code"] for f in out["attempts"][-1]["validation"]["failures"]]
+            else:
+                codes = [f"gate:{out['refusal']['reason']}"]
+        rows.append({
+            **q,
+            "answered": answered,
+            "retried": out.get("retried"),
+            "seconds": out.get("seconds"),
+            "failures": codes,
+            "words": (out.get("stats") or {}).get("words"),
+            "cited_chapter": (out.get("citation") or {}).get("chapter"),
+        })
+        flag = "OK " if answered else "REF"
+        cite = out.get("citation") or {}
+        hit = "" if not answered else (
+            "" if cite.get("chapter") == q["expected_chapter"] else
+            f" [cited ch{cite.get('chapter')}, expected ch{q['expected_chapter']}]"
+        )
+        print(f"  {flag} {out.get('seconds', 0):>6.1f}s ch{q['expected_chapter']:>2}  "
+              f"{q['question_hi'][:38]:40} {'' if answered else codes}{hit}", flush=True)
 
     n = len(rows)
     ok = sum(r["answered"] for r in rows)
+    gated = sum(1 for r in rows if any(c.startswith("gate:") for c in r.get("failures", [])))
     ret = sum(1 for r in rows if r.get("retried"))
-    secs = [r["seconds"] for r in rows if r.get("seconds")]
-    print(f"\n  backend={backend}")
-    print(f"  contract conformance: {ok}/{n} = {ok/n:.0%}")
-    print(f"  needed a retry: {ret}/{n}")
+    secs = sorted(r["seconds"] for r in rows if r.get("seconds"))
+    right_ch = sum(1 for r in rows if r["answered"]
+                   and r.get("cited_chapter") == r["expected_chapter"])
+
+    print(f"\n  backend={args.backend}  n={n}  ({time.time() - t0:.0f}s total)")
+    print(f"  contract conformance   {ok}/{n} = {ok / n:.0%}      (§12.1 bar: 100%)")
+    print(f"  refused by the gate    {gated}/{n}")
+    print(f"  failed the contract    {n - ok - gated}/{n}")
+    print(f"  needed a retry         {ret}/{n}")
+    if ok:
+        print(f"  cited the right chapter {right_ch}/{ok} of answered")
     if secs:
-        secs.sort()
-        print(f"  latency: median {secs[len(secs)//2]:.1f}s  p95 {secs[min(int(.95*len(secs)), len(secs)-1)]:.1f}s"
-              f"   (§7.3 guardrail: 20s p95)")
-    from collections import Counter
+        p = lambda q_: secs[min(int(q_ * len(secs)), len(secs) - 1)]  # noqa: E731
+        print(f"  latency  median {p(0.5):.1f}s   p95 {p(0.95):.1f}s"
+              f"      (§7.3 guardrail: 20s p95)")
     fc = Counter(c for r in rows for c in r.get("failures", []))
     if fc:
-        print("  failure codes:", dict(fc.most_common()))
-    out = ROOT / "eval" / f"generation_{backend}.json"
-    out.write_text(json.dumps({"backend": backend, "conformance": ok/n,
-                               "total_seconds": round(time.time()-t0), "rows": rows},
-                              ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"  -> {out}")
+        print("\n  failure codes:")
+        for code, cnt in fc.most_common():
+            print(f"     {cnt:>3}  {code}")
+
+    name = f"generation_{args.backend}{('_' + args.tag) if args.tag else ''}.json"
+    out_path = ROOT / "eval" / name
+    out_path.write_text(json.dumps({
+        "backend": args.backend, "n": n, "conformance": ok / n,
+        "gate_refusals": gated, "contract_failures": n - ok - gated,
+        "retries": ret, "chapter_precision": (right_ch / ok) if ok else None,
+        "latency_median": secs[len(secs) // 2] if secs else None,
+        "failure_codes": dict(fc), "rows": rows,
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"\n  -> {out_path}")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -174,3 +174,27 @@ def is_value_seeking(question: str) -> bool:
     never states the bar heights.
     """
     return bool(_VALUE_SEEKING.search(question)) and not _METHOD_SEEKING.search(question)
+
+
+# Topics verified absent from the Class 5 corpus (each checked for zero
+# occurrences in ingest/chunks.json). Kept here, on the QUERY side, because
+# D1's lesson keeps repeating: a categorical signal beats a tuned score.
+#
+# The decoy corpus can only reach 73% coverage, and the ceiling is structural —
+# Class 6-8 books teach Class 5 topics at greater length, so they win on
+# similarity for legitimate questions ("सम और विषम संख्या में क्या फर्क है?"
+# lost to a Class 7 chunk by 0.071). Reading the question's own vocabulary needs
+# no corpus and no threshold.
+BEYOND_CLASS5_WORDS = [
+    "बीजीय", "समीकरण", "व्यंजक", "सर्वसमिका", "बहुपद", r"चर\s*राशि",
+    "घातांक", "वर्गमूल", "घनमूल", "प्रतिशत", "अनुपात", "समानुपात", "ब्याज",
+    "परिमेय", "अपरिमेय", "दशमलव", "निर्देशांक", "सर्वांगसम", "प्रमेय",
+    "प्रायिकता", "माध्यिका", "बहुलक", "त्रिकोणमिति", "ऋणात्मक", "पूर्णांक",
+    "द्विघात", "गुणनखंडन", "पाइथागोरस", "साइन", "कोज्या",
+]
+_BEYOND_Q_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(BEYOND_CLASS5_WORDS) + r")")
+
+
+def has_beyond_class5_word(question: str) -> bool:
+    """True if the question names a topic that is not in the Class 5 book at all."""
+    return bool(_BEYOND_Q_RX.search(question))

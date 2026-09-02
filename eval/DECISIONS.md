@@ -537,3 +537,196 @@ chunk is chart-axis-bearing is refused — and coverage went 26% → **71%**.
 - **This is the gate's curve, not §8.1's full curve.** Answer accuracy needs
   generation. A wrong-answer rate of 1.4% here means "1.4% of answered questions
   should have been refused" — not "1.4% of answers were factually wrong".
+
+---
+
+## D1-REVISED — the decoy corpus has a hard ceiling at 73% coverage
+
+**Decision: keep the decoy corpus at "any beyond-Class-5 marker" (516 chunks) and
+require a decoy to lead by 0.01 to disqualify a question.** Coverage 71% → **73%**
+at the same 1.4% wrong-answer rate. Also added a query-side vocabulary check,
+which is free and catches 17 of 20 higher-class maths questions with **zero** false
+positives on the 100 legitimate ones.
+
+### What was tried, and what it cost
+
+The binding constraint after D1 was that 21 of 100 legitimate questions had a
+decoy as their nearest neighbour. Three levers, all measured:
+
+| lever | legit → Class 5 | out-of-syllabus → Class 5 | coverage @≤2% |
+|---|---|---|---|
+| rank only (D1 baseline) | 79% | 28% | 71% |
+| **decoy must lead by 0.01** | 79% | 28% | **73%** |
+| decoy must lead by 0.02+ | — | — | 15% |
+| decoys must be *predominantly* beyond Class 5 (75 chunks) | **98%** | 52% | 15% |
+| query vocabulary only, no decoys | — | — | 15% |
+| query vocabulary + decoy lead 0.01 | — | — | 73% |
+
+Two of these look like wins in isolation and are net losses:
+
+- **Thinning the decoy corpus** to chunks that are predominantly beyond Class 5
+  fixed legitimate capture almost completely (79% → 98%) and **gutted the gate**:
+  out-of-syllabus questions reaching a Class 5 chunk went 28% → 52%, so the
+  threshold had to climb and coverage collapsed to 15%. Decoy corpus size trades
+  one error against the other; the loose corpus sits closer to the right point.
+- **Query vocabulary alone** is a beautiful signal — 17/20, no false positives —
+  but the 3 it misses are enough on their own to force the threshold up. It adds
+  nothing on top of a tight margin, because at a 0.01 lead the decoys already
+  catch what the vocabulary would. It is kept in the gate anyway: it is free,
+  categorical, and independent of corpus contents.
+
+### The ceiling is structural, and worth naming
+
+The decoy-lead distributions genuinely overlap. Legitimate questions lost to
+decoys have leads of 0.006–0.071 (median 0.024); correctly-caught out-of-syllabus
+questions have leads of 0.006–0.292 (median 0.060). At a 0.02 gap you recover 8
+legitimate questions and let 6 out-of-syllabus ones through — a net loss against a
+2% budget that permits at most one wrong answer.
+
+The reason is not tuning. **Class 6–8 books teach Class 5 topics at greater
+length**, so they win on similarity for questions that are squarely Class 5:
+"सम और विषम संख्या में क्या फर्क है?" lost to a Class 7 chunk by 0.071.
+
+So the remaining gap is not a gate problem. It is that Class 5 chunks score too
+*low* (0.493–0.750), not that decoys score too high — which points at retrieval,
+and is what D3 addresses.
+
+---
+
+## D3 — Hybrid retrieval: chapter-level accuracy was hiding a chunk-level miss
+
+**Decision: score chunks with dense cosine plus an IDF term-overlap signal at
+weight 0.35, and hand the generator the top 3 Class 5 chunks rather than 1.**
+Chunk-level relevance **77% → 87%**.
+
+### The metric that lied
+
+Retrieval was reported at 90% chapter-hit @1 and 97% @5, and the Step 2 exit
+criterion passed on that basis. It was too coarse. Downstream, on a 30-question
+generation eval, **10 of 30 questions had the model correctly decline** because the
+passage it received did not contain the answer — the right chapter, the wrong
+chunk inside it.
+
+`scripts/eval_retrieval.py` measures the thing that matters instead — does the
+context contain the concept the parent asked about — and needs no LLM budget.
+
+### Two fixes, in order of size
+
+1. **Pass top-3 chunks, not top-1.** §11.1 says "retrieve top-k … generate
+   against retrieved chunks only", plural; passing one chunk was a straight gap
+   against the design. Declines 10 → 8, conformance 43% → 50%.
+2. **Add a lexical signal.** Dense similarity over a whole passage dilutes a
+   single decisive term, and a parent asking what a word *means* is exactly the
+   case where the word is the strongest evidence. Measured, dense-only vs hybrid:
+
+   | lexical weight | chunk-level relevance |
+   |---|---|
+   | 0.00 (dense only) | 77% |
+   | 0.20 | 80% |
+   | **0.35 (in use)** | **87%** |
+   | 0.50 / 0.80 | 87% (plateau) |
+
+   Concretely: "धारिता या क्षमता कैसे मापते हैं?" now retrieves ch8 p113
+   "क्षमता या धारिता मापना" — precisely the right section. "चित्रालेख क्या होता है?"
+   reaches the five chunks that contain the word, none of which dense retrieval
+   surfaced.
+
+### One decline was correct, and my label was wrong
+
+"दर्पण जैसी आकृति कैसे बनाते हैं?" — **no chunk anywhere in the corpus contains
+दर्पण or सममित.** Chapter 10 teaches symmetry entirely through figures. The
+question is not answerable from text at any retrieval quality, the decline is
+right, and it was **my "answerable" label that was wrong**. That is D0.1's
+figure-only class showing up in the labelled set, and the set needs re-labelling
+for chapters 10 and 11.
+
+**Limitation of the new metric, stated plainly:** the "key term" is chosen as the
+rarest non-stopword in the question, which sometimes picks conversational framing
+("बच्चे को होमवर्क मिला है") instead of the topic. Three of the four remaining
+misses are that artifact, not retrieval failures, so true relevance is somewhat
+better than 87%. The *relative* comparison holds, because both settings are
+scored with the same terms.
+
+---
+
+## D2-REVISED — the validator was over-firing, and the honest number moved twice
+
+Contract failures on a 30-question eval fell from **8 to 1** after fixing five
+defects in my own checks. Overall conformance figures across the session:
+
+| run | conformance | contract failures | gate refusals |
+|---|---|---|---|
+| v1, 8 questions, structure only | 88% | — | — |
+| v1 + groundedness | 50% | — | — |
+| **v2, 30 questions (baseline)** | **53%** | 8 | 6 |
+| v3, validator fixed | 43% | **1** | 16 |
+| v4, top-3 context | 50% | 1 | 14 |
+| v5, hybrid retrieval | *invalid — daily token budget spent mid-run* | | |
+
+The v3 dip is real and instructive: fixing the validator moved failures from
+"contract" to "gate", because the model began *correctly declining* on questions
+whose passages did not contain the answer. The pipeline got more honest before it
+got better.
+
+### The five defects, all mine
+
+1. **A model success scored as failure.** Asked for a right angle, the model
+   replied "पाठ में समकोण की बात नहीं है।" — an honest decline, exactly as the
+   prompt asked — and was recorded as four missing parts plus "not Hindi". It now
+   emits an explicit marker, returns a clean refusal, and logs a content gap,
+   which is §8.1's ingest backlog rather than a generation defect.
+2. **My own prompt seeded a false positive.** The prompt called the retrieved text
+   "अंश", which also means *numerator*; the model echoed the word and was failed
+   for jargon. The prompt now says "पाठ", and `अंश`/`हर` moved to advisory —
+   both collide with extremely common ordinary words (`हर` = "every"). This alone
+   caused 6 false failures in 30.
+3. **Jargon the parent used themselves.** "धारिता या क्षमता कैसे मापते हैं?" was
+   failed for saying धारिता. The rule exists to stop *us* introducing unfamiliar
+   words (§8.2); a word the parent typed is vocabulary they already have.
+4. **Numeric demands on non-numeric concepts.** "दर्पण जैसी आकृति कैसे बनाते हैं?"
+   has a perfectly good worked example with no numbers in it. Requiring numbers
+   there caused 4 false failures and would push the model to invent figures —
+   directly against the groundedness rule.
+5. **An absolute Devanagari floor.** A short honest decline is 23 Devanagari
+   characters and was failed as "not Hindi" for being brief. Now proportional.
+
+### The different-numbers rule, rewritten
+
+Strict zero overlap is **unsatisfiable** for a conceptual question: asked what
+multiplying by 10 and 100 does, no honest example can avoid mentioning 10. Mere
+novelty is too weak: "जैसे 1/3 को 2 से गुणा करें तो 2/6 मिलता है" introduces 2 and
+still re-derives the exact question. The rule now fails an example that reproduces
+every number the question gave while adding at most one new one — transcription —
+and passes one that brings fresh operands even while reusing the operator. Four
+shapes are pinned as permanent selftest cases.
+
+---
+
+## D5 — The real free-tier limit is 200,000 tokens per DAY
+
+Read off live response headers and error bodies, not from documentation:
+
+| limit | value |
+|---|---|
+| tokens per minute | 8,000 |
+| **tokens per day** | **200,000** |
+| requests per day | 1,000 |
+
+At ~2,200 tokens per answer with three-chunk context, the daily cap is **about 90
+answers per day, for the whole organisation**. That is the §13.3 constraint, and it
+is not the one the PRD assumed ("LLM requests-per-day"): the binding resource is
+tokens, and retrieved context dominates them.
+
+This has three consequences worth carrying into the cost model:
+
+- **Context size is the cost lever, exactly as §13.3 predicted.** Going from one
+  chunk to three raised tokens per answer by roughly half and cut daily capacity
+  proportionally. The 10-point retrieval gain in D3 was bought with ~50% more
+  tokens per answer — a real trade, not a free win.
+- **A 25-parent pilot fits, barely.** At the §7.2 target of 4 questions per active
+  parent per week, 25 parents is ~100 questions/week ≈ 14/day against a ceiling of
+  ~90. Evaluation runs compete with the pilot for the same budget.
+- **An exhausted budget must not look like a quality result.** A run that hit the
+  daily cap recorded 13 errors and reported "20% conformance", which is
+  meaningless. The client now distinguishes per-minute from per-day limits, retries
+  the former, and aborts the run on the latter saying so explicitly.
