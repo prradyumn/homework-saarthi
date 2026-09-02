@@ -1,0 +1,523 @@
+<title>Refusal Gate Calibration</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Devanagari:wght@400;500&display=swap">
+<style>
+  :root {
+    /* Palette lifted from the textbook being ingested: the amber is Maths Mela's
+       section-header pill fill (1.00,0.87,0.58) deepened for contrast, the
+       lavender is its शिक्षण संकेत callout fill (0.86,0.77,0.87). */
+    --amber: #C8891F;
+    --amber-soft: #F5E4C2;
+    --lavender: #7C6B96;
+    --breach: #A63328;
+    --breach-soft: #F0DAD6;
+    --ok: #2C6A58;
+
+    --ink: #14161B;
+    --ink-2: #4A4F5A;
+    --ink-3: #767C88;
+    --ground: #F3F4F6;
+    --surface: #FFFFFF;
+    --rule: #DCDFE4;
+    --rule-2: #EAECEF;
+
+    --serif: "IBM Plex Serif", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --deva: "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --amber: #E0A93C;
+      --amber-soft: #3B2F17;
+      --lavender: #A797C2;
+      --breach: #E0705F;
+      --breach-soft: #3A1F1B;
+      --ok: #63B79C;
+      --ink: #E9EAED;
+      --ink-2: #AFB4BE;
+      --ink-3: #7E848F;
+      --ground: #0F1115;
+      --surface: #181B21;
+      --rule: #2C313A;
+      --rule-2: #23272E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --amber: #E0A93C;
+    --amber-soft: #3B2F17;
+    --lavender: #A797C2;
+    --breach: #E0705F;
+    --breach-soft: #3A1F1B;
+    --ok: #63B79C;
+    --ink: #E9EAED;
+    --ink-2: #AFB4BE;
+    --ink-3: #7E848F;
+    --ground: #0F1115;
+    --surface: #181B21;
+    --rule: #2C313A;
+    --rule-2: #23272E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 56px 28px 96px; }
+
+  /* ---------- masthead ---------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 14px;
+  }
+  .standfirst {
+    font-family: var(--serif);
+    font-size: 18.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 60ch;
+    margin: 0 0 34px;
+  }
+  .standfirst em { color: var(--ink); font-style: italic; }
+
+  /* ---------- readout strip ---------- */
+  .readout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 0 0 44px;
+  }
+  .readout div { background: var(--surface); padding: 16px 18px 15px; }
+  .readout dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 7px;
+  }
+  .readout dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 25px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .readout dd small {
+    display: block;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--ink-3);
+    margin-top: 3px;
+  }
+  .v-ok { color: var(--ok); }
+  .v-amber { color: var(--amber); }
+
+  /* ---------- sections ---------- */
+  h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 25px;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 54px 0 6px;
+  }
+  h2 + .dek { color: var(--ink-2); margin: 0 0 22px; max-width: 64ch; }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 15.5px;
+    margin: 30px 0 8px;
+  }
+  p { max-width: 66ch; margin: 0 0 15px; }
+  .hi { font-family: var(--deva); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--rule-2);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+  .lead-rule { border: 0; border-top: 2px solid var(--ink); margin: 0 0 26px; width: 44px; }
+
+  /* ---------- chart ---------- */
+  figure { margin: 0 0 12px; }
+  .chart-panel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 22px 20px 14px;
+    overflow-x: auto;
+  }
+  .chart-panel svg { display: block; min-width: 620px; width: 100%; height: auto; }
+  figcaption {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    max-width: 68ch;
+    margin-top: 14px;
+    padding-left: 2px;
+    border-left: 2px solid var(--amber);
+    padding: 2px 0 2px 14px;
+  }
+  .c-label { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-3); }
+  .c-axis  { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .c-note  { font-family: var(--sans); font-size: 11.5px; fill: var(--ink-2); }
+  .c-note-b { font-family: var(--sans); font-size: 11.5px; font-weight: 600; fill: var(--ink); }
+
+  /* ---------- tables ---------- */
+  .t-scroll { overflow-x: auto; margin: 0 0 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 460px; }
+  caption {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 9px;
+  }
+  th, td { text-align: left; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  thead th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    border-bottom: 1px solid var(--rule);
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; padding-right: 0; }
+  tr.highlight td { background: var(--amber-soft); font-weight: 500; }
+  tr.highlight td:first-child { box-shadow: inset 3px 0 0 var(--amber); padding-left: 11px; }
+  .mech { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
+
+  /* ---------- correction blocks ---------- */
+  .correction {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--lavender);
+    padding: 18px 20px 4px;
+    margin: 0 0 16px;
+  }
+  .correction h3 { margin-top: 0; }
+  .correction p:last-child { margin-bottom: 14px; }
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lavender);
+    margin-bottom: 6px;
+  }
+
+  .limits { padding-left: 20px; margin: 0; }
+  .limits li { margin-bottom: 11px; max-width: 66ch; }
+
+  footer {
+    margin-top: 62px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  footer code { background: none; padding: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Homework Saathi · Decision D1 · Measured 3 Sep 2026</p>
+  <h1>When to say “I don’t know”</h1>
+  <p class="standfirst">
+    A wrong maths answer that a parent then teaches their child is far worse than a
+    refusal, because the parent asked <em>precisely because</em> they cannot detect the
+    error. So the gate that decides whether to answer at all was calibrated against a
+    150-question labelled set rather than set by intuition. The curve came out flat —
+    and that turned out to be the finding.
+  </p>
+
+  <dl class="readout">
+    <div>
+      <dt>Coverage</dt>
+      <dd class="v-amber">71%<small>of answerable questions</small></dd>
+    </div>
+    <div>
+      <dt>Wrong-answer rate</dt>
+      <dd class="v-ok">1.4%<small>budget is 2% — non-negotiable</small></dd>
+    </div>
+    <div>
+      <dt>Threshold</dt>
+      <dd>0.415<small>cosine similarity floor</small></dd>
+    </div>
+    <div>
+      <dt>Labelled set</dt>
+      <dd>150<small>100 in · 30 out · 20 adversarial</small></dd>
+    </div>
+  </dl>
+
+  <hr class="lead-rule">
+
+  <h2>The curve</h2>
+  <p class="dek">
+    Wrong-answer rate against coverage, every point a distinct similarity threshold
+    swept from 0.30 to 0.78 over the full labelled set.
+  </p>
+
+  <figure>
+    <div class="chart-panel">
+      <svg viewBox="0 0 720 408" role="img" aria-label="Wrong-answer rate against coverage. Coverage rises to 71% while the wrong-answer rate falls to 1.4%, with a discontinuity at 26% coverage where the single residual leak enters the answered set.">
+        <!-- out-of-budget region -->
+        <rect x="64" y="40" width="626" height="128.6" fill="var(--breach-soft)"></rect>
+        <text class="c-label" x="682" y="55" text-anchor="end" fill="var(--breach)">OVER BUDGET</text>
+
+        <!-- gridlines + y axis -->
+        <g stroke="var(--rule)" stroke-width="1">
+          <line x1="64" y1="340" x2="690" y2="340"></line>
+          <line x1="64" y1="254.3" x2="690" y2="254.3" stroke="var(--rule-2)"></line>
+          <line x1="64" y1="82.9" x2="690" y2="82.9" stroke="var(--rule-2)"></line>
+        </g>
+        <line x1="64" y1="168.6" x2="690" y2="168.6" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4"></line>
+        <text class="c-label" x="70" y="163" fill="var(--breach)">2% GUARDRAIL (§7.3)</text>
+
+        <g class="c-axis" text-anchor="end">
+          <text x="54" y="344">0%</text>
+          <text x="54" y="258.3">1%</text>
+          <text x="54" y="172.6">2%</text>
+          <text x="54" y="86.9">3%</text>
+        </g>
+        <line x1="64" y1="40" x2="64" y2="340" stroke="var(--rule)" stroke-width="1"></line>
+
+        <!-- x axis ticks -->
+        <g class="c-axis" text-anchor="middle">
+          <text x="64" y="362">0%</text>
+          <text x="189" y="362">15%</text>
+          <text x="314" y="362">30%</text>
+          <text x="440" y="362">45%</text>
+          <text x="565" y="362">60%</text>
+          <text x="690" y="362">75%</text>
+        </g>
+        <text class="c-label" x="377" y="384" text-anchor="middle">COVERAGE — SHARE OF ANSWERABLE QUESTIONS ANSWERED</text>
+        <text class="c-label" x="18" y="196" text-anchor="middle" transform="rotate(-90 18 196)">WRONG-ANSWER RATE</text>
+
+        <!-- branch A: threshold >= 0.640, the residual leak excluded, zero wrong -->
+        <polyline points="72,340 281,340" fill="none" stroke="var(--lavender)" stroke-width="2.5"></polyline>
+        <circle cx="72" cy="340" r="3" fill="var(--lavender)"></circle>
+        <circle cx="281" cy="340" r="4.5" fill="var(--lavender)"></circle>
+        <text class="c-note" x="176" y="330" text-anchor="middle" fill="var(--lavender)">threshold ≥ 0.640 — nothing wrong, and almost nothing answered</text>
+
+        <!-- the discontinuity -->
+        <line x1="281" y1="336" x2="306" y2="60" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"></line>
+
+        <!-- branch B: threshold < 0.640, one leak inside the answered set -->
+        <polyline
+          points="306,54.6 356,101.7 364,108.6 415,140.3 423,145.4 448,157.4 456,161.7 465,165.1 498,178 523,186.6 548,195.1 556,196.9 581,203.7 598,208 606,209.7 615,212.3 623,214 640,217.4 648,219.1 657,220.9"
+          fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+        <g fill="var(--amber)">
+          <circle cx="306" cy="54.6" r="3"></circle>
+          <circle cx="364" cy="108.6" r="3"></circle>
+          <circle cx="415" cy="140.3" r="3"></circle>
+          <circle cx="465" cy="165.1" r="3"></circle>
+          <circle cx="523" cy="186.6" r="3"></circle>
+          <circle cx="581" cy="203.7" r="3"></circle>
+          <circle cx="623" cy="214" r="3"></circle>
+        </g>
+
+        <!-- the low-threshold point where the GK question also gets in -->
+        <circle cx="657" cy="105.1" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"></circle>
+        <text class="c-note" x="647" y="99" text-anchor="end">threshold below 0.415: a second leak enters</text>
+
+        <!-- operating point -->
+        <circle cx="657" cy="220.9" r="9" fill="none" stroke="var(--amber)" stroke-width="1.5"></circle>
+        <circle cx="657" cy="220.9" r="4.5" fill="var(--amber)"></circle>
+        <text class="c-note-b" x="647" y="240" text-anchor="end">OPERATING POINT — 71% at 1.4%</text>
+        <text class="c-note" x="647" y="255" text-anchor="end">threshold 0.415</text>
+      </svg>
+    </div>
+    <figcaption>
+      The plateau is the point. From threshold 0.30 to 0.475 the coverage never
+      moves — the similarity score is doing almost no work. It needs only to be a
+      floor low enough to keep real questions and just high enough to drop
+      <span class="hi">भारत के प्रधानमंत्री कौन हैं?</span> at 0.414.
+    </figcaption>
+  </figure>
+
+  <h2>Why the threshold barely matters</h2>
+  <p>
+    The PRD frames this decision as sweeping one threshold and picking a point. In
+    practice the gate’s behaviour is set almost entirely by <strong>categorical
+    layers</strong>. Tuning the score alone reached 26% coverage; getting the layers
+    right reached 71% at a <em>lower</em> threshold.
+  </p>
+
+  <div class="t-scroll">
+    <table>
+      <caption>Coverage at or below the 2% wrong-answer budget, by gate design</caption>
+      <thead>
+        <tr><th>Gate design</th><th class="num">Coverage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Similarity only</td><td class="num">1%</td></tr>
+        <tr><td>+ Class 5 metadata (decoy corpus)</td><td class="num">26%</td></tr>
+        <tr><td>+ margin ≥ 0.03</td><td class="num">25%</td></tr>
+        <tr><td>+ chunk flags</td><td class="num">22%</td></tr>
+        <tr><td>+ query-side pre-checks</td><td class="num">26%</td></tr>
+        <tr class="highlight"><td>+ numeric answerability &amp; chart-axis detection</td><td class="num">71%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13.5px;color:var(--ink-3);max-width:66ch">
+    Similarity alone reaches 1% coverage, which is the same as not shipping.
+  </p>
+
+  <h2>Every refusal class needs its own instrument</h2>
+  <p class="dek">
+    A single threshold was being forced up to 0.645 to catch leaks it could never
+    see. Split by class, the metadata signal is <strong>perfect on what it was built
+    for</strong> — 23 of 23 genuinely out-of-syllabus maths questions, caught with no
+    threshold at all.
+  </p>
+
+  <div class="t-scroll">
+    <table>
+      <caption>Refusal class → the mechanism that actually catches it</caption>
+      <thead>
+        <tr><th>Class</th><th>Caught by</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Out-of-syllabus maths</td><td class="mech">decoy corpus + <code>class</code> metadata</td></tr>
+        <tr><td>Other subject · general knowledge · off-topic</td><td class="mech">query topic vocabulary + similarity floor</td></tr>
+        <tr><td>Missing context — <span class="hi">इसका जवाब क्या है?</span></td><td class="mech">no topic word, no numbers</td></tr>
+        <tr><td>Two questions at once</td><td class="mech">two interrogatives across two topic groups</td></tr>
+        <tr><td>Answer-copying request</td><td class="mech">intent match — a positioning call, not a confidence one</td></tr>
+        <tr><td>ASR garble — <span class="hi">कोन कैसे नापt hai</span></td><td class="mech">Latin beside Devanagari → confirmation turn</td></tr>
+        <tr><td>Figure-value lookup</td><td class="mech">figure reference + value-seeking, not method-seeking</td></tr>
+        <tr><td>Bar-chart data</td><td class="mech">chart-axis digit runs in the chunk</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Query-side pre-checks catch <strong>36 of 50</strong> refusable questions before
+    retrieval runs at all, with <strong>zero</strong> false positives on the 100
+    answerable ones — deterministic string work, no model, no latency, no cost.
+  </p>
+
+  <h2>Two of my own signals were wrong</h2>
+
+  <div class="correction">
+    <span class="tag">Corrected</span>
+    <h3>Decoys by class label were conceptually wrong</h3>
+    <p>
+      “Out-of-syllabus” is a property of the <strong>topic</strong>, not of the book’s
+      class. Class 6–8 maths <em>revisits</em> fractions, angles, large numbers and
+      area — so a Class 7 fractions chapter is not out-of-syllabus for a fractions
+      question, it is the same concept taught later.
+    </p>
+    <p>
+      Indexing whole higher-class books captured <strong>41 of 100 legitimate parent
+      questions</strong> as the top match, forcing the gate to refuse 76% of real
+      questions. Restricting decoys to 19 topic markers verified absent from the Class 5
+      corpus cut 1,275 decoy chunks to 516 and halved the capture rate. The rejected
+      candidates make the point: <span class="hi">गुणनखंड</span> appears 31 times in
+      Class 5, <span class="hi">क्षेत्रफल</span> 53, <span class="hi">चर</span> 60 — and
+      <span class="hi">गुणनखंड</span> is exactly why a Class 9 algebra question scored
+      0.569 against a Class 5 textbook.
+    </p>
+  </div>
+
+  <div class="correction">
+    <span class="tag">Corrected</span>
+    <h3>The figure flag was mis-calibrated in both directions</h3>
+    <p>
+      As a gate signal, <code>figure_dependent</code> discarded <strong>12 of 100</strong>
+      answerable questions while still missing <strong>3 of 4</strong> figure-only ones.
+      The signal was in the wrong place: a figure-only question is identified by the
+      <em>question</em> pointing at a figure, not by the chunk containing one.
+    </p>
+    <p>
+      Refining it mattered too. Refusing on any figure reference broke
+      <span class="hi">नक्शे में दिशाएँ कैसे देखते हैं?</span> — a method question,
+      answerable from text. A figure reference now refuses only alongside a
+      value-seeking interrogative, and never alongside
+      <span class="hi">कैसे</span>, <span class="hi">मतलब</span> or
+      <span class="hi">क्यों</span>.
+    </p>
+  </div>
+
+  <h2>The finding that unlocked 71%</h2>
+  <p>
+    One question defeated every signal:
+    <span class="hi">शीला ने रमन की अपेक्षा अध्ययन पर कितने घंटे अधिक समय व्यतीत किया?</span>
+    It names no figure, and it retrieves exactly the right chunk. But its answer lives
+    in the heights of a bar chart, which no sentence on the page states.
+  </p>
+  <p>
+    A numeric-answerability check — <em>value-seeking question, chunk states no
+    numbers</em> — should have caught it, and didn’t. Because the chunk is
+    <strong>full</strong> of numbers:
+  </p>
+  <p style="font-family:var(--mono);font-size:14px;background:var(--surface);border:1px solid var(--rule);padding:12px 14px;max-width:none">
+    … <span class="hi">घंटों की संख्या</span> <strong>8 7 6 5 4 1 0 … 10 9</strong> <span class="hi">गतिविधियाँ</span> …
+  </p>
+  <p>
+    Those are the chart’s y-axis tick labels, pulled in by the PDF text layer. The chunk
+    <em>looks</em> numeric while containing no data. <strong>61 of 248 chunks</strong>
+    carry runs like it — noise in the text, and enough to defeat the answerability
+    check. Detecting them explicitly took coverage from 26% to 71%.
+  </p>
+
+  <h2>What this does not yet show</h2>
+  <ul class="limits">
+    <li>
+      <strong>This is the gate’s curve, not the product’s.</strong> A 1.4% wrong-answer
+      rate means “1.4% of answered questions should have been refused” — not that 1.4%
+      of answers were factually wrong. Answer accuracy needs generation, which is the
+      next milestone.
+    </li>
+    <li>
+      <strong>Refusal on legitimate traffic is ~29%</strong>, just outside the 25%
+      guardrail. The binding constraint is no longer the threshold: 21 of 100 real
+      questions still retrieve a decoy as their best match.
+    </li>
+    <li>
+      <strong>One residual leak</strong> at the operating point —
+      <span class="hi">तीन भिन्नों को जोड़ना है जिनके हर अलग हैं</span> (adding unlike
+      denominators, 0.639). Genuinely beyond Class 5, but its nearest neighbour is the
+      Class 5 section on <em>same</em> denominators, and no decoy covers it.
+    </li>
+    <li>
+      <strong>The 100 in-syllabus questions are authored, not observed.</strong> They
+      deliberately use parent vocabulary — <span class="hi">एक जैसी भिन्न</span> rather
+      than the textbook’s <span class="hi">तुल्य भिन्न</span> — but they remain my
+      guesses about how parents speak. The discovery interviews are what make this set
+      real, and they have not happened yet.
+    </li>
+  </ul>
+
+  <footer>
+    Class 5 Mathematics · Hindi · NCERT <span class="hi">गणित मेला</span> (NCF-2023) ·
+    248 concept-unit chunks · BGE-M3 embeddings run locally on an 8 GB M1 ·
+    reproduce with <code>scripts/calibrate_refusal.py</code>
+  </footer>
+</div>
