@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+# NCERT PDFs and page renders are not redistributable ("© NCERT / not to be
+# republished"). The repo ships the fetch script and derived artifacts, not the book.
+ingest/raw/
+ingest/pages/
+ingest/extracted/

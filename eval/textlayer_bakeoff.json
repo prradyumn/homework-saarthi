@@ -1,0 +1,42 @@
+{
+  "hybrid_ocr+textlayer": {
+    "pages": {
+      "18": {
+        "cer": 0.11529411764705882,
+        "numeric_recall": 0.6785714285714286,
+        "numbers_total": 28,
+        "fraction_recall": 1.0,
+        "fractions_total": 20,
+        "chars_extracted": 918
+      },
+      "78": {
+        "cer": 0.042105263157894736,
+        "numeric_recall": 0.9166666666666666,
+        "numbers_total": 12,
+        "fraction_recall": null,
+        "fractions_total": 0,
+        "chars_extracted": 1298
+      },
+      "94": {
+        "cer": 0.008896797153024912,
+        "numeric_recall": 1.0,
+        "numbers_total": 4,
+        "fraction_recall": null,
+        "fractions_total": 0,
+        "chars_extracted": 1697
+      },
+      "183": {
+        "cer": 0.17810760667903525,
+        "numeric_recall": 1.0,
+        "numbers_total": 1,
+        "fraction_recall": null,
+        "fractions_total": 0,
+        "chars_extracted": 1028
+      }
+    },
+    "mean_cer": 0.08610094615925343,
+    "numeric_recall": 0.7777777777777778,
+    "fraction_recall": 1.0,
+    "sec_per_page": 2.259823977947235
+  }
+}
