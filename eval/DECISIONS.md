@@ -40,7 +40,8 @@ Prose CER uses best-window alignment so reading order is not penalised.
 
 | method | prose CER | numeric recall | fractions | invented numbers (p78) | s/page |
 |---|---|---|---|---|---|
-| **hybrid (chosen)** | **8.6%** | **77.8%** | **100%** | **8** (page no., list markers) | 2.3 |
+| **hybrid (chosen, final)** | **7.9%** | **91.1%** | **100%** | **0** | 0.3 |
+| hybrid (first version) | 8.6% | 77.8% | 100% | 8 | 2.3 |
 | ocr_tesseract_hin | 7.4% | 20.0% | 0% | 30 (**wrong values**) | 1.9 |
 | ocr_tesseract_hin_eng | 9.0% | 24.4% | 0% | 28 (**wrong values**) | 2.4 |
 | textlayer_pdftotext | 15.1% | 42.2% | 0% | 10 | 0.6 |
@@ -154,3 +155,88 @@ The check paid for itself twice on first run:
   polygons). Those are manipulatives with no explanatory prose, so they are
   recorded as a separate section and excluded from the retrieval corpus rather
   than silently chunked as if they were teaching text.
+
+---
+
+## D0.3 — Concept-unit segmentation follows the book's typography
+
+**Decision: segment on the book's own coloured header pills, not on a character
+count.** 190 pages became **222 chunks**, median 584 chars, across all 15 chapters.
+
+PRD §11.3 says the retrieval unit is a concept unit — a worked example plus the
+explanation that introduces it. To cut there you must find the boundaries.
+
+**What does not work: font size.** Body text is 17.0pt and section headings are
+17–19pt. A size threshold finds nothing.
+
+**What works: filled boxes.** Measured across all 190 pages:
+
+| fill | n | median height | what it is |
+|---|---|---|---|
+| (0.00,0.00,0.00) | 190 | 470 (exact, every page) | the "© NCERT / not to be republished" watermark |
+| (1.00,0.87,0.58) | 100 | 29 | amber section-header pill (~7 per chapter) |
+| (0.86,0.77,0.87) | 59 | 34 | lavender: header pills *and* शिक्षण संकेत boxes |
+| others | — | — | figure fills |
+
+Boxes are classified on shape and content rather than colour, so a restyled
+edition still segments. 352 markers were found: 149 plain section headers, 62
+activity headers, 23 teaching hints, 2 discussion prompts.
+
+### The source inverts per region
+
+Headers must come from the **text layer**, the opposite of body prose. Tesseract
+is defeated by the decorative heading font on coloured fill — it read the p94
+pill "टाइल्स लगाना व उन्हें प्रतिरूप में व्यवस्थित करना" as
+`([ उकल्सलगना बड़नेंअतिलयमे सलस्थितकला )/` at **confidence 0–11**. The text layer
+renders the same pill as `टाइल््स लगाना व उन्हें प्रतिरूप मेें व््यवस््थथित करना`,
+which `scripts/textnorm.py` repairs deterministically by collapsing duplicated
+combining marks. So: headers from the text layer, body prose from OCR, numerals
+from the text layer, fractions from geometry. Four sources, each chosen where it
+measurably wins.
+
+### शिक्षण संकेत is the most valuable content in the book
+
+The teaching-hint boxes are written **for teachers** and are the closest thing in
+the textbook to "how to explain this to someone who doesn't get it" — which is
+precisely answer-contract parts 2 and 4. 23 were extracted cleanly. They were
+initially all dropped by a 16-word cap meant for header pills; asides now allow
+paragraphs.
+
+### Two safety rules that came out of reading the output
+
+1. **Never emit a digit the text layer does not back.** Digits OCR produced with
+   no matching text-layer number are dropped rather than kept. Every real number
+   still arrives via the geometric re-insertion pass, so this only removes
+   noise — and it moved numeric recall from 77.8% to **91.1%** while dropping
+   invented numbers on p78 from 8 to **0**. Missing is recoverable; wrong is not.
+2. **A gate must measure output risk, not input difficulty.** The first gate
+   flagged pages where many numbers had to be re-inserted geometrically — and
+   flagged **55% of the book**. That was measuring the mechanism working, since
+   OCR deletes digits by construction. Re-pointed at `numbers_unverified`
+   (digits with no text-layer backing), it flags **40/190 pages (21%)** — which
+   lands just inside the §7.3 refusal-rate guardrail of 25%, a useful coincidence
+   worth watching once retrieval is live.
+
+### Chunk flags that feed the confidence gate
+
+| flag | chunks | meaning |
+|---|---|---|
+| `needs_review` | 57 | page extraction below the quality gate |
+| `figure_dependent` | 57 | content carried by a figure; unanswerable from text at any retrieval quality (D0.1) |
+| `unverified_numbers > 0` | 190 | residual unbacked digits, ~2.6/page, mostly OCR debris |
+
+### Known limitations, measured not hidden
+
+- 7.9% prose CER is real and visible in the text: `पूर्ण` → `पर्ण`,
+  `क्या` → `कया`, `टुकड़ों` → `ट्कड़ों`. Chunks are good enough for retrieval and
+  keyword matching; they are **not** clean enough to quote verbatim to a parent.
+  Generation must paraphrase from them, never echo them.
+- Some fractions are consumed by substitution and drop out of the linear text
+  even though the page-level reconstruction is complete (`1/4 के दो भाग 1/2 के…`
+  lost both). Fraction *recall per page* is 100%; fraction *placement into prose*
+  is not.
+- Page-number stripping removes standalone matches of the chunk's own page
+  number, so a genuine content "18" on page 18 would be lost. Rare, and
+  preferred over folio numbers polluting every chunk.
+- 17 of 222 chunks fall back to a chapter-level tag because neither header nor
+  body hit the keyword vocabulary.
