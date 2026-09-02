@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import re
 import sys
 
 import numpy as np
@@ -89,6 +90,8 @@ def build_index() -> None:
 def signals() -> list[dict]:
     from sentence_transformers import SentenceTransformer
 
+    from query_gate import is_value_seeking, pre_check
+
     chunks = load_all_chunks()
     by_id = {c["id"]: c for c in chunks}
     data = np.load(INDEX, allow_pickle=False)
@@ -121,6 +124,12 @@ def signals() -> list[dict]:
                     if q["label"] == "answer" and top[0]["in_syllabus"] else None
                 ),
                 "class5_in_topk": any(c["in_syllabus"] for c in top),
+                "top1_figure_dependent": bool(top[0].get("figure_dependent")),
+                "top1_needs_review": bool(top[0].get("needs_review")),
+                "pre_check": pre_check(q["question_hi"]),
+                "value_seeking": is_value_seeking(q["question_hi"]),
+                "top1_has_numbers": bool(re.search(r"\d", top[0]["text_hi"])),
+                "top1_has_chart_axis": bool(top[0].get("has_chart_axis")),
             }
         )
     return rows
@@ -137,6 +146,43 @@ def sweep(rows: list[dict]) -> list[dict]:
         "class5_only": lambda r, _t: r["in_class5"],
         "similarity_class5_and_margin": (
             lambda r, t: r["top1"] >= t and r["in_class5"] and r["margin"] >= 0.03
+        ),
+        # The production gate. Adds the two ingest-time flags that already exist
+        # on every chunk but were never wired into the gate: a chunk whose content
+        # is carried by a figure cannot answer from text at ANY retrieval quality
+        # (D0.1), and a chunk that failed the extraction gate should not be
+        # answered from either.
+        "production": (
+            lambda r, t: (
+                r["top1"] >= t
+                and r["in_class5"]
+                and not r["top1_figure_dependent"]
+                and not r["top1_needs_review"]
+            )
+        ),
+        # The layered gate: query-side pre-checks first, then metadata, then the
+        # chunk flags, and only then a similarity floor on the residual. Each
+        # refusal class is handled by the mechanism that can actually see it.
+        "layered": (
+            lambda r, t: (
+                r["pre_check"]["outcome"] == "pass"
+                and r["in_class5"]
+                and not r["top1_needs_review"]
+                and r["top1"] >= t
+            )
+        ),
+        # Adds the numeric-answerability check: a question asking for a value,
+        # whose best chunk states no numbers at all, is asking for something that
+        # lives in a figure. Cheap, general, and no model.
+        "layered_plus_numeric": (
+            lambda r, t: (
+                r["pre_check"]["outcome"] == "pass"
+                and r["in_class5"]
+                and not r["top1_needs_review"]
+                and not (r["value_seeking"] and not r["top1_has_numbers"])
+                and not (r["value_seeking"] and r["top1_has_chart_axis"])
+                and r["top1"] >= t
+            )
         ),
     }
 

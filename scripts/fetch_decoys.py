@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -50,6 +51,30 @@ DECOY_BOOKS = [
 
 CHUNK_CHARS = 800
 MIN_CHARS = 200
+
+# "Out-of-syllabus" is a property of the TOPIC, not of the book's class label.
+# Indexing whole higher-class books as decoys was a conceptual error: Class 6-8
+# maths REVISITS fractions, angles, large numbers and area, so a Class 7
+# fractions chapter is not out-of-syllabus for a fractions question — it is the
+# same concept taught later. Wholesale decoys captured 41 of 100 legitimate
+# parent questions as top-1, forcing the gate to refuse 76% of real questions to
+# stay inside the 2% wrong-answer budget.
+#
+# So a decoy chunk is kept only if it mentions a topic VERIFIED ABSENT from the
+# Class 5 corpus. Each marker below was checked for zero occurrences in
+# ingest/chunks.json; near-misses were dropped for exactly this reason —
+# गुणनखंड (31 hits), क्षेत्रफल (53), चर (60), पूर्णांक (1) are all Class 5
+# vocabulary, and गुणनखंड is precisely why a Class 9 algebra question scored 0.569
+# against the Class 5 corpus in the D1-PRELIM probe.
+BEYOND_CLASS5 = [
+    "बीजीय", "समीकरण", "व्यंजक", "सर्वसमिका",       # algebra
+    "घातांक", "घात", "वर्गमूल", "घनमूल",             # exponents and roots
+    "प्रतिशत", "अनुपात", "समानुपात",                 # ratio, percentage
+    "परिमेय", "अपरिमेय", "दशमलव",                    # number systems
+    "निर्देशांक", "सर्वांगसम", "प्रमेय",              # coordinate geometry, proofs
+    "प्रायिकता", "माध्यिका",                          # probability, statistics
+]
+_BEYOND_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(BEYOND_CLASS5) + r")")
 
 
 def fetch(code: str, chapter: int, attempts: int = 3) -> pathlib.Path | None:
@@ -111,6 +136,8 @@ def _emit(chunks, klass, code, title, chapter, page_idx, buf) -> None:
     text = " ".join(buf).strip()
     if len(text) < MIN_CHARS:
         return
+    if not _BEYOND_RX.search(text):
+        return  # a Class 5 topic taught later; not a valid decoy
     chunks.append(
         {
             "id": f"decoy-c{klass}-{code}-ch{chapter:02d}-p{page_idx:02d}-{len(chunks)}",

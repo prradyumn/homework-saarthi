@@ -400,3 +400,140 @@ Out-of-syllabus margins (top-1 minus top-5) cluster tight and low —
 everything. In-syllabus margins spread wider, up to 0.174. Margin is not clean
 enough alone either, but it carries information that raw score does not, and it
 should be a first-class axis in the week 3 sweep rather than a secondary check.
+
+---
+
+## D1 — Refusal gate: calibrated, and the threshold turns out to be almost irrelevant
+
+**Operating point: coverage 71% of answerable questions at a 1.4% wrong-answer
+rate**, threshold 0.415, measured on the 150-question labelled set
+(100 in-syllabus, 30 out-of-syllabus, 20 adversarial). Inside §7.3's
+non-negotiable 2% budget.
+
+This calibrates the **gate**, not the generator. §8.1's full curve needs
+generation; the question here is narrower and comes first: should we answer at all?
+
+### The curve, and the thing it reveals
+
+| threshold | coverage | wrong-answer rate |
+|---|---|---|
+| 0.300 | 71.0% | 2.7% |
+| 0.400 | 71.0% | 2.7% |
+| **0.425** | **71.0%** | **1.4%** ✓ |
+| 0.475 | 71.0% | 1.4% ✓ |
+| 0.550 | 66.0% | 1.5% ✓ |
+| 0.600 | 48.0% | 2.0% |
+| 0.650 | 21.0% | 0.0% |
+| 0.700 | 1.0% | 0.0% |
+
+**The curve is flat from 0.30 to 0.475.** The similarity threshold barely
+matters — it only needs to be a low floor around 0.42, just high enough to
+exclude "भारत के प्रधानमंत्री कौन हैं?" at 0.414.
+
+That is worth saying plainly, because §8.1 frames this decision as *sweep one
+threshold and pick a point*. In practice the gate's behaviour is set almost
+entirely by **categorical layers**, not by the continuous score. Tuning the
+score alone got 26% coverage; getting the layers right got 71% with a *lower*
+threshold. The trade-off named in the PRD is real, but it lives somewhere else
+than expected.
+
+### How it got from 26% to 71%
+
+| gate design | coverage @ ≤2% wrong |
+|---|---|
+| similarity only | 1% |
+| similarity + Class 5 metadata | 26% |
+| + margin ≥ 0.03 | 25% |
+| + chunk flags (`figure_dependent`, `needs_review`) | 22% |
+| + query-side pre-checks (**layered**) | 26% |
+| + numeric-answerability and chart-axis detection | **71%** |
+
+Similarity alone reaches 1% coverage, which is the same as not shipping.
+
+### Each refusal class needs its own mechanism
+
+The single threshold was being forced up to 0.645 to catch leaks it could never
+see. Broken down by class, the decoy/metadata signal is **perfect on what it was
+built for** — 23/23 genuinely out-of-syllabus maths questions caught by metadata
+alone: algebra 0/7, higher-number 0/8, geometry 0/2, statistics 0/2,
+trigonometry 0/1, off-topic 0/3 wrongly matched Class 5. Everything else needed a
+different tool:
+
+| refusal class | mechanism that actually catches it |
+|---|---|
+| out-of-syllabus maths | decoy corpus + `class` metadata |
+| other subject, general knowledge, off-topic | query-side topic vocabulary, plus a low similarity floor |
+| missing context ("इसका जवाब क्या है?") | query-side: no maths topic word and no numbers |
+| two questions at once | query-side: two interrogatives spanning two topic groups |
+| answer-copying requests | query-side intent match — a §4 positioning decision, not a confidence one |
+| ASR garble | query-side: any Latin letter beside Devanagari, then FR-2's confirmation turn |
+| figure-value lookup | query-side: figure reference **and** value-seeking **and** not method-seeking |
+| bar-chart data | chunk-side: chart-axis digit runs (see below) |
+
+Query-side pre-checks catch **36 of 50** refusables before retrieval runs at all,
+with **zero** false positives on the 100 answerable questions — deterministic
+string work, no model, no latency, no cost.
+
+### Two mistakes in my own signals, both caught by reading the failures
+
+**1. Decoys by class label were conceptually wrong.** "Out-of-syllabus" is a
+property of the **topic**, not of the book's class. Class 6-8 maths *revisits*
+fractions, angles, large numbers and area, so a Class 7 fractions chapter is not
+out-of-syllabus for a fractions question — it is the same concept taught later.
+Indexing whole higher-class books captured **41 of 100 legitimate parent
+questions** as top-1 and forced the gate to refuse 76% of real questions.
+
+Restricting decoys to topics **verified absent** from the Class 5 corpus (19
+markers, each checked for zero occurrences) cut 1,275 decoy chunks to 516 and
+took legitimate-question capture from 41% to 21%. The dropped candidates make the
+point: `गुणनखंड` (31 hits in Class 5), `क्षेत्रफल` (53), `चर` (60) are all Class 5
+vocabulary — and `गुणनखंड` is exactly why a Class 9 algebra question scored 0.569
+against the Class 5 corpus in the D1-PRELIM probe.
+
+**2. `figure_dependent` was mis-calibrated in both directions.** As a gate signal
+it discarded **12 of 100** answerable questions while still missing **3 of 4**
+figure-only ones. The signal was in the wrong place: a figure-only question is
+identified by the **question** pointing at a figure, not by the chunk containing
+one. It remains as chunk metadata but no longer gates.
+
+Refining that further mattered too: refusing on any figure reference broke
+"नक्शे में दिशाएँ कैसे देखते हैं?" (a method question, answerable from text). A
+figure reference now refuses only alongside a value-seeking interrogative and
+never alongside कैसे / मतलब / क्यों.
+
+### The finding that unlocked 71%: chart axis labels
+
+One question defeated every signal — p183's
+"शीला ने रमन की अपेक्षा अध्ययन पर कितने घंटे अधिक समय व्यतीत किया?" It names no
+figure, and it retrieves exactly the right chunk. But its answer is in the bar
+heights, which no text states.
+
+A numeric-answerability check ("value-seeking question, chunk states no numbers")
+should have caught it and did not — because **the chunk is full of numbers:
+`8 7 6 5 4 1 0 … 10 9`, the chart's y-axis tick labels**, pulled in by the text
+layer. The chunk looks numeric while containing no data.
+
+So axis runs are now detected explicitly: four or more bare numbers with no words
+between them is a chart axis or a table header row, not prose. **61 of 248 chunks
+carry them.** They were noise in the chunk text *and* they were defeating the
+answerability check. With them identified, a value-seeking question whose best
+chunk is chart-axis-bearing is refused — and coverage went 26% → **71%**.
+
+### Honest limits
+
+- **Refusal on legitimate traffic is ~29%**, just outside §7.3's 25% guardrail.
+  The binding constraint is no longer the threshold: **21 of 100 legitimate
+  questions still retrieve a decoy chunk as top-1**. Narrowing the decoy corpus
+  further, or requiring a decoy to beat the best Class 5 chunk by a margin rather
+  than merely rank first, is the next lever.
+- **One residual leak** at the operating point: "तीन भिन्नों को जोड़ना है जिनके हर
+  अलग हैं" (adding unlike denominators, 0.639). Genuinely beyond Class 5, but its
+  nearest chunk is the Class 5 section on *same* denominators, and no decoy covers
+  it because Class 6-7 fraction chapters were filtered out as Class 5 topics.
+- **The 100 in-syllabus questions are authored, not observed.** They use parent
+  vocabulary deliberately ("एक जैसी भिन्न" rather than "तुल्य भिन्न") to avoid the
+  seed set's flattery, but they are still my guesses about how parents speak. The
+  discovery interviews are what make this set real.
+- **This is the gate's curve, not §8.1's full curve.** Answer accuracy needs
+  generation. A wrong-answer rate of 1.4% here means "1.4% of answered questions
+  should have been refused" — not "1.4% of answers were factually wrong".

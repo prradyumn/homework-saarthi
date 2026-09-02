@@ -44,6 +44,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "000 ,000 9,000",
+      "0 0 0 0 0 0 0 0 0 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1433
@@ -77,6 +82,21 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "000 ,000 ,000 ,000 ,000 ,000 ,000 ,000 ,000",
+      "000 100 100 100 10 10 10 10 10 10 10 9,123",
+      "000 ,000 ,000 ,000 ,000 ,000 ,000 ,000 ,000 100 10 10",
+      "10,000 10,001 0",
+      "10,000 10,002 0",
+      "10,000 10 10,010 0 0",
+      "10,000 10 10 10,024 0",
+      "10,000 10 10 10",
+      "10,000 10 10 10 10 10 100 100 100 100 10,458",
+      "10,000 ,000 100 100 10 10,000 ,000 ,000 ,000 100 100 100 100 100 10 10 13,520",
+      "10,000 10,000 20,000",
+      "10,000 10,000 10,000 10,000 ,000 ,000 ,000 ,000 ,000 100 100 100 100 100 100 100 100 10 10 10 10 10 10 45,867"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "10/10"
     ],
@@ -116,6 +136,18 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "73,005 72,004",
+      "82,350 83,350",
+      "1,050 3,150 4,200",
+      "10,100 10,200 10,300 10,900",
+      "10,105 10,125",
+      "10,992 10,993",
+      "10,794 10,796 10,798 2",
+      "45,045 39,593 50,005 26,050 81,200",
+      "40,347 73,404 34,407 74,430 40,473 47,340 34,740 18,926 0 20,000 40,000 60,000 80,000"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "4/5000"
     ],
@@ -146,6 +178,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 157
@@ -176,6 +210,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "9 0 9 0 1 4",
+      "2,345 2,340 2,350 2,346",
+      "3,176 4,017 5,789 ,203"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "10000/9",
       "5000/4"
@@ -219,6 +259,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "7,126 7,835 7,030 6,999",
+      "2,300 2,400 2,3462,350 2,000 3,000 2,500 2,346 2"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 850
@@ -249,6 +294,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1014
@@ -278,6 +325,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 526
@@ -315,6 +364,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1180
@@ -353,6 +404,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1354
@@ -385,6 +438,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "36 1, 9 9",
+      "72 2, 8 8",
+      "54 4, 5 5"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "2/4",
       "3/2",
@@ -421,6 +480,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 407
@@ -464,6 +525,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1453
@@ -496,6 +559,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 640
@@ -526,6 +591,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1345
@@ -554,6 +621,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/3"
@@ -591,6 +660,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12",
       "1/3",
@@ -626,6 +697,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/3",
@@ -668,6 +741,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12",
       "1/2",
@@ -707,6 +782,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12",
       "1/2",
@@ -747,6 +824,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/3",
       "1/7",
@@ -794,6 +873,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/3",
       "2/3",
@@ -826,6 +907,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/4",
       "1/6",
@@ -868,6 +951,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/5",
       "1/6",
@@ -901,6 +986,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "2/5",
       "2/7",
@@ -962,6 +1049,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 0 1 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "1/2",
       "1/4",
@@ -1004,6 +1095,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/3",
       "1/4",
@@ -1041,6 +1134,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/3",
       "2/3",
@@ -1079,6 +1174,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 8 1 8 8 1 8 8 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "7/8",
       "8/6",
@@ -1111,6 +1210,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "12/9",
       "13/20",
@@ -1168,6 +1269,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 1 8 1 8 1 8 1 6 1 6 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "1/2",
       "3/6",
@@ -1201,6 +1306,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/3",
@@ -1245,6 +1352,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/4"
     ],
@@ -1302,6 +1411,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 917
@@ -1343,6 +1454,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1242
@@ -1383,6 +1496,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 4 5 2 3"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "1/4"
     ],
@@ -1429,6 +1546,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4"
@@ -1460,6 +1579,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/4",
       "1/8",
@@ -1510,6 +1631,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12",
       "1/2",
@@ -1578,6 +1701,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12",
       "1/2",
@@ -1617,6 +1742,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/12"
     ],
@@ -1691,6 +1818,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4",
@@ -1729,6 +1858,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 11 3 13 9 81 5 77 2 15 4 17 11 82 7 78 7 19 5 21 13 83 12 79 9 23 9 25 14 84 15 80 19 68 21 76 47 330 39 314"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 809
@@ -1758,6 +1891,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 369
@@ -1786,6 +1921,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 160
@@ -1816,6 +1953,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "8 2 1 1 5 7",
+      "9 4 9 8 1 3 0 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 643
@@ -1845,6 +1987,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 449
@@ -1874,6 +2018,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 144
@@ -1903,6 +2049,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 131
@@ -1953,6 +2101,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 6 5 15 8 7 1 4"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 226
@@ -1979,6 +2131,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 233
@@ -2007,6 +2161,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 424
@@ -2036,6 +2192,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "2 8 7 3"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 285
@@ -2082,6 +2242,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1, 2, 3, 4, 5 29, 30, 31, 32 512, 513 2023, 2024, 2025 2"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 656
@@ -2113,6 +2277,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "12 4 5 6 8 10 7 9 5 6 8 10 7 9 6 8"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1464
@@ -2144,6 +2312,14 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 8 1 1 1 6 8 1 3",
+      "5 2 7 1 1 1 7",
+      "8 8 1 2 1",
+      "1 0 8 9 7 8 3 0 6",
+      "7 6 2 1 1 4 1 1 5 1 2 3"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "21880/1",
       "5/1"
@@ -2177,6 +2353,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5205, 6220, 7095, 8455"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1108
@@ -2208,6 +2388,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 7 2 10 6 9 8 1 0 6 1 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1485
@@ -2239,6 +2423,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 771
@@ -2270,6 +2456,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 1 5 1 4 10 11 4 2 2 2 9 0 1 4 0",
+      "3 1 6 1 10 13 5 4 9 5 5 4 2"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "12540/10000"
     ],
@@ -2301,6 +2492,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 434
@@ -2332,6 +2525,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 9 1 0 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "1/1",
       "1/1000",
@@ -2369,6 +2566,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 320
@@ -2397,6 +2596,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 961
@@ -2425,6 +2626,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 974
@@ -2453,6 +2656,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 566
@@ -2490,6 +2695,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1217
@@ -2516,6 +2723,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 392
@@ -2542,6 +2751,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "18,225 18,104",
+      "19,043 19,265",
+      "20,863 19,974"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 201
@@ -2572,6 +2787,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 943
@@ -2601,6 +2818,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 225
@@ -2630,6 +2849,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 270
@@ -2676,6 +2897,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 433
@@ -2705,6 +2928,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 862
@@ -2733,6 +2958,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 144
@@ -2761,6 +2988,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 883
@@ -2791,6 +3020,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 175
@@ -2819,6 +3050,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 602
@@ -2850,6 +3083,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 872
@@ -2878,6 +3113,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 500
@@ -2906,6 +3143,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 370
@@ -2934,6 +3173,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 261
@@ -2960,6 +3201,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 243
@@ -2987,6 +3230,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 515
@@ -3024,6 +3269,15 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 4 3 1 1 5 6 1 0 4 8 0 0 0",
+      "3 4 7 1,000",
+      "5 4 1 5 6 1 0 0 0 0",
+      "0 1 6 3 12 9 10 5 0 7 2 1 4 6 6 0 5 5",
+      "0 1 6 3 2 7 1 6 0 5",
+      "200, 250, 400, 500"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "5792/1"
     ],
@@ -3057,6 +3311,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 3 6 5 12 9 10 7 2 6 6 1 4 0 5 5 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 607
@@ -3086,6 +3344,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1040
@@ -3117,6 +3377,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1361
@@ -3145,6 +3407,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 331
@@ -3174,6 +3438,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 304
@@ -3202,6 +3468,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 281
@@ -3231,6 +3499,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 189
@@ -3268,6 +3538,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1370
@@ -3295,6 +3567,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 306
@@ -3325,6 +3599,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 781
@@ -3354,6 +3630,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 262
@@ -3384,6 +3662,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 361
@@ -3421,6 +3701,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 209
@@ -3450,6 +3732,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "6/2000"
     ],
@@ -3482,6 +3766,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "20/2",
       "4/10"
@@ -3513,6 +3799,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 162
@@ -3542,6 +3830,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 581
@@ -3571,6 +3861,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 832
@@ -3601,6 +3893,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 625
@@ -3631,6 +3925,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 925
@@ -3667,6 +3963,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1",
+      "10 300 50 2 60 10 360 60 420",
+      "100 50 20 2,000 1,000 4 400 200 2,400 1200 3,600"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1548
@@ -3698,6 +4000,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 709
@@ -3726,6 +4030,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "60 40 5 2700 69"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 535
@@ -3756,6 +4064,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1276
@@ -3814,6 +4124,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "6 2 3 2 7 0 1",
+      "8 4 3 2"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1449
@@ -3846,6 +4161,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5 1 4 1 5 3 8 3 5 8 1 4 5",
+      "3 3 9 0 9"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "13/1"
     ],
@@ -3880,6 +4200,13 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "3 2 7 8 0 5 4 1 8 4",
+      "7 2 1 7 5 7 1",
+      "4 5 0 0 0 0 2 2",
+      "3,740 1 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "1/2",
       "1/682",
@@ -3913,6 +4240,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "4 0 1 2",
+      "5 2 4 3"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "2/38",
       "3/450"
@@ -3942,6 +4274,14 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "2,000 300 360 54",
+      "1,900 3,000",
+      "1,351 20,000",
+      "2 2 6 3 7 8 1 5 2 1 1 1 1 7 1 8 0 1 5",
+      "6 3 8 2 8 8"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 863
@@ -3972,6 +4312,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "17 18 17 23 23 24 17"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1043
@@ -4002,6 +4346,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "5, 9 9 9",
+      "31 2,600 132",
+      "19 12,500 101"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 669
@@ -4029,6 +4379,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "2, 0 0 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1287
@@ -4060,6 +4414,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1,110 1,234",
+      "8 32 66 35 62 11 75 13 14 5"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1324
@@ -4089,6 +4448,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1308
@@ -4130,6 +4491,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1375
@@ -4158,6 +4521,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 187
@@ -4187,6 +4552,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1152
@@ -4216,6 +4583,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 503
@@ -4248,6 +4617,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1365
@@ -4280,6 +4651,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1098
@@ -4322,6 +4695,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1369
@@ -4353,6 +4728,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 2 3 4"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 940
@@ -4383,6 +4762,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 938
@@ -4418,6 +4799,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1112
@@ -4448,6 +4831,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 531
@@ -4474,6 +4859,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 2 3 4 5 6 7 8 9 1 0 1 1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 1 9 2 0 2 1 2 2 2 3 2 4 1 2 3 4 5 6 7 8 9 1 0 1 1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 1 9 2 0 2 1 2 2 2 3 2 4 1 2 3 4 5 6 7 8 9 1 0 1 1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 1 9 2 0 2 1 2 2 2 3 2 4"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 624
@@ -4503,6 +4892,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 897
@@ -4531,6 +4922,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1077
@@ -4559,6 +4952,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 313
@@ -4603,6 +4998,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 744
@@ -4649,6 +5046,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 617
@@ -4677,6 +5076,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 346
@@ -4705,6 +5106,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 144
@@ -4749,6 +5152,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 595
@@ -4789,6 +5194,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 814
@@ -4833,6 +5240,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1050
@@ -4861,6 +5270,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 347
@@ -4887,6 +5298,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 147
@@ -4926,6 +5339,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 374
@@ -4956,6 +5371,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 482
@@ -5007,6 +5424,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 765
@@ -5053,6 +5472,13 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "2 1 5 1 7 0 5 0 0",
+      "0 5 7 7 0 5 5 0 0 0 1 14 10 750",
+      "0 7 5 0 2 1 5 1 7 0 5 0 0",
+      "1 14 0 10"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1450
@@ -5082,6 +5508,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 399
@@ -5110,6 +5538,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 528
@@ -5139,6 +5569,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 499
@@ -5190,6 +5622,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 223
@@ -5219,6 +5653,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 639
@@ -5248,6 +5684,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 339
@@ -5274,6 +5712,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 384
@@ -5314,6 +5754,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "25,000 25,000"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1115
@@ -5340,6 +5784,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 225
@@ -5368,6 +5814,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 181
@@ -5394,6 +5842,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 355
@@ -5461,6 +5911,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "2 5 8 3 0 0 0 0 0 0 2 5 1",
+      "5 5 8 0 0 3 0 0 0 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "500/1"
     ],
@@ -5495,6 +5950,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "9 0 3 7 0 0 0 0 0 0 5"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 846
@@ -5524,6 +5983,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1185
@@ -5574,6 +6035,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 703
@@ -5604,6 +6067,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "56 2 36 40"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "24/60",
       "48/56",
@@ -5646,6 +6113,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1232
@@ -5676,6 +6145,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 350
@@ -5705,6 +6176,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 175
@@ -5741,6 +6214,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1351
@@ -5767,6 +6242,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 185
@@ -5795,6 +6272,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 685
@@ -5821,6 +6300,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 186
@@ -5850,6 +6331,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "00 9 7 6"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1388
@@ -5880,6 +6365,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 692
@@ -5909,6 +6396,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 684
@@ -5943,6 +6432,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 338
@@ -5973,6 +6464,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1099
@@ -6011,6 +6504,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "7 4 5 5 7 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1440
@@ -6043,6 +6540,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "00 3 4 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "140/00",
       "1890/140"
@@ -6093,6 +6594,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1456
@@ -6124,6 +6627,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "100 100 100 10 10 1 1 1 1 6"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1184
@@ -6155,6 +6662,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 1 7 2"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "05/5"
     ],
@@ -6192,6 +6703,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "6, 4 8 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 411
@@ -6239,6 +6754,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1437
@@ -6269,6 +6786,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1345
@@ -6296,6 +6815,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 211
@@ -6326,6 +6847,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1029
@@ -6366,6 +6889,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 352
@@ -6402,6 +6927,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1449
@@ -6430,6 +6957,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4"
@@ -6459,6 +6988,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 139
@@ -6493,6 +7024,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4",
@@ -6538,6 +7071,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4",
@@ -6571,6 +7106,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4"
@@ -6604,6 +7141,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2",
       "1/4"
@@ -6635,6 +7174,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 153
@@ -6663,6 +7204,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 783
@@ -6689,6 +7232,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 131
@@ -6715,6 +7260,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/4"
     ],
@@ -6743,6 +7290,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 173
@@ -6773,6 +7322,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 540
@@ -6810,6 +7361,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1340
@@ -6840,6 +7393,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 306
@@ -6869,6 +7424,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 310
@@ -6925,6 +7482,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1405
@@ -6960,6 +7519,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1431
@@ -6995,6 +7556,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 858
@@ -7053,6 +7616,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1440
@@ -7085,6 +7650,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 355
@@ -7115,6 +7682,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "12 1 1 1 1 1 1 1 1 1 1 1 1 2",
+      "24 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 3",
+      "1 1 1 1 1 1 1 1 1 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 652
@@ -7145,6 +7718,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 512
@@ -7179,6 +7754,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1212 1 2 3 01"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 186
@@ -7207,6 +7786,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 361
@@ -7252,6 +7833,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 2 3 01"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 123
@@ -7280,6 +7865,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 278
@@ -7321,6 +7908,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 784
@@ -7362,6 +7951,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 901
@@ -7433,6 +8024,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 2 3 4"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 578
@@ -7461,6 +8056,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 216
@@ -7522,6 +8119,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1456
@@ -7552,6 +8151,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1212
@@ -7588,6 +8189,11 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1, 2, 3, 4, 6",
+      "1, 2, 3, 4, 6"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1337
@@ -7617,6 +8223,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 275
@@ -7647,6 +8255,12 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 3 4 6 8 9 12",
+      "0 3 6 9 12 3",
+      "4, 8, 12 , 16"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1112
@@ -7691,6 +8305,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1448
@@ -7724,6 +8342,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "0 10 16 27 36 48 4"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1419
@@ -7757,6 +8379,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 1417
@@ -7787,6 +8411,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "90 45 84 22 66 56 38 78 25 30 62 95 75 40 55"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": true,
     "chars": 342
@@ -7853,6 +8481,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1350
@@ -7881,6 +8511,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 326
@@ -7909,6 +8541,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 157
@@ -7943,6 +8577,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 659
@@ -7971,6 +8607,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 266
@@ -8010,6 +8648,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 596
@@ -8038,6 +8678,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 425
@@ -8066,6 +8708,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 525
@@ -8092,6 +8736,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 273
@@ -8120,6 +8766,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1034
@@ -8149,6 +8797,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 871
@@ -8183,6 +8833,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "1 2 3 4 5 6 7 8 9 10 11 12 1 2 3 4 5 6 7 8 9 10 11 12"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1383
@@ -8228,6 +8882,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 264
@@ -8279,6 +8935,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [
       "1/2"
     ],
@@ -8348,6 +9006,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 1425
@@ -8379,6 +9039,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 515
@@ -8435,6 +9097,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "8 7 6 5 4 1 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [
       "10/9"
     ],
@@ -8477,6 +9143,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "9 8 7 6 5 4 3 2 1 0"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 505
@@ -8506,6 +9176,10 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [
+      "10 9 8 7 6 5 4 3 2 1"
+    ],
+    "has_chart_axis": true,
     "fractions": [],
     "figure_dependent": false,
     "chars": 313
@@ -8532,6 +9206,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 201
@@ -8562,6 +9238,8 @@
     "needs_review": false,
     "review_pages": [],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": false,
     "chars": 825
@@ -8634,6 +9312,8 @@
       189
     ],
     "unrepaired_conjuncts": 0,
+    "chart_axis_runs": [],
+    "has_chart_axis": false,
     "fractions": [],
     "figure_dependent": true,
     "chars": 744

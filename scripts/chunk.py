@@ -107,6 +107,21 @@ def strip_page_numbers(text: str, pages: list[int]) -> str:
     return re.sub(r"\s{2,}", " ", text).strip()
 
 
+# A run of four or more bare numbers with no words between them is a chart axis
+# or a table header row, not prose. They arrive because the text layer contains
+# every tick label ("8 7 6 5 4 1 0 ... 10 9" on p183).
+#
+# This matters twice over. They are noise in the chunk text, and they defeat the
+# numeric-answerability check: a question asking for a value off a bar chart
+# retrieves a chunk that LOOKS numeric while the actual data — the bar heights —
+# exists only in the figure.
+AXIS_RUN = re.compile(r"(?:(?<![\w/])\d{1,4}(?![\w/])[\s,]+){3,}(?<![\w/])\d{1,4}(?![\w/])")
+
+
+def find_axis_runs(text: str) -> list[str]:
+    return [m.group().strip() for m in AXIS_RUN.finditer(text)]
+
+
 def split_long(lines: list[str]) -> list[list[str]]:
     parts, buf, size = [], [], 0
     for line in lines:
@@ -177,6 +192,8 @@ def main() -> int:
                         "needs_review": bool(review),
                         "review_pages": review,
                         "unrepaired_conjuncts": unrepaired,
+                        "chart_axis_runs": find_axis_runs(body),
+                        "has_chart_axis": bool(find_axis_runs(body)),
                         "fractions": sorted({
                             w for w in body.split() if "/" in w and any(c.isdigit() for c in w)
                         }),
@@ -197,6 +214,7 @@ def main() -> int:
     print(f"figure_dependent: {sum(c['figure_dependent'] for c in chunks)}")
     print(f"with unrepaired conjuncts: {sum(c['unrepaired_conjuncts'] > 0 for c in chunks)}")
     print(f"with inline fractions: {sum(bool(c['fractions']) for c in chunks)}")
+    print(f"with chart/table axis runs: {sum(c['has_chart_axis'] for c in chunks)}")
     print("\ntop concept tags:")
     for tag, n in Counter(c["concept_tag"] for c in chunks).most_common(14):
         print(f"   {n:>3}  {tag}")
