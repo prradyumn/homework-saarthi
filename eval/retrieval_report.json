@@ -1,0 +1,1453 @@
+{
+  "model": "BAAI/bge-m3",
+  "top_k": 5,
+  "chunks": 248,
+  "questions": 30,
+  "chapter_hit_at_1": 0.9,
+  "chapter_hit_at_k": 0.9666666666666667,
+  "page_within_2": 0.9333333333333333,
+  "query_embed_seconds": 0.039,
+  "peak_rss_mb": 3318,
+  "results": [
+    {
+      "id": "gs-001",
+      "question_hi": "मेरे बच्चे को दस हजार से बड़ी संख्या लिखना नहीं आ रहा, ये कैसे सिखाऊँ?",
+      "expected_chapter": 1,
+      "expected_page": 2,
+      "expected_tag": "numbers.large_numbers",
+      "top1_chapter": 1,
+      "top1_page": 1,
+      "top1_tag": "numbers.large_numbers",
+      "top1_header": "",
+      "top1_score": 0.5964,
+      "margin_top1_top5": 0.0415,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 1,
+          "page": 1,
+          "header": "",
+          "score": 0.5964
+        },
+        {
+          "chapter": 1,
+          "page": 8,
+          "header": "आइए विचार करें",
+          "score": 0.5769
+        },
+        {
+          "chapter": 6,
+          "page": 73,
+          "header": "प्रश्न हजार सैकड़ा दहाई इकाई",
+          "score": 0.574
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.5701
+        },
+        {
+          "chapter": 4,
+          "page": 51,
+          "header": "त्वरित योग और अंतर",
+          "score": 0.5549
+        }
+      ]
+    },
+    {
+      "id": "gs-002",
+      "question_hi": "निकटतम सैकड़ा तक संख्या कैसे बताते हैं?",
+      "expected_chapter": 1,
+      "expected_page": 7,
+      "expected_tag": "numbers.large_numbers",
+      "top1_chapter": 1,
+      "top1_page": 8,
+      "top1_tag": "numbers.large_numbers",
+      "top1_header": "आइए विचार करें",
+      "top1_score": 0.6203,
+      "margin_top1_top5": 0.082,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 1,
+          "page": 8,
+          "header": "आइए विचार करें",
+          "score": 0.6203
+        },
+        {
+          "chapter": 1,
+          "page": 7,
+          "header": "निकटतम दहाई (10), सैकड़ा (100) और हजार (1,000)",
+          "score": 0.6172
+        },
+        {
+          "chapter": 6,
+          "page": 76,
+          "header": "निकटतम गुणज",
+          "score": 0.5567
+        },
+        {
+          "chapter": 1,
+          "page": 1,
+          "header": "",
+          "score": 0.5468
+        },
+        {
+          "chapter": 1,
+          "page": 10,
+          "header": "अपने आस-पास बड़ी संख्याओं की खोज",
+          "score": 0.5383
+        }
+      ]
+    },
+    {
+      "id": "gs-003",
+      "question_hi": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "expected_chapter": 2,
+      "expected_page": 18,
+      "expected_tag": "fractions.equivalent",
+      "top1_chapter": 2,
+      "top1_page": 18,
+      "top1_tag": "fractions.manipulatives",
+      "top1_header": "भिन्न किट के साथ मनोरंजन",
+      "top1_score": 0.7505,
+      "margin_top1_top5": 0.0759,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 2,
+          "page": 18,
+          "header": "भिन्न किट के साथ मनोरंजन",
+          "score": 0.7505
+        },
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.7201
+        },
+        {
+          "chapter": 2,
+          "page": 22,
+          "header": "भिन्नों की तुलना – समान हर",
+          "score": 0.6931
+        },
+        {
+          "chapter": 2,
+          "page": 19,
+          "header": "आइए करके देखें",
+          "score": 0.6842
+        },
+        {
+          "chapter": 2,
+          "page": 31,
+          "header": "प्रयास करें",
+          "score": 0.6745
+        }
+      ]
+    },
+    {
+      "id": "gs-004",
+      "question_hi": "समान हर वाली भिन्नों में कौन सी बड़ी है, ये कैसे पता करें?",
+      "expected_chapter": 2,
+      "expected_page": 22,
+      "expected_tag": "fractions",
+      "top1_chapter": 2,
+      "top1_page": 23,
+      "top1_tag": "fractions",
+      "top1_header": "आइए करके देखें",
+      "top1_score": 0.6022,
+      "margin_top1_top5": 0.0202,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 2,
+          "page": 23,
+          "header": "आइए करके देखें",
+          "score": 0.6022
+        },
+        {
+          "chapter": 2,
+          "page": 31,
+          "header": "प्रयास करें",
+          "score": 0.5883
+        },
+        {
+          "chapter": 2,
+          "page": 17,
+          "header": "जाल के साथ खेलना",
+          "score": 0.5871
+        },
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.5844
+        },
+        {
+          "chapter": 2,
+          "page": 23,
+          "header": "आइए करके देखें",
+          "score": 0.5819
+        }
+      ]
+    },
+    {
+      "id": "gs-005",
+      "question_hi": "1 से बड़ी भिन्न का मतलब क्या होता है?",
+      "expected_chapter": 2,
+      "expected_page": 24,
+      "expected_tag": "fractions",
+      "top1_chapter": 2,
+      "top1_page": 17,
+      "top1_tag": "fractions",
+      "top1_header": "जाल के साथ खेलना",
+      "top1_score": 0.5959,
+      "margin_top1_top5": 0.0323,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 2,
+          "page": 17,
+          "header": "जाल के साथ खेलना",
+          "score": 0.5959
+        },
+        {
+          "chapter": 2,
+          "page": 18,
+          "header": "भिन्न किट के साथ मनोरंजन",
+          "score": 0.5773
+        },
+        {
+          "chapter": 2,
+          "page": 29,
+          "header": "आइए करके देखें",
+          "score": 0.5711
+        },
+        {
+          "chapter": 2,
+          "page": 31,
+          "header": "प्रयास करें",
+          "score": 0.5673
+        },
+        {
+          "chapter": 2,
+          "page": 24,
+          "header": "1 से बड़ी भिन्नें",
+          "score": 0.5636
+        }
+      ]
+    },
+    {
+      "id": "gs-006",
+      "question_hi": "1/2 का एक भाग और 1/4 के दो भाग मिलाकर क्या बनता है?",
+      "expected_chapter": 2,
+      "expected_page": 18,
+      "expected_tag": "fractions.manipulatives",
+      "top1_chapter": 2,
+      "top1_page": 18,
+      "top1_tag": "fractions.manipulatives",
+      "top1_header": "भिन्न किट के साथ मनोरंजन",
+      "top1_score": 0.6446,
+      "margin_top1_top5": 0.0644,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 2,
+          "page": 18,
+          "header": "भिन्न किट के साथ मनोरंजन",
+          "score": 0.6446
+        },
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.5962
+        },
+        {
+          "chapter": 2,
+          "page": 24,
+          "header": "1 से बड़ी भिन्नें",
+          "score": 0.5842
+        },
+        {
+          "chapter": 2,
+          "page": 17,
+          "header": "जाल के साथ खेलना",
+          "score": 0.5803
+        },
+        {
+          "chapter": 2,
+          "page": 30,
+          "header": "आइए करके देखें",
+          "score": 0.5801
+        }
+      ]
+    },
+    {
+      "id": "gs-007",
+      "question_hi": "समकोण क्या होता है? बेटी पूछ रही है",
+      "expected_chapter": 3,
+      "expected_page": 35,
+      "expected_tag": "geometry.angles",
+      "top1_chapter": 3,
+      "top1_page": 32,
+      "top1_tag": "geometry.angles",
+      "top1_header": "",
+      "top1_score": 0.559,
+      "margin_top1_top5": 0.0228,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 3,
+          "page": 32,
+          "header": "",
+          "score": 0.559
+        },
+        {
+          "chapter": 3,
+          "page": 34,
+          "header": "आइए करके देखें",
+          "score": 0.5472
+        },
+        {
+          "chapter": 3,
+          "page": 35,
+          "header": "यह एक-चौथाई (1 4) घुमाव अथवा समकोण को दर्शाता है।",
+          "score": 0.5451
+        },
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.5421
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5362
+        }
+      ]
+    },
+    {
+      "id": "gs-008",
+      "question_hi": "कोण नापने के लिए कौन सा उपकरण इस्तेमाल करते हैं?",
+      "expected_chapter": 3,
+      "expected_page": 36,
+      "expected_tag": "geometry.angles",
+      "top1_chapter": 3,
+      "top1_page": 36,
+      "top1_tag": "geometry.angles",
+      "top1_header": "कोण मापने के उपकरण",
+      "top1_score": 0.6683,
+      "margin_top1_top5": 0.1563,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 3,
+          "page": 36,
+          "header": "कोण मापने के उपकरण",
+          "score": 0.6683
+        },
+        {
+          "chapter": 3,
+          "page": 37,
+          "header": "आइए विचार करें",
+          "score": 0.5897
+        },
+        {
+          "chapter": 3,
+          "page": 38,
+          "header": "आइए करके देखें",
+          "score": 0.563
+        },
+        {
+          "chapter": 3,
+          "page": 34,
+          "header": "आइए करके देखें",
+          "score": 0.5265
+        },
+        {
+          "chapter": 3,
+          "page": 35,
+          "header": "यह एक-चौथाई (1 4) घुमाव अथवा समकोण को दर्शाता है।",
+          "score": 0.512
+        }
+      ]
+    },
+    {
+      "id": "gs-009",
+      "question_hi": "बड़ी संख्याओं का घटाना कैसे सिखाऊँ?",
+      "expected_chapter": 4,
+      "expected_page": 49,
+      "expected_tag": "arithmetic.subtraction",
+      "top1_chapter": 9,
+      "top1_page": 128,
+      "top1_tag": "numbers.place_value",
+      "top1_header": "स्थानीय मान का उपयोग करके विभाजन",
+      "top1_score": 0.5966,
+      "margin_top1_top5": 0.0284,
+      "chapter_hit_top1": false,
+      "chapter_hit_topk": false,
+      "page_within_2": false,
+      "topk": [
+        {
+          "chapter": 9,
+          "page": 128,
+          "header": "स्थानीय मान का उपयोग करके विभाजन",
+          "score": 0.5966
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.5812
+        },
+        {
+          "chapter": 9,
+          "page": 128,
+          "header": "स्थानीय मान का उपयोग करके विभाजन",
+          "score": 0.5805
+        },
+        {
+          "chapter": 9,
+          "page": 120,
+          "header": "आइए करके देखें",
+          "score": 0.5721
+        },
+        {
+          "chapter": 1,
+          "page": 11,
+          "header": "मनोरंजक गणित",
+          "score": 0.5682
+        }
+      ]
+    },
+    {
+      "id": "gs-010",
+      "question_hi": "क्रमागत संख्याओं का योग निकालने का कोई आसान तरीका है?",
+      "expected_chapter": 4,
+      "expected_page": 45,
+      "expected_tag": "arithmetic.addition",
+      "top1_chapter": 4,
+      "top1_page": 45,
+      "top1_tag": "arithmetic.addition",
+      "top1_header": "क्रमागत संख्याओं का योगफल",
+      "top1_score": 0.6703,
+      "margin_top1_top5": 0.1362,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 4,
+          "page": 45,
+          "header": "क्रमागत संख्याओं का योगफल",
+          "score": 0.6703
+        },
+        {
+          "chapter": 4,
+          "page": 45,
+          "header": "क्रमागत संख्याओं का योगफल",
+          "score": 0.6469
+        },
+        {
+          "chapter": 4,
+          "page": 43,
+          "header": "र्इंधन का अंकगणित",
+          "score": 0.5918
+        },
+        {
+          "chapter": 4,
+          "page": 51,
+          "header": "त्वरित योग और अंतर",
+          "score": 0.557
+        },
+        {
+          "chapter": 4,
+          "page": 46,
+          "header": "सबसे लंबा भू-मार्ग — बड़ी संख्याओं का याेग",
+          "score": 0.5341
+        }
+      ]
+    },
+    {
+      "id": "gs-011",
+      "question_hi": "सम और विषम संख्या में क्या फर्क है?",
+      "expected_chapter": 4,
+      "expected_page": 54,
+      "expected_tag": "arithmetic.addition",
+      "top1_chapter": 4,
+      "top1_page": 54,
+      "top1_tag": "measurement.weight",
+      "top1_header": "आइए विचार करें",
+      "top1_score": 0.5994,
+      "margin_top1_top5": 0.0628,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 4,
+          "page": 54,
+          "header": "आइए विचार करें",
+          "score": 0.5994
+        },
+        {
+          "chapter": 4,
+          "page": 45,
+          "header": "क्रमागत संख्याओं का योगफल",
+          "score": 0.5718
+        },
+        {
+          "chapter": 2,
+          "page": 18,
+          "header": "भिन्न किट के साथ मनोरंजन",
+          "score": 0.5411
+        },
+        {
+          "chapter": 13,
+          "page": 166,
+          "header": "आइए करके देखें",
+          "score": 0.5391
+        },
+        {
+          "chapter": 9,
+          "page": 135,
+          "header": "गणितीय कथन",
+          "score": 0.5366
+        }
+      ]
+    },
+    {
+      "id": "gs-012",
+      "question_hi": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "expected_chapter": 5,
+      "expected_page": 57,
+      "expected_tag": "measurement.length",
+      "top1_chapter": 5,
+      "top1_page": 59,
+      "top1_tag": "measurement.length",
+      "top1_header": "आइए पता लगाएँ",
+      "top1_score": 0.6639,
+      "margin_top1_top5": 0.1073,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 5,
+          "page": 59,
+          "header": "आइए पता लगाएँ",
+          "score": 0.6639
+        },
+        {
+          "chapter": 5,
+          "page": 57,
+          "header": "विभिन्न इकाइयाँ परंतु एक ही माप",
+          "score": 0.5732
+        },
+        {
+          "chapter": 1,
+          "page": 10,
+          "header": "अपने आस-पास बड़ी संख्याओं की खोज",
+          "score": 0.5612
+        },
+        {
+          "chapter": 5,
+          "page": 61,
+          "header": "आइए पता लगाएँ",
+          "score": 0.561
+        },
+        {
+          "chapter": 5,
+          "page": 68,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5566
+        }
+      ]
+    },
+    {
+      "id": "gs-013",
+      "question_hi": "लंबाई का गुणा और भाग कैसे करते हैं?",
+      "expected_chapter": 5,
+      "expected_page": 66,
+      "expected_tag": "arithmetic.multiplication",
+      "top1_chapter": 5,
+      "top1_page": 66,
+      "top1_tag": "arithmetic.multiplication",
+      "top1_header": "लंबाइयों का गुणा और भाग",
+      "top1_score": 0.657,
+      "margin_top1_top5": 0.0708,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 5,
+          "page": 66,
+          "header": "लंबाइयों का गुणा और भाग",
+          "score": 0.657
+        },
+        {
+          "chapter": 8,
+          "page": 112,
+          "header": "भार पर और अधिक संक्रियाएँ",
+          "score": 0.6187
+        },
+        {
+          "chapter": 5,
+          "page": 64,
+          "header": "लंबाइयों का योग और व्यवकलन",
+          "score": 0.5999
+        },
+        {
+          "chapter": 5,
+          "page": 64,
+          "header": "लंबाइयों का योग और व्यवकलन",
+          "score": 0.5901
+        },
+        {
+          "chapter": 5,
+          "page": 57,
+          "header": "विभिन्न इकाइयाँ परंतु एक ही माप",
+          "score": 0.5862
+        }
+      ]
+    },
+    {
+      "id": "gs-014",
+      "question_hi": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "expected_chapter": 6,
+      "expected_page": 72,
+      "expected_tag": "arithmetic.multiplication",
+      "top1_chapter": 6,
+      "top1_page": 72,
+      "top1_tag": "arithmetic.multiplication",
+      "top1_header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+      "top1_score": 0.6726,
+      "margin_top1_top5": 0.0982,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.6726
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.6665
+        },
+        {
+          "chapter": 1,
+          "page": 1,
+          "header": "",
+          "score": 0.6172
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.5915
+        },
+        {
+          "chapter": 6,
+          "page": 73,
+          "header": "प्रश्न हजार सैकड़ा दहाई इकाई",
+          "score": 0.5744
+        }
+      ]
+    },
+    {
+      "id": "gs-015",
+      "question_hi": "गुणा करने के और कौन कौन से तरीके हैं?",
+      "expected_chapter": 6,
+      "expected_page": 74,
+      "expected_tag": "arithmetic.multiplication",
+      "top1_chapter": 8,
+      "top1_page": 112,
+      "top1_tag": "measurement.weight",
+      "top1_header": "भार पर और अधिक संक्रियाएँ",
+      "top1_score": 0.6141,
+      "margin_top1_top5": 0.0198,
+      "chapter_hit_top1": false,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 8,
+          "page": 112,
+          "header": "भार पर और अधिक संक्रियाएँ",
+          "score": 0.6141
+        },
+        {
+          "chapter": 6,
+          "page": 74,
+          "header": "गुणा करने की अनेक विधियाँ",
+          "score": 0.6104
+        },
+        {
+          "chapter": 6,
+          "page": 75,
+          "header": "दोगुना करना और आधा करना",
+          "score": 0.5993
+        },
+        {
+          "chapter": 6,
+          "page": 76,
+          "header": "निकटतम गुणज",
+          "score": 0.5969
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.5944
+        }
+      ]
+    },
+    {
+      "id": "gs-016",
+      "question_hi": "दोगुना करना और आधा करना गुणा में कैसे काम आता है?",
+      "expected_chapter": 6,
+      "expected_page": 75,
+      "expected_tag": "arithmetic.multiplication",
+      "top1_chapter": 6,
+      "top1_page": 75,
+      "top1_tag": "arithmetic.multiplication",
+      "top1_header": "दोगुना करना और आधा करना",
+      "top1_score": 0.6408,
+      "margin_top1_top5": 0.059,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 6,
+          "page": 75,
+          "header": "दोगुना करना और आधा करना",
+          "score": 0.6408
+        },
+        {
+          "chapter": 6,
+          "page": 74,
+          "header": "गुणा करने की अनेक विधियाँ",
+          "score": 0.5919
+        },
+        {
+          "chapter": 9,
+          "page": 120,
+          "header": "आइए करके देखें",
+          "score": 0.5839
+        },
+        {
+          "chapter": 9,
+          "page": 123,
+          "header": "विभाजन के लिए बौद्धिक विधियाँ",
+          "score": 0.583
+        },
+        {
+          "chapter": 8,
+          "page": 112,
+          "header": "भार पर और अधिक संक्रियाएँ",
+          "score": 0.5818
+        }
+      ]
+    },
+    {
+      "id": "gs-017",
+      "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "expected_chapter": 7,
+      "expected_page": 94,
+      "expected_tag": "geometry.tiling_patterns",
+      "top1_chapter": 7,
+      "top1_page": 94,
+      "top1_tag": "geometry.polygons",
+      "top1_header": "आइए पता लगाएँ",
+      "top1_score": 0.636,
+      "margin_top1_top5": 0.174,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.636
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5224
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.4967
+        },
+        {
+          "chapter": 7,
+          "page": 99,
+          "header": "टैनग्राम (आकृति पहेली)",
+          "score": 0.4717
+        },
+        {
+          "chapter": 11,
+          "page": 154,
+          "header": "आइए खेलें",
+          "score": 0.462
+        }
+      ]
+    },
+    {
+      "id": "gs-018",
+      "question_hi": "सम त्रिभुज एक बिंदु के चारों ओर कैसे जमते हैं?",
+      "expected_chapter": 7,
+      "expected_page": 94,
+      "expected_tag": "geometry.polygons",
+      "top1_chapter": 7,
+      "top1_page": 94,
+      "top1_tag": "geometry.polygons",
+      "top1_header": "आइए पता लगाएँ",
+      "top1_score": 0.5924,
+      "margin_top1_top5": 0.0756,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5924
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5541
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5229
+        },
+        {
+          "chapter": 7,
+          "page": 97,
+          "header": "प्रयत्न कीजिए",
+          "score": 0.5223
+        },
+        {
+          "chapter": 3,
+          "page": 34,
+          "header": "आइए करके देखें",
+          "score": 0.5168
+        }
+      ]
+    },
+    {
+      "id": "gs-019",
+      "question_hi": "टैनग्राम क्या होता है?",
+      "expected_chapter": 7,
+      "expected_page": 99,
+      "expected_tag": "geometry.tiling_patterns",
+      "top1_chapter": 7,
+      "top1_page": 99,
+      "top1_tag": "geometry.tiling_patterns",
+      "top1_header": "टैनग्राम (आकृति पहेली)",
+      "top1_score": 0.4959,
+      "margin_top1_top5": 0.1076,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 7,
+          "page": 99,
+          "header": "टैनग्राम (आकृति पहेली)",
+          "score": 0.4959
+        },
+        {
+          "chapter": 8,
+          "page": 113,
+          "header": "विशाल से लघु, लघु से विशाल",
+          "score": 0.4268
+        },
+        {
+          "chapter": 4,
+          "page": 49,
+          "header": "बड़ी संख्याओं का व्यवकलन",
+          "score": 0.4125
+        },
+        {
+          "chapter": 4,
+          "page": 46,
+          "header": "सबसे लंबा भू-मार्ग — बड़ी संख्याओं का याेग",
+          "score": 0.3942
+        },
+        {
+          "chapter": 8,
+          "page": 112,
+          "header": "भार पर और अधिक संक्रियाएँ",
+          "score": 0.3883
+        }
+      ]
+    },
+    {
+      "id": "gs-020",
+      "question_hi": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "expected_chapter": 8,
+      "expected_page": 110,
+      "expected_tag": "measurement.weight",
+      "top1_chapter": 8,
+      "top1_page": 105,
+      "top1_tag": "measurement.units",
+      "top1_header": "विभिन्न इकाइयाँ परंतु एक ही माप",
+      "top1_score": 0.6325,
+      "margin_top1_top5": 0.0278,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 8,
+          "page": 105,
+          "header": "विभिन्न इकाइयाँ परंतु एक ही माप",
+          "score": 0.6325
+        },
+        {
+          "chapter": 8,
+          "page": 111,
+          "header": "आइए करके देखें",
+          "score": 0.6306
+        },
+        {
+          "chapter": 8,
+          "page": 108,
+          "header": "आइए पता लगाएँ",
+          "score": 0.6264
+        },
+        {
+          "chapter": 8,
+          "page": 112,
+          "header": "भार पर और अधिक संक्रियाएँ",
+          "score": 0.606
+        },
+        {
+          "chapter": 8,
+          "page": 104,
+          "header": "आइए करके देखें",
+          "score": 0.6047
+        }
+      ]
+    },
+    {
+      "id": "gs-021",
+      "question_hi": "धारिता या क्षमता कैसे मापते हैं?",
+      "expected_chapter": 8,
+      "expected_page": 113,
+      "expected_tag": "measurement.capacity",
+      "top1_chapter": 8,
+      "top1_page": 113,
+      "top1_tag": "measurement.weight",
+      "top1_header": "विशाल से लघु, लघु से विशाल",
+      "top1_score": 0.6371,
+      "margin_top1_top5": 0.0422,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 8,
+          "page": 113,
+          "header": "विशाल से लघु, लघु से विशाल",
+          "score": 0.6371
+        },
+        {
+          "chapter": 8,
+          "page": 104,
+          "header": "आइए करके देखें",
+          "score": 0.6083
+        },
+        {
+          "chapter": 8,
+          "page": 114,
+          "header": "विभिन्न इकाइयाँ परंतु समान माप",
+          "score": 0.6031
+        },
+        {
+          "chapter": 8,
+          "page": 105,
+          "header": "विभिन्न इकाइयाँ परंतु एक ही माप",
+          "score": 0.5981
+        },
+        {
+          "chapter": 8,
+          "page": 118,
+          "header": "आइए हल करें",
+          "score": 0.5948
+        }
+      ]
+    },
+    {
+      "id": "gs-022",
+      "question_hi": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "expected_chapter": 9,
+      "expected_page": 125,
+      "expected_tag": "arithmetic.division",
+      "top1_chapter": 9,
+      "top1_page": 125,
+      "top1_tag": "arithmetic.division",
+      "top1_header": "भाज्य = भाजक × भागफल + शेषफल",
+      "top1_score": 0.6001,
+      "margin_top1_top5": 0.0702,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 9,
+          "page": 125,
+          "header": "भाज्य = भाजक × भागफल + शेषफल",
+          "score": 0.6001
+        },
+        {
+          "chapter": 9,
+          "page": 134,
+          "header": "आइए हल करें",
+          "score": 0.5709
+        },
+        {
+          "chapter": 9,
+          "page": 123,
+          "header": "विभाजन के लिए बौद्धिक विधियाँ",
+          "score": 0.5486
+        },
+        {
+          "chapter": 9,
+          "page": 120,
+          "header": "आइए करके देखें",
+          "score": 0.5373
+        },
+        {
+          "chapter": 9,
+          "page": 128,
+          "header": "स्थानीय मान का उपयोग करके विभाजन",
+          "score": 0.53
+        }
+      ]
+    },
+    {
+      "id": "gs-023",
+      "question_hi": "स्थानीय मान का उपयोग करके भाग कैसे देते हैं?",
+      "expected_chapter": 9,
+      "expected_page": 128,
+      "expected_tag": "numbers.place_value",
+      "top1_chapter": 9,
+      "top1_page": 128,
+      "top1_tag": "numbers.place_value",
+      "top1_header": "स्थानीय मान का उपयोग करके विभाजन",
+      "top1_score": 0.6837,
+      "margin_top1_top5": 0.1195,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 9,
+          "page": 128,
+          "header": "स्थानीय मान का उपयोग करके विभाजन",
+          "score": 0.6837
+        },
+        {
+          "chapter": 9,
+          "page": 128,
+          "header": "स्थानीय मान का उपयोग करके विभाजन",
+          "score": 0.6535
+        },
+        {
+          "chapter": 9,
+          "page": 121,
+          "header": "समस्या सैकड़ा दहाई इकाई",
+          "score": 0.6489
+        },
+        {
+          "chapter": 4,
+          "page": 45,
+          "header": "क्रमागत संख्याओं का योगफल",
+          "score": 0.5998
+        },
+        {
+          "chapter": 6,
+          "page": 72,
+          "header": "10 और 100 से गुणन में प्रतिरूप (पैटर्न)",
+          "score": 0.5642
+        }
+      ]
+    },
+    {
+      "id": "gs-024",
+      "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
+      "expected_chapter": 10,
+      "expected_page": 136,
+      "expected_tag": "geometry.symmetry",
+      "top1_chapter": 2,
+      "top1_page": 20,
+      "top1_tag": "fractions.equivalent",
+      "top1_header": "तुल्य भिन्न बना",
+      "top1_score": 0.6111,
+      "margin_top1_top5": 0.0541,
+      "chapter_hit_top1": false,
+      "chapter_hit_topk": true,
+      "page_within_2": false,
+      "topk": [
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.6111
+        },
+        {
+          "chapter": 10,
+          "page": 139,
+          "header": "आइए करके देखें",
+          "score": 0.5944
+        },
+        {
+          "chapter": 2,
+          "page": 18,
+          "header": "भिन्न किट के साथ मनोरंजन",
+          "score": 0.5872
+        },
+        {
+          "chapter": 7,
+          "page": 94,
+          "header": "आइए पता लगाएँ",
+          "score": 0.5768
+        },
+        {
+          "chapter": 10,
+          "page": 141,
+          "header": "आइए करके देखें",
+          "score": 0.557
+        }
+      ]
+    },
+    {
+      "id": "gs-025",
+      "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
+      "expected_chapter": 11,
+      "expected_page": 142,
+      "expected_tag": "geometry.tiling_patterns",
+      "top1_chapter": 11,
+      "top1_page": 142,
+      "top1_tag": "geometry.polygons",
+      "top1_header": "आइए करके देखें",
+      "top1_score": 0.5808,
+      "margin_top1_top5": 0.0425,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 11,
+          "page": 142,
+          "header": "आइए करके देखें",
+          "score": 0.5808
+        },
+        {
+          "chapter": 11,
+          "page": 145,
+          "header": "आइए करके देखें",
+          "score": 0.542
+        },
+        {
+          "chapter": 11,
+          "page": 144,
+          "header": "आइए करके देखें",
+          "score": 0.5404
+        },
+        {
+          "chapter": 11,
+          "page": 142,
+          "header": "आइए करके देखें",
+          "score": 0.5397
+        },
+        {
+          "chapter": 11,
+          "page": 145,
+          "header": "आइए करके देखें",
+          "score": 0.5382
+        }
+      ]
+    },
+    {
+      "id": "gs-026",
+      "question_hi": "1 मिनट में कितने सेकंड होते हैं?",
+      "expected_chapter": 12,
+      "expected_page": 157,
+      "expected_tag": "measurement.time",
+      "top1_chapter": 12,
+      "top1_page": 157,
+      "top1_tag": "measurement.time",
+      "top1_header": "आइए करके देखें",
+      "top1_score": 0.6667,
+      "margin_top1_top5": 0.0516,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 12,
+          "page": 157,
+          "header": "आइए करके देखें",
+          "score": 0.6667
+        },
+        {
+          "chapter": 12,
+          "page": 158,
+          "header": "आइए पता लगाएँ",
+          "score": 0.6483
+        },
+        {
+          "chapter": 12,
+          "page": 157,
+          "header": "आइए करके देखें",
+          "score": 0.6401
+        },
+        {
+          "chapter": 12,
+          "page": 161,
+          "header": "आइए करके देखें",
+          "score": 0.6185
+        },
+        {
+          "chapter": 12,
+          "page": 161,
+          "header": "आइए करके देखें",
+          "score": 0.6151
+        }
+      ]
+    },
+    {
+      "id": "gs-027",
+      "question_hi": "घंटों को मिनटों में कैसे बदलें?",
+      "expected_chapter": 12,
+      "expected_page": 161,
+      "expected_tag": "measurement.time",
+      "top1_chapter": 12,
+      "top1_page": 161,
+      "top1_tag": "measurement.time",
+      "top1_header": "आइए करके देखें",
+      "top1_score": 0.6875,
+      "margin_top1_top5": 0.1461,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 12,
+          "page": 161,
+          "header": "आइए करके देखें",
+          "score": 0.6875
+        },
+        {
+          "chapter": 12,
+          "page": 161,
+          "header": "आइए करके देखें",
+          "score": 0.641
+        },
+        {
+          "chapter": 12,
+          "page": 157,
+          "header": "आइए करके देखें",
+          "score": 0.5883
+        },
+        {
+          "chapter": 12,
+          "page": 156,
+          "header": "विद्यालय में दौड़ प्रतियोगिता",
+          "score": 0.5433
+        },
+        {
+          "chapter": 3,
+          "page": 38,
+          "header": "आइए करके देखें",
+          "score": 0.5414
+        }
+      ]
+    },
+    {
+      "id": "gs-028",
+      "question_hi": "मानचित्र में दिशाएँ कैसे देखते हैं?",
+      "expected_chapter": 14,
+      "expected_page": 171,
+      "expected_tag": "geometry.maps_position",
+      "top1_chapter": 14,
+      "top1_page": 171,
+      "top1_tag": "geometry.maps_position",
+      "top1_header": "दिशाएँ ढूँढ़ना …",
+      "top1_score": 0.6512,
+      "margin_top1_top5": 0.0874,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 14,
+          "page": 171,
+          "header": "दिशाएँ ढूँढ़ना …",
+          "score": 0.6512
+        },
+        {
+          "chapter": 14,
+          "page": 173,
+          "header": "चिड़ियाघर की सैर",
+          "score": 0.6173
+        },
+        {
+          "chapter": 14,
+          "page": 174,
+          "header": "दुकान केंद्र मार्ग",
+          "score": 0.5903
+        },
+        {
+          "chapter": 14,
+          "page": 176,
+          "header": "आइए करके देखें",
+          "score": 0.5662
+        },
+        {
+          "chapter": 14,
+          "page": 172,
+          "header": "एक क्ष का मानचित्र",
+          "score": 0.5637
+        }
+      ]
+    },
+    {
+      "id": "gs-029",
+      "question_hi": "दंड आरेख कैसे बनाते हैं? बच्चे को होमवर्क मिला है",
+      "expected_chapter": 15,
+      "expected_page": 183,
+      "expected_tag": "data.bar_graph",
+      "top1_chapter": 15,
+      "top1_page": 183,
+      "top1_tag": "measurement.time",
+      "top1_header": "मेरी दिनचर्या",
+      "top1_score": 0.6323,
+      "margin_top1_top5": 0.0835,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 15,
+          "page": 183,
+          "header": "मेरी दिनचर्या",
+          "score": 0.6323
+        },
+        {
+          "chapter": 15,
+          "page": 184,
+          "header": "किसकी तर्जनी उंगली लंबी है?",
+          "score": 0.6247
+        },
+        {
+          "chapter": 2,
+          "page": 20,
+          "header": "तुल्य भिन्न बना",
+          "score": 0.5613
+        },
+        {
+          "chapter": 3,
+          "page": 32,
+          "header": "",
+          "score": 0.5535
+        },
+        {
+          "chapter": 14,
+          "page": 174,
+          "header": "दुकान केंद्र मार्ग",
+          "score": 0.5488
+        }
+      ]
+    },
+    {
+      "id": "gs-030",
+      "question_hi": "जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?",
+      "expected_chapter": 13,
+      "expected_page": 165,
+      "expected_tag": "arithmetic.factors_multiples",
+      "top1_chapter": 13,
+      "top1_page": 165,
+      "top1_tag": "arithmetic.factors_multiples",
+      "top1_header": "जानवरों की छलाँग",
+      "top1_score": 0.6878,
+      "margin_top1_top5": 0.1312,
+      "chapter_hit_top1": true,
+      "chapter_hit_topk": true,
+      "page_within_2": true,
+      "topk": [
+        {
+          "chapter": 13,
+          "page": 165,
+          "header": "जानवरों की छलाँग",
+          "score": 0.6878
+        },
+        {
+          "chapter": 13,
+          "page": 166,
+          "header": "आइए करके देखें",
+          "score": 0.6342
+        },
+        {
+          "chapter": 13,
+          "page": 164,
+          "header": "",
+          "score": 0.613
+        },
+        {
+          "chapter": 13,
+          "page": 166,
+          "header": "आइए करके देखें",
+          "score": 0.5796
+        },
+        {
+          "chapter": 13,
+          "page": 166,
+          "header": "आइए करके देखें",
+          "score": 0.5566
+        }
+      ]
+    }
+  ]
+}

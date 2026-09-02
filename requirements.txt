@@ -1,0 +1,8 @@
+numpy==2.5.2
+pdfminer.six==20260107
+pillow==12.3.0
+pymupdf==1.28.2
+pypdf==6.16.2
+RapidFuzz==3.14.6
+sentence-transformers==6.0.1
+torch==2.14.0

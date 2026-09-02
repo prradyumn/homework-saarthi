@@ -338,3 +338,65 @@ beat pymupdf 4×; raw-extractor comparison said OCR beat the text layer 2×. Bot
 were reversed once measured against hand-transcribed ground truth and once the
 output was actually read. The ground-truth set has paid for itself three times
 over, on four pages.
+
+---
+
+## D1-PRELIM — similarity alone cannot gate refusals, and §8.1's signal 3 is vacuous as written
+
+Not the calibration experiment (that is week 3, and needs the full 150-question
+labelled set). This is a cheap early probe of whether the refusal gate's core
+assumption holds at all: **does retrieval similarity separate a Class 5 question
+from a Class 9 one?**
+
+`scripts/refusal_signal_probe.py`, 30 in-syllabus vs 8 out-of-syllabus/off-topic:
+
+| set | min | mean | max |
+|---|---|---|---|
+| in-syllabus (30) | **0.496** | 0.632 | 0.750 |
+| out-of-syllabus / off-topic (8) | 0.301 | 0.465 | **0.569** |
+
+**The ranges overlap.** The lowest-scoring *legitimate* question — "टैनग्राम क्या
+होता है?" at 0.496 — scores below Class 9 algebra at 0.569.
+
+So a single similarity threshold is forced to choose between two failures:
+
+- threshold at 0.55 → refuses real questions about tangrams (0.496), right
+  angles (0.559) and quilt patterns (0.581)
+- threshold at 0.49 → answers "x² + 5x + 6 का गुणनखंड कैसे निकालें?"
+
+The second is the exact failure the PRD names in §2.2: a general assistant "will
+answer a Class 9 question when asked a Class 5 one". Confirming it happens to our
+own retriever, with numbers, is worth more than asserting it will not.
+
+**Why algebra scores so high:** it asked about गुणनखंड (factorisation), which is
+genuinely a Class 5 concept word in this book (`arithmetic.factors_multiples`).
+The question is lexically near-in-syllabus while being pedagogically far outside
+it. Embedding similarity cannot see that difference, and no amount of threshold
+tuning will teach it to.
+
+### The gap this exposes in the PRD
+
+§8.1 lists four signals; signal 3 is "whether retrieved chunk metadata matches
+Class 5 Maths". **That check can never fire.** Every chunk in the index *is*
+Class 5 Maths, so the answer is always yes. As written it contributes nothing.
+
+Two ways to make it real, to be decided at week 3:
+
+1. **Query-side syllabus classification** — judge the question, not the chunk.
+2. **Decoy indexing (preferred, and cheap)** — deliberately ingest a small set of
+   Class 8–9 maths content tagged `class: 8/9`, purely so an algebra question
+   retrieves a chunk whose metadata says "not Class 5" and can be refused on
+   metadata rather than on score. It converts an unanswerable question about
+   thresholds into a lookup, needs no model, and costs one extra ingest run.
+
+Option 2 also gives the calibration set something to measure: the 30
+out-of-syllabus questions in §8.1's labelled set currently have no chunk that
+could correctly claim them.
+
+### Margin looks more promising than raw score
+
+Out-of-syllabus margins (top-1 minus top-5) cluster tight and low —
+0.014–0.051, mean 0.028 — because a foreign question is roughly equidistant from
+everything. In-syllabus margins spread wider, up to 0.174. Margin is not clean
+enough alone either, but it carries information that raw score does not, and it
+should be a first-class axis in the week 3 sweep rather than a secondary check.
