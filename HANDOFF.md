@@ -1,8 +1,7 @@
 # HANDOFF — Homework Saathi
 
 **Read this first.** It is the complete working context for continuing this
-project in a fresh session. Written 3 Sep 2026 at the end of a long build session,
-immediately before a model switch. Everything below was measured, not assumed,
+project in a fresh session. Written 3 Sep 2026, updated after the Opus 5 continuation session. Everything below was measured, not assumed,
 unless marked otherwise.
 
 ---
@@ -60,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~40% of the project
+## 3. State: ~45% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -68,7 +67,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 1 — golden set 100 Q + 150 refusal set | 30-Q seed golden set done; **150-Q refusal set done** (`eval/refusal_set.py`). Full 100-Q Track A golden set with *verified answers* not done. |
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
 | Wk 3 — refusal calibration + curve | **DONE** — 71% coverage at 1.4% wrong-answer rate. Curve published. |
-| Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done.** Track A accuracy (needs verified answers) not done. |
+| Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
 | Wk 5 — Bhashini voice + WhatsApp + web chat | **0%.** Needs Bhashini + WhatsApp Cloud API signups. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
@@ -155,6 +154,19 @@ measurement: **`qwen/qwen3.8-27b` on Groq: 50% conformance (with groundedness),
 median 1.4s, p95 15.3s.** `openai/gpt-oss-120b`: 0% (answered in English).
 Local `qwen3:1.7b`: 25%, p95 44.8s — safe but nearly useless.
 
+**D3 — Hybrid retrieval.** Dense cosine + IDF term overlap at weight 0.35, and
+the generator gets the **top 3** Class 5 chunks (§11.1 says "chunks", plural — I
+had passed one). Chunk-level relevance **77% → 87%**. Chapter-level accuracy (97%)
+was hiding a chunk-level miss: 10 of 30 questions had the model correctly decline
+because its passage lacked the answer. `scripts/eval_retrieval.py` measures this
+with **no LLM budget**.
+
+**D5 — Real Groq free-tier limits: 8,000 tokens/minute AND 200,000 tokens/DAY**
+≈ **90 answers/day** at ~2,200 tokens each. Not requests/day as the PRD assumed.
+Three-chunk context costs ~50% more tokens than one — the D3 gain was bought, not
+free. A spent daily budget once produced a meaningless "20% conformance"; the
+client now aborts on the daily cap.
+
 **D4-PRELIM — Tiering.** Groq primary → local 2B for offline demo → refuse.
 Contract validator makes a weak fallback *safe* (refuses rather than misleads).
 Measured: the local tier refuses 75% of the time. Consider a second free API
@@ -199,6 +211,20 @@ rather than local for resilience — but vet data policy (§14).
     `qwen3:1.7b` runs. BGE-M3: 1.84 GB load, 3.3 GB encode peak, 0.04s/query.
 15. **All in-syllabus test questions are authored by me, not observed from parents.**
     Retrieval numbers are optimistic until the discovery interviews produce real questions.
+16. **My own validator over-fires; check that before blaming the model.** Five separate
+    defects found by reading output (D2-REVISED): an honest decline scored as 4 missing
+    parts; my prompt's word for "passage" (अंश) also means "numerator" so the model was
+    failed for echoing it; jargon the *parent* used flagged as ours; numeric demands on
+    non-numeric concepts (symmetry); an absolute Devanagari floor failing short replies.
+17. **Chapter-level retrieval accuracy is a misleading metric.** 97% @5 coexisted with a
+    third of questions getting the wrong chunk. Use `scripts/eval_retrieval.py`.
+18. **Never let a spent API budget be recorded as a quality score.** `RateLimitExhausted`
+    aborts the run; `RateLimited` retries after a pause.
+19. **Some questions are genuinely unanswerable and my labels were wrong.** No chunk in
+    the corpus contains दर्पण or सममित — ch10 teaches symmetry purely through figures.
+    Chapters 10 and 11 need re-labelling in the refusal set.
+20. **The decoy ceiling is structural (73%).** Thinning decoys fixes legitimate capture
+    (79%→98%) but guts out-of-syllabus catch (28%→52%) → coverage 15%. Don't retry this.
 
 ## 8. Environment
 
@@ -231,23 +257,25 @@ cd "/Users/pradyumnawasthi/homework saarthi"
 
 ## 10. Next steps, in order
 
-1. **Improve generation conformance from 50%.** Failure codes on the 8-Q eval:
-   `ungrounded_number` (model adds knowledge), `example_has_no_numbers`,
-   `unglossed_jargon`. Levers: tighten SYSTEM_PROMPT in `answer.py` (explicitly
-   forbid facts not in the passage; require a numeric worked example; give the
-   jargon→plain map inline); consider few-shot with the GOOD example from selftest.
-   Re-measure with `eval_generation.py groq`. Target ≥ 90% (PRD Track A: 100% contract conformance).
-2. **Reduce decoy capture of legitimate questions** (21/100 still hit a decoy first).
-   Lever: require a decoy to beat the best Class 5 chunk by a margin, not merely rank first.
-   Should lift coverage toward 79% and bring refusal-on-real-traffic under the 25% guardrail.
-3. **Track A golden set with verified answers** (100 Q). Answers must be verified
+1. **Re-run `eval_generation.py groq --n 30 --tag v5_hybrid` once the daily token
+   budget resets.** The hybrid-retrieval run aborted on the 200k TPD cap, so the
+   end-to-end effect of D3 on conformance is measured for retrieval (77%→87%) but
+   NOT yet for conformance. Last valid conformance figure: 50% (v4, top-3 context).
+2. **Re-label the refusal set for chapters 10 and 11.** Symmetry and quilt-design
+   questions are figure-dependent — the corpus text does not contain दर्पण or
+   सममित — so they belong in the `figure_only` refuse class, not `answer`. This
+   will raise measured conformance for the right reason rather than by tuning.
+3. **Then chase conformance.** Remaining real failure mode is `ungrounded_number`
+   (the model adds correct-but-absent facts, e.g. 360°/108° for pentagon tiling).
+   Lever: few-shot with the GOOD example from `answer.py` selftest.
+4. **Track A golden set with verified answers** (100 Q). Answers must be verified
    against the book — numeric exact-match where possible. Then measure answer
    *accuracy*, not just conformance. That gives §8.1's full curve.
-4. **Supabase pgvector** when the user signs up — swap `index_combined.npz` for a
+5. **Supabase pgvector** when the user signs up — swap `index_combined.npz` for a
    table; no logic change.
-5. **Week 5**: Bhashini ASR/TTS + FR-2 confirmation turn + WhatsApp Cloud API test
+6. **Week 5**: Bhashini ASR/TTS + FR-2 confirmation turn + WhatsApp Cloud API test
    number + public web chat (FR-8, portfolio-critical). Needs user signups.
-6. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+7. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports
@@ -259,7 +287,13 @@ Tell the user these when relevant; several are already flagged to them:
   (every chunk IS Class 5). Decoy corpus makes it real.
 - §8.1 framing "sweep one threshold" understates it: the gate is categorical layers;
   the threshold is nearly irrelevant.
-- §13.3 "LLM requests-per-day" → the binding limit is tokens-per-minute (8,000 TPM).
+- §13.3 "LLM requests-per-day" → the binding limits are **8,000 tokens/minute and
+  200,000 tokens/day** (~90 answers/day). Context size is the cost lever, exactly as
+  §13.3 predicted: three-chunk context costs ~50% more tokens than one.
+- §11.1 "retrieve top-k → generate against retrieved chunks" — implement as plural;
+  passing a single chunk caused a third of questions to be declined.
+- Retrieval needs a lexical signal alongside dense embeddings (D3), which §11.1
+  does not mention.
 - Add a **figure-only** refusal class (D0.1).
 - Add **query-side pre-checks** as a gate layer (36/50 refusals, pre-retrieval, free).
 - §10 different-numbers rule needs operator/operand nuance for "multiply by 10" questions.
@@ -270,6 +304,10 @@ Tell the user these when relevant; several are already flagged to them:
 
 - Refusal on legitimate traffic ≈ 29% (guardrail 25%).
 - One residual gate leak: "तीन भिन्नों को जोड़ना है जिनके हर अलग हैं" (unlike denominators).
-- Generation conformance 50% — the model adds correct-but-ungrounded knowledge.
+- Generation conformance 50% (v4). Now gated by **retrieval**, not generation: the
+  remaining refusals are mostly the model honestly declining on passages that lack
+  the answer.
+- The refusal set mislabels figure-dependent questions (ch10, ch11) as answerable.
+- Decoy coverage ceiling 73%; the fix is better retrieval, not a better gate.
 - The riskiest assumption (parents accept "I don't know") is entirely untested.
 - All test questions are authored, not observed.
