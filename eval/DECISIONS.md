@@ -240,3 +240,101 @@ paragraphs.
   preferred over folio numbers polluting every chunk.
 - 17 of 222 chunks fall back to a chapter-level tag because neither header nor
   body hit the keyword vocabulary.
+
+---
+
+## D0 REVISED — the text layer wins after all, and OCR leaves the pipeline
+
+**Decision: prose comes from the normalised text layer, not OCR.** Measured
+**0.7% prose CER, 100% numeric recall, 100% fraction recall** — eleven times
+better than the OCR hybrid's 7.9%, with no OCR in the pipeline at all.
+
+### The mistake, stated plainly
+
+D0 chose OCR for prose after comparing extractors **raw**. Two errors:
+
+1. **I attributed pypdf's corruption to "the text layer" in general.** The
+   destructive substitutions in D0's table — `स्थान→्लथान`, `भुजाओं→िुजाओं`,
+   `क्या→्‍तया` — are **pypdf's**. PyMuPDF's corruption is a different and much
+   milder class: duplicated combining marks (`हैैं`, `मेें`, `वर््ष`).
+2. **I never applied the normaliser to body prose.** `scripts/textnorm.py` was
+   written later, for section headers (D0.3), by which point OCR had already been
+   chosen for prose. Duplicated marks carry no information, so collapsing them is
+   lossless — and it fixes almost everything.
+
+Applied to PyMuPDF's text layer, the normaliser takes prose CER from 15.6% to
+1.13% immediately.
+
+### Final comparison
+
+| method | prose CER | numeric | fractions | s/page |
+|---|---|---|---|---|
+| **textlayer + normaliser + fractions (chosen)** | **0.7%** | **100%** | **100%** | 0.5 |
+| hybrid OCR + text layer (previous choice) | 7.9% | 91.1% | 100% | 0.3 |
+| ocr_tesseract_hin | 7.4% | 20.0% | 0% | 1.9 |
+| textlayer_pymupdf raw | 15.6% | 82.2% | 0% | 0.0 |
+| textlayer_pypdf raw | 27.7% | 82.2% | 0% | 0.1 |
+
+Per page: p94 **0.00%**, p18 0.47%, p183 1.2%, p78 1.4%.
+
+### What got it from 1.13% to 0.7%
+
+Four fixes, each found by reading output rather than watching a metric:
+
+1. **Never sort lines by y.** Keeping the PDF's own block order is worth 2.9 CER
+   points (1.13% → 4.05% when y-sorted), because a global y-sort interleaves
+   side-by-side layout blocks. This is the third time this exact mistake appeared
+   in this pipeline; it cost 27 points in the OCR merge.
+2. **Suppress only the fraction's own digit boxes**, not every digit in a span a
+   fraction rect happens to touch. The broad version dropped real numbers from
+   `35 ( 30 + 5 )` and took numeric recall to 68.9%.
+3. **Splice fractions on x as well as y.** Matching on y alone dumped p18's
+   pie-chart labels into body prose (`1/2 और 1/4 1/4 1/4`). Fractions that match
+   no line horizontally are figure labels, kept in `figure_label_fractions`
+   rather than injected into prose (D0.1).
+4. **Collapse word-final doubled consonants** (`समान→समानन`,
+   `विद्यालय→विद्यालयय`). Hindi writes real geminates with an intervening halant,
+   so a bare doubled consonant with nothing after it is always an artifact.
+
+### The one unrecoverable class, closed by hand
+
+A conjunct whose second consonant was never mapped is genuinely absent
+(`ग्राम→ग्ाम`) and cannot be repaired by rule. Across all 190 pages that is 657
+occurrences but only **73 distinct tokens** — so it is closed by a hand-verified
+map in `data/conjunct_repairs.json`, every entry read in context. Mostly a
+missing rakar `र`; the rest missing `ष`, `ञ`, `व`, `य`, `ण`.
+
+Scanning short frequent tokens then exposed a **second, separate class the halant
+signature cannot see: a dropped *leading* letter** (`कक्षा→क्षा` ×27,
+`कक्ष→क्ष` ×12). Two more entries; 75 in total.
+
+Result: **0 unrepaired conjuncts across 30,478 Devanagari tokens.** The map
+covers the entire book, and any future gap is detected automatically and becomes
+the content-ops backlog rather than a silent error.
+
+### Consequences
+
+- **Tesseract, the Hindi traineddata, poppler and the 300dpi OCR pass all leave
+  the ingest path.** Page renders are still produced, but only for the refusal
+  package and FR-10. Ingest is now pure PyMuPDF plus two small deterministic
+  passes — which strengthens the low-resource claim rather than weakening it.
+- **The quality gate was re-pointed a third time.** v1 measured geometric
+  re-insertion (flagged 55% of the book — the mechanism working, not failing);
+  v2 measured OCR confidence (meaningless once OCR left); v3 measures
+  `unrepaired_conjuncts`, which is exact rather than probabilistic. Flagged pages
+  fell from 40/190 to **3/190**, and all three are genuinely figure-only
+  (pp 188–190, the end-of-chapter figure spreads).
+- **Chunks are now clean enough to quote.** The D0.3 warning that generation must
+  paraphrase and never echo a chunk no longer applies at 0.7% CER. Verbatim
+  quotation of a retrieved sentence is defensible.
+- 190 pages → **248 concept-unit chunks**, median 652 chars, 0 unrepaired
+  conjuncts, 1 needing review, 43 figure-dependent, 50 carrying inline fractions.
+
+### The lesson worth keeping
+
+Both times this pipeline went wrong, the cause was the same: **a metric computed
+over the wrong unit looked authoritative.** A regex artifact-detector said pypdf
+beat pymupdf 4×; raw-extractor comparison said OCR beat the text layer 2×. Both
+were reversed once measured against hand-transcribed ground truth and once the
+output was actually read. The ground-truth set has paid for itself three times
+over, on four pages.

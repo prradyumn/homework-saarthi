@@ -1,42 +1,42 @@
 {
-  "hybrid_ocr+textlayer": {
+  "textlayer_norm+fractions": {
     "pages": {
       "18": {
-        "cer": 0.08705882352941176,
-        "numeric_recall": 0.8571428571428571,
+        "cer": 0.002352941176470588,
+        "numeric_recall": 1.0,
         "numbers_total": 28,
         "fraction_recall": 1.0,
         "fractions_total": 20,
-        "chars_extracted": 874
+        "chars_extracted": 960
       },
       "78": {
-        "cer": 0.044444444444444446,
+        "cer": 0.011695906432748537,
         "numeric_recall": 1.0,
         "numbers_total": 12,
         "fraction_recall": null,
         "fractions_total": 0,
-        "chars_extracted": 1236
+        "chars_extracted": 1672
       },
       "94": {
-        "cer": 0.008896797153024912,
+        "cer": 0.0,
         "numeric_recall": 1.0,
         "numbers_total": 4,
         "fraction_recall": null,
         "fractions_total": 0,
-        "chars_extracted": 1697
+        "chars_extracted": 1765
       },
       "183": {
-        "cer": 0.17532467532467533,
+        "cer": 0.012059369202226345,
         "numeric_recall": 1.0,
         "numbers_total": 1,
         "fraction_recall": null,
         "fractions_total": 0,
-        "chars_extracted": 1006
+        "chars_extracted": 1345
       }
     },
-    "mean_cer": 0.07893118511288912,
-    "numeric_recall": 0.9111111111111111,
+    "mean_cer": 0.0065270542028613675,
+    "numeric_recall": 1.0,
     "fraction_recall": 1.0,
-    "sec_per_page": 0.29665690660476685
+    "sec_per_page": 0.4897053837776184
   }
 }

@@ -12,7 +12,8 @@ cannot run and the refusal logic collapses.
 It also carries the flags the confidence gate needs to refuse honestly:
 
   needs_review          the page's extraction quality was below the gate
-  unverified_numbers    digits in this text that no text-layer number backs
+  unrepaired_conjuncts  tokens known to be missing a consonant the font never
+                        mapped, i.e. words we know are wrong
   figure_dependent      the content is carried by a figure, so no text chunk can
                         answer it at any retrieval quality (DECISIONS.md D0.1)
 
@@ -144,7 +145,7 @@ def main() -> int:
                 header = section["header"]
                 tag, tag_source = primary_tag(header, body, chapter)
 
-                unverified = sum(m["stats"]["numbers_unverified"] for m in metas)
+                unrepaired = sum(m["stats"]["unrepaired_conjuncts"] for m in metas)
                 review = [m["book_page"] for m in metas if m["needs_review"]]
                 fig = [
                     m["book_page"] for m in metas
@@ -175,7 +176,10 @@ def main() -> int:
                         # --- confidence flags for the retrieval gate ---
                         "needs_review": bool(review),
                         "review_pages": review,
-                        "unverified_numbers": unverified,
+                        "unrepaired_conjuncts": unrepaired,
+                        "fractions": sorted({
+                            w for w in body.split() if "/" in w and any(c.isdigit() for c in w)
+                        }),
                         "figure_dependent": bool(fig),
                         "chars": len(body),
                     }
@@ -191,7 +195,8 @@ def main() -> int:
     print(f"\ntag source: {dict(Counter(c['concept_tag_source'] for c in chunks))}")
     print(f"needs_review: {sum(c['needs_review'] for c in chunks)}")
     print(f"figure_dependent: {sum(c['figure_dependent'] for c in chunks)}")
-    print(f"with unverified numbers: {sum(c['unverified_numbers'] > 0 for c in chunks)}")
+    print(f"with unrepaired conjuncts: {sum(c['unrepaired_conjuncts'] > 0 for c in chunks)}")
+    print(f"with inline fractions: {sum(bool(c['fractions']) for c in chunks)}")
     print("\ntop concept tags:")
     for tag, n in Counter(c["concept_tag"] for c in chunks).most_common(14):
         print(f"   {n:>3}  {tag}")

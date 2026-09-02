@@ -17,6 +17,8 @@ relied on for body prose, which comes from OCR instead (see DECISIONS.md D0).
 
 from __future__ import annotations
 
+import json
+import pathlib
 import re
 import unicodedata
 
@@ -27,18 +29,59 @@ ZERO_WIDTH = dict.fromkeys(map(ord, "​‌‍﻿"), None)
 _DUP_MARK = re.compile(rf"({MARKS})\1+")
 _DUP_CONS = re.compile(rf"({CONS})\1(?={MARKS})")
 _DUP_CLUSTER = re.compile(rf"({CONS}{MARKS})\1+")
+# A consonant doubled immediately after a halant is always an artifact: a real
+# geminate is written with the halant between the pair (पक्का), never after it.
+# This is what turns रिक्त into रिक्तत and वर्गों into वर्गगों.
+_DUP_AFTER_HALANT = re.compile(rf"(्)({CONS})\2")
+# A consonant doubled at the end of a word is also an artifact (समान -> समानन,
+# विद्यालय -> विद्यालयय). Hindi writes real geminates with an intervening halant,
+# so a bare doubled consonant with nothing after it is never legitimate.
+_DUP_CONS_FINAL = re.compile(rf"({CONS})\1(?![ऀ-ॿ])")
 # Signature of the unrecoverable class: a halant immediately followed by a
 # dependent vowel means the conjunct's second consonant was never mapped.
 _DROPPED = re.compile(r"्[ा-ौ]")
 
 
-def normalize(text: str, drop_zero_width: bool = True) -> str:
+_REPAIR_FILE = pathlib.Path(__file__).resolve().parent.parent / "data" / "conjunct_repairs.json"
+
+
+def _load_repairs() -> tuple[dict[str, str], re.Pattern | None]:
+    if not _REPAIR_FILE.exists():
+        return {}, None
+    table = json.loads(_REPAIR_FILE.read_text(encoding="utf-8"))["repairs"]
+    # Longest first, so क्ाओं is repaired before क्ा can match its prefix.
+    keys = sorted(table, key=len, reverse=True)
+    rx = re.compile(
+        r"(?<![ऀ-ॿ])(" + "|".join(re.escape(k) for k in keys) + r")(?![ऀ-ॿ])"
+    )
+    return table, rx
+
+
+REPAIRS, _REPAIR_RX = _load_repairs()
+
+
+def repair_conjuncts(text: str) -> str:
+    """Apply the hand-verified map for consonants the font never mapped.
+
+    Only whole tokens are replaced, guarded on both sides against Devanagari, so
+    a repair cannot fire inside an unrelated longer word.
+    """
+    if not _REPAIR_RX:
+        return text
+    return _REPAIR_RX.sub(lambda m: REPAIRS[m.group(1)], text)
+
+
+def normalize(text: str, drop_zero_width: bool = True, repair: bool = True) -> str:
     text = unicodedata.normalize("NFC", text or "")
     if drop_zero_width:
         text = text.translate(ZERO_WIDTH)
     text = _DUP_CLUSTER.sub(r"\1", text)
     text = _DUP_MARK.sub(r"\1", text)
+    text = _DUP_AFTER_HALANT.sub(r"\1\2", text)
     text = _DUP_CONS.sub(r"\1", text)
+    text = _DUP_CONS_FINAL.sub(r"\1", text)
+    if repair:
+        text = repair_conjuncts(text)
     return re.sub(r"\s+", " ", text).strip()
 
 

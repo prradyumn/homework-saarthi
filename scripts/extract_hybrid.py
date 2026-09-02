@@ -85,8 +85,18 @@ def _digit_spans(page: pymupdf.Page) -> list[tuple[str, pymupdf.Rect]]:
 
 
 def fraction_groups(page: pymupdf.Page) -> list[tuple[pymupdf.Rect, str]]:
+    return [(f["rect"], f["text"]) for f in fraction_groups_detailed(page)]
+
+
+def fraction_groups_detailed(page: pymupdf.Page) -> list[dict]:
     """Rebuild stacked fractions as 'n/d' from geometry: a fraction bar with
-    x-overlapping digits centred above and below it."""
+    x-overlapping digits centred above and below it.
+
+    `digit_boxes` names the exact numerator and denominator boxes consumed. A
+    caller suppressing those digits must test against these and not against
+    `rect`, which spans the whole fraction and can enclose unrelated digits
+    sitting beside it.
+    """
     spans = _digit_spans(page)
     found = []
     for rule in horizontal_rules(page):
@@ -111,7 +121,13 @@ def fraction_groups(page: pymupdf.Page) -> list[tuple[pymupdf.Rect, str]]:
         span = pymupdf.Rect(rule)
         span.include_rect(num[2])
         span.include_rect(den[2])
-        found.append((span, f"{num[1]}/{den[1]}"))
+        found.append(
+            {
+                "rect": span,
+                "text": f"{num[1]}/{den[1]}",
+                "digit_boxes": [num[2], den[2]],
+            }
+        )
     return found
 
 

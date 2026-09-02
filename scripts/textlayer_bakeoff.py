@@ -151,7 +151,15 @@ def extract_hybrid(book_page: int, manifest: list[dict]) -> str:
     return hybrid_page(page, PAGES / f"p{book_page:03d}.png")
 
 
+def extract_textlayer_norm(book_page: int, manifest: list[dict]) -> str:
+    from extract_textlayer import textlayer_page
+
+    code, idx = locate(book_page, manifest)
+    return textlayer_page(pymupdf.open(RAW / f"{code}.pdf")[idx])
+
+
 METHODS = {
+    "textlayer_norm+fractions": extract_textlayer_norm,
     "hybrid_ocr+textlayer": extract_hybrid,
     "textlayer_pypdf": extract_pypdf,
     "textlayer_pymupdf": extract_pymupdf,

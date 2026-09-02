@@ -20,7 +20,7 @@ import time
 import pymupdf
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from extract_hybrid import hybrid_lines  # noqa: E402
+from extract_textlayer import textlayer_lines  # noqa: E402
 from structure import figure_regions, markers  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -28,28 +28,28 @@ RAW = ROOT / "ingest" / "raw"
 PAGES = ROOT / "ingest" / "pages"
 OUT = ROOT / "ingest" / "corpus.json"
 
-# Gate thresholds, set from the observed corpus distribution (printed below), not
-# from intuition. Measured medians: OCR confidence 81.9, p05 56.8.
+# Gate thresholds. Two earlier versions of this gate measured the wrong thing:
 #
-# A first version of this gate also flagged pages where many text-layer numbers
-# had to be re-inserted by geometry. That flagged 55% of the book and was simply
-# wrong: re-insertion is the mechanism working, because OCR deletes digits by
-# construction (D0). The number-safety signal is `numbers_unverified` — digits
-# OCR produced that NO text-layer number backs.
-MIN_CONF_MEAN = 70.0
-MAX_LOWCONF_SHARE = 0.45
-MAX_UNVERIFIED = 6
+#   v1 flagged pages where many numbers were re-inserted geometrically -> 55% of
+#      the book, because that was the mechanism working, not failing.
+#   v2 gated on OCR confidence, which stopped meaning anything once the text
+#      layer replaced OCR as the prose source (D0 REVISED).
+#
+# The signal now is `unrepaired_conjuncts`: tokens still carrying the
+# unrecoverable dropped-consonant signature, i.e. words we KNOW are wrong because
+# they are missing from data/conjunct_repairs.json. It is exact rather than
+# probabilistic, and it doubles as the content-ops backlog.
+MAX_UNREPAIRED = 2
 MIN_PROSE_TOKENS = 20
 
 
 def gate(stats: dict) -> tuple[bool, list[str]]:
     reasons = []
-    if stats["ocr_conf_mean"] < MIN_CONF_MEAN:
-        reasons.append(f"low OCR confidence ({stats['ocr_conf_mean']})")
-    if stats["ocr_lowconf_share"] > MAX_LOWCONF_SHARE:
-        reasons.append(f"{stats['ocr_lowconf_share']:.0%} of words below conf 60")
-    if stats["numbers_unverified"] > MAX_UNVERIFIED:
-        reasons.append(f"{stats['numbers_unverified']} unverified numbers in text")
+    if stats["unrepaired_conjuncts"] > MAX_UNREPAIRED:
+        reasons.append(
+            f"{stats['unrepaired_conjuncts']} unrepaired conjuncts "
+            f"({', '.join(stats['unrepaired_samples'][:4])})"
+        )
     if stats["devanagari_tokens"] < MIN_PROSE_TOKENS:
         reasons.append(f"figure-only page ({stats['devanagari_tokens']} Devanagari tokens)")
     return (not reasons), reasons
@@ -68,7 +68,7 @@ def main() -> int:
             book_page = entry["page_offset"] + idx
             png = PAGES / f"p{book_page:03d}.png"
             page = doc[idx]
-            lines, stats = hybrid_lines(page, png)
+            lines, stats = textlayer_lines(page)
             page_markers = markers(page)
             figures = figure_regions(page)
             ok, reasons = gate(stats)
@@ -90,9 +90,9 @@ def main() -> int:
                 }
             )
             print(
-                f"  p{book_page:>3} ch{entry['chapter']:>2}  conf={stats['ocr_conf_mean']:>5.1f} "
-                f"unver={stats['numbers_unverified']:>3} frac={stats['fractions_found']:>2} "
-                f"mark={len(page_markers):>2} chars={stats['chars']:>5} "
+                f"  p{book_page:>3} ch{entry['chapter']:>2}  nums={stats['textlayer_numbers']:>3} "
+                f"frac={stats['fractions_found']:>2} mark={len(page_markers):>2} "
+                f"tok={stats['devanagari_tokens']:>4} chars={stats['chars']:>5} "
                 f"{'REVIEW: ' + '; '.join(reasons) if not ok else ''}",
                 flush=True,
             )
@@ -101,23 +101,14 @@ def main() -> int:
     OUT.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
 
     flagged = [r for r in records if r["needs_review"]]
-    confs = sorted(r["stats"]["ocr_conf_mean"] for r in records)
-
-    def pct(p: float) -> float:
-        return confs[min(int(p * len(confs)), len(confs) - 1)]
-
     print(f"\n{'=' * 78}")
     print(f"{len(records)} pages in {time.time() - t0:.0f}s -> {OUT}")
-    print(
-        f"OCR confidence  p05={pct(0.05):.1f}  p25={pct(0.25):.1f}  "
-        f"median={pct(0.5):.1f}  p75={pct(0.75):.1f}  p95={pct(0.95):.1f}"
-    )
     print(f"total chars {sum(r['stats']['chars'] for r in records):,}")
     print(f"fractions reconstructed {sum(r['stats']['fractions_found'] for r in records)}")
     print(f"markers found {sum(len(r['markers']) for r in records)}")
     print(
-        f"unverified numbers {sum(r['stats']['numbers_unverified'] for r in records)} "
-        f"of {sum(r['stats']['textlayer_numbers'] for r in records)} text-layer numbers"
+        f"unrepaired conjuncts {sum(r['stats']['unrepaired_conjuncts'] for r in records)} "
+        f"across {sum(r['stats']['devanagari_tokens'] for r in records):,} Devanagari tokens"
     )
     print(f"\nflagged needs_review: {len(flagged)}/{len(records)} pages")
     for r in flagged:
