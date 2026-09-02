@@ -1,0 +1,92 @@
+{
+  "backend": "ollama",
+  "conformance": 0.25,
+  "total_seconds": 207,
+  "rows": [
+    {
+      "q": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "answered": false,
+      "retried": null,
+      "seconds": 35.39,
+      "failures": [
+        "not_one_sentence",
+        "not_one_sentence",
+        "example_reuses_question_numbers",
+        "part4_not_quoted"
+      ],
+      "words": null
+    },
+    {
+      "q": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "answered": true,
+      "retried": true,
+      "seconds": 16.44,
+      "failures": [],
+      "words": 55
+    },
+    {
+      "q": "1 मिनट में कितने सेकंड होते हैं?",
+      "answered": false,
+      "retried": null,
+      "seconds": 12.57,
+      "failures": [
+        "example_reuses_question_numbers"
+      ],
+      "words": null
+    },
+    {
+      "q": "समकोण क्या होता है? बेटी पूछ रही है",
+      "answered": false,
+      "retried": null,
+      "seconds": 30.9,
+      "failures": [
+        "part4_not_quoted"
+      ],
+      "words": null
+    },
+    {
+      "q": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "answered": false,
+      "retried": null,
+      "seconds": 44.8,
+      "failures": [
+        "missing_part",
+        "missing_part",
+        "missing_part",
+        "missing_part",
+        "too_long"
+      ],
+      "words": null
+    },
+    {
+      "q": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "answered": false,
+      "retried": null,
+      "seconds": 23.05,
+      "failures": [
+        "example_reuses_question_numbers",
+        "part4_not_quoted"
+      ],
+      "words": null
+    },
+    {
+      "q": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "answered": true,
+      "retried": true,
+      "seconds": 16.29,
+      "failures": [],
+      "words": 57
+    },
+    {
+      "q": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "answered": false,
+      "retried": null,
+      "seconds": 28.01,
+      "failures": [
+        "not_one_sentence",
+        "not_one_sentence"
+      ],
+      "words": null
+    }
+  ]
+}

@@ -5,3 +5,6 @@ __pycache__/
 ingest/raw/
 ingest/pages/
 ingest/extracted/
+
+# secrets — never commit
+.env
