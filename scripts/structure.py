@@ -30,7 +30,7 @@ import re
 
 import pymupdf
 
-from textnorm import has_dropped_consonant, normalize
+from textnorm import has_dropped_consonant, normalize_header
 
 # Header pills are one text line tall. Taller filled boxes with text are asides
 # (teaching hints, activity panels); shorter ones are diagram fills.
@@ -83,7 +83,7 @@ def markers(page: pymupdf.Page) -> list[dict]:
     found = []
     for box in filled_boxes(page):
         raw = page.get_textbox(box)
-        text = normalize(raw)
+        text = normalize_header(raw)
         words = text.split()
         wide = box.width > 0.62 * page.rect.width  # table header rows span the column
         is_pill = box.height <= PILL_MAX_H and len(words) <= 10 and not wide

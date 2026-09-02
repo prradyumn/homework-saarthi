@@ -85,6 +85,26 @@ def normalize(text: str, drop_zero_width: bool = True, repair: bool = True) -> s
     return re.sub(r"\s+", " ", text).strip()
 
 
+_DUP_CONS_ANY = re.compile(rf"({CONS})\1")
+
+
+def normalize_header(text: str) -> str:
+    """Aggressive normalisation, for section headers and callout labels only.
+
+    The decorative heading font duplicates consonants in positions the
+    conservative rules deliberately leave alone — a doubled consonant followed by
+    another consonant (प्रयत्न -> प्रययत्न, पवन -> पपवन, अथवा -> अथथवा).
+
+    Collapsing every doubled consonant is NOT safe for body prose: Hindi has real
+    words with adjacent identical consonants and no intervening halant (ममता),
+    which the rule would corrupt. It is applied here because a header is used for
+    segmentation and concept tagging, never quoted to a parent, and because
+    leaving it uncollapsed breaks callout matching — "प्रययत्न कीजिए" fails to
+    match the try_this pattern.
+    """
+    return _DUP_CONS_ANY.sub(r"\1", normalize(text))
+
+
 def has_dropped_consonant(text: str) -> bool:
     """True if the text still carries the unrecoverable corruption signature, so a
     caller can flag the label as low-confidence rather than trust it."""

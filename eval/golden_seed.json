@@ -1,0 +1,202 @@
+{
+  "_README": [
+    "Seed golden set for the Step 1 retrieval gate: does retrieval find the right",
+    "chapter for 90% of golden-set questions? (PRD milestone week 2 exit criterion.)",
+    "",
+    "Schema follows PRD Appendix B. This is a SEED of 29 covering all 15 chapters,",
+    "not the full 100-question set, and it is deliberately retrieval-shaped: every",
+    "item has a verified chapter and page, while expected_answer is filled only",
+    "where it is a fact stated in the book. Track A (correctness) needs the full",
+    "100 with verified answers and is a separate job.",
+    "",
+    "question_hi is phrased as a PARENT would speak it, per Appendix B — not as a",
+    "textbook exercise. That matters: the retrieval has to work on colloquial",
+    "spoken Hindi ('बेटी पूछ रही है'), not on textbook register.",
+    "",
+    "label_source: authored against the ingested corpus; chapter and page verified",
+    "against ingest/chunks.json section headers. Answers marked 'book_fact' are",
+    "stated verbatim in the textbook; 'rubric' items need a method, not a number."
+  ],
+  "questions": [
+    {
+      "id": "gs-001", "question_hi": "मेरे बच्चे को दस हजार से बड़ी संख्या लिखना नहीं आ रहा, ये कैसे सिखाऊँ?",
+      "chapter": 1, "page": 2, "concept_tag": "numbers.large_numbers",
+      "expected_answer": "place-value method: extend the place-value table with a ten-thousands column; 10 हजार = दस हजार = 10,000",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-002", "question_hi": "निकटतम सैकड़ा तक संख्या कैसे बताते हैं?",
+      "chapter": 1, "page": 7, "concept_tag": "numbers.large_numbers",
+      "expected_answer": "rounding to the nearest hundred, per section 'निकटतम दहाई (10), सैकड़ा (100) और हजार (1,000)'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-003", "question_hi": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "chapter": 2, "page": 18, "concept_tag": "fractions.equivalent",
+      "expected_answer": "1/3 = 2/6; equal fractions are called तुल्य भिन्न",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-004", "question_hi": "समान हर वाली भिन्नों में कौन सी बड़ी है, ये कैसे पता करें?",
+      "chapter": 2, "page": 22, "concept_tag": "fractions",
+      "expected_answer": "with the same denominator, the fraction with the larger numerator is larger",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-005", "question_hi": "1 से बड़ी भिन्न का मतलब क्या होता है?",
+      "chapter": 2, "page": 24, "concept_tag": "fractions",
+      "expected_answer": "a fraction whose numerator exceeds its denominator is greater than 1",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-006", "question_hi": "1/2 का एक भाग और 1/4 के दो भाग मिलाकर क्या बनता है?",
+      "chapter": 2, "page": 18, "concept_tag": "fractions.manipulatives",
+      "expected_answer": "एक पूर्ण (one whole)", "answer_type": "rubric",
+      "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-007", "question_hi": "समकोण क्या होता है? बेटी पूछ रही है",
+      "chapter": 3, "page": 35, "concept_tag": "geometry.angles",
+      "expected_answer": "a quarter turn (एक-चौथाई घुमाव) is a right angle (समकोण)",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-008", "question_hi": "कोण नापने के लिए कौन सा उपकरण इस्तेमाल करते हैं?",
+      "chapter": 3, "page": 36, "concept_tag": "geometry.angles",
+      "expected_answer": "the instrument described in section 'कोण मापने के उपकरण'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-009", "question_hi": "बड़ी संख्याओं का घटाना कैसे सिखाऊँ?",
+      "chapter": 4, "page": 49, "concept_tag": "arithmetic.subtraction",
+      "expected_answer": "column subtraction of large numbers per 'बड़ी संख्याओं का व्यवकलन'",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-010", "question_hi": "क्रमागत संख्याओं का योग निकालने का कोई आसान तरीका है?",
+      "chapter": 4, "page": 45, "concept_tag": "arithmetic.addition",
+      "expected_answer": "the pattern method in 'क्रमागत संख्याओं का योगफल'",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-011", "question_hi": "सम और विषम संख्या में क्या फर्क है?",
+      "chapter": 4, "page": 54, "concept_tag": "arithmetic.addition",
+      "expected_answer": "even vs odd numbers, per 'सम और विषम संख्याएँ'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-012", "question_hi": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "chapter": 5, "page": 57, "concept_tag": "measurement.length",
+      "expected_answer": "1 किलोमीटर = 1,000 मीटर", "answer_type": "numeric",
+      "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-013", "question_hi": "लंबाई का गुणा और भाग कैसे करते हैं?",
+      "chapter": 5, "page": 66, "concept_tag": "arithmetic.multiplication",
+      "expected_answer": "per section 'लंबाइयों का गुणा और भाग'",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-014", "question_hi": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "chapter": 6, "page": 72, "concept_tag": "arithmetic.multiplication",
+      "expected_answer": "the place-value pattern in '10 और 100 से गुणन में प्रतिरूप'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-015", "question_hi": "गुणा करने के और कौन कौन से तरीके हैं?",
+      "chapter": 6, "page": 74, "concept_tag": "arithmetic.multiplication",
+      "expected_answer": "the several methods in 'गुणा करने की अनेक विधियाँ', including splitting by place value",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-016", "question_hi": "दोगुना करना और आधा करना गुणा में कैसे काम आता है?",
+      "chapter": 6, "page": 75, "concept_tag": "arithmetic.multiplication",
+      "expected_answer": "the doubling-and-halving method",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-017", "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "chapter": 7, "page": 94, "concept_tag": "geometry.tiling_patterns",
+      "expected_answer": "regular pentagons leave a gap (रिक्त स्थान) around a point, so they cannot tile",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-018", "question_hi": "सम त्रिभुज एक बिंदु के चारों ओर कैसे जमते हैं?",
+      "chapter": 7, "page": 94, "concept_tag": "geometry.polygons",
+      "expected_answer": "equilateral triangles tile with no gap and no overlap (आच्छादन)",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-019", "question_hi": "टैनग्राम क्या होता है?",
+      "chapter": 7, "page": 99, "concept_tag": "geometry.tiling_patterns",
+      "expected_answer": "the shape puzzle described in 'टैनग्राम (आकृति पहेली)'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-020", "question_hi": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "chapter": 8, "page": 110, "concept_tag": "measurement.weight",
+      "expected_answer": "1,000 ग्राम = 1 किलोग्राम", "answer_type": "numeric",
+      "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-021", "question_hi": "धारिता या क्षमता कैसे मापते हैं?",
+      "chapter": 8, "page": 113, "concept_tag": "measurement.capacity",
+      "expected_answer": "per section 'क्षमता या धारिता मापना'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-022", "question_hi": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "chapter": 9, "page": 125, "concept_tag": "arithmetic.division",
+      "expected_answer": "भाज्य = भाजक × भागफल + शेषफल", "answer_type": "rubric",
+      "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-023", "question_hi": "स्थानीय मान का उपयोग करके भाग कैसे देते हैं?",
+      "chapter": 9, "page": 128, "concept_tag": "numbers.place_value",
+      "expected_answer": "per section 'स्थानीय मान का उपयोग करके विभाजन'",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-024", "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
+      "chapter": 10, "page": 136, "concept_tag": "geometry.symmetry",
+      "expected_answer": "symmetry as used in 'सममितीय अभिकल्पनाएँ'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-025", "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
+      "chapter": 11, "page": 142, "concept_tag": "geometry.tiling_patterns",
+      "expected_answer": "tiling shapes into a quilt pattern, per 'दादी माँ की रजाई'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-026", "question_hi": "1 मिनट में कितने सेकंड होते हैं?",
+      "chapter": 12, "page": 157, "concept_tag": "measurement.time",
+      "expected_answer": "1 मिनट = 60 सेकंड", "answer_type": "numeric",
+      "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-027", "question_hi": "घंटों को मिनटों में कैसे बदलें?",
+      "chapter": 12, "page": 161, "concept_tag": "measurement.time",
+      "expected_answer": "multiply hours by 60, per 'घंटो का मिनटों में परिवर्तन'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-028", "question_hi": "मानचित्र में दिशाएँ कैसे देखते हैं?",
+      "chapter": 14, "page": 171, "concept_tag": "geometry.maps_position",
+      "expected_answer": "per section 'दिशाएँ ढूँढ़ना'",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-029", "question_hi": "दंड आरेख कैसे बनाते हैं? बच्चे को होमवर्क मिला है",
+      "chapter": 15, "page": 183, "concept_tag": "data.bar_graph",
+      "expected_answer": "vertical bars whose height shows the count; the method is called दंड-आरेख",
+      "answer_type": "rubric", "difficulty": "multi_step", "in_syllabus": true, "label_source": "book_fact"
+    },
+    {
+      "id": "gs-030", "question_hi": "जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?",
+      "chapter": 13, "page": 165, "concept_tag": "arithmetic.factors_multiples",
+      "expected_answer": "multiples, via animal jump lengths",
+      "answer_type": "rubric", "difficulty": "single_step", "in_syllabus": true, "label_source": "book_fact"
+    }
+  ]
+}
