@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~72% of the project
+## 3. State: ~76% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -75,6 +75,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 
 | Service | Status |
 |---|---|
+| **Gemini** | ✅ Key in `.env`. Powers figure reading only (`scripts/vision.py`). **The key was pasted into chat — rotate it at aistudio.google.com.** §14 was overridden by the user for the prototype; only public NCERT pages are sent. **Accepting a parent's photo of their child's homework is a separate decision and a pilot blocker — do not extend to it silently.** |
 | **Groq** | ✅ Key received from user, stored in `.env` (gitignored, chmod 600), loaded by `scripts/answer.py`. **The key was pasted into chat — remind the user to rotate it at console.groq.com/keys.** |
 | Supabase | ❌ Not yet. User said "later we will also set a postgres and supabase". Retrieval runs on a local numpy index (`ingest/index_combined.npz`) which is fine for now. |
 | Bhashini | ❌ **This is the only thing blocking voice.** Code is written and wired (`scripts/bhashini.py`); register free for non-commercial use at bhashini.gov.in (ULCA portal) and put `BHASHINI_USER_ID` + `BHASHINI_API_KEY` in `.env`. Everything degrades cleanly without them. |
@@ -316,39 +317,52 @@ cd "/Users/pradyumnawasthi/homework saarthi"
    the `WHY` map in `web/index.html`; a test sweeps rendered text for
    `[a-z]+_[a-z_]+` and fails on a leak. Add the Hindi line whenever you add a code.
 
-9. **Chunk ids must be unique and it is now asserted at both ends.** They were
+9. **Image GENERATION is rejected on evidence, not preference** — 1 of 4 test
+   diagrams correct, one with misspelled Devanagari (`समकांन`). No validator can
+   check a rendered picture. Do not add it back without new evidence. Reading
+   pictures (`scripts/vision.py`) is fine and shipped.
+
+10. **A model will misspell a Devanagari sentinel.** Asked for `अपर्याप्त` it
+   wrote `अपरिप्याप्त` and the decline check missed it, so an irrelevant page
+   returned noise as figure content. Use ASCII sentinels for control tokens.
+
+11. **Gemini 2.5 counts thinking tokens against `maxOutputTokens`** — a 2048 cap
+   returned output truncated mid-word. `thinkingConfig.thinkingBudget = 0` for
+   transcription work.
+
+12. **Chunk ids must be unique and it is now asserted at both ends.** They were
    not: 74 of 248 chunks were being dropped on load. If you touch `chunk.py`'s id
    format, `chunk.py` will refuse to write a collision and `load_chunks()` will
    raise — do not "fix" either assertion by relaxing it.
 
-10. **Never trust corpus frequency as a spelling oracle.** It approved
+13. **Never trust corpus frequency as a spelling oracle.** It approved
    अध्ययन → अध्यन because the corruption is 6x commoner than the correct word.
    Every entry in `data/doubled_consonant_repairs.json` is hand-audited; the
    rejected one is documented in `_REJECTED`.
 
-11. **The free tier is ~90 answers/day** (200,000 tokens, ~2,212 each). A 30-Q
+14. **The free tier is ~90 answers/day** (200,000 tokens, ~2,212 each). A 30-Q
    conformance run costs a third of it. `scripts/window_cost.py` prices any
    context change before you spend on it.
 
-12. **`query_pre_check` emits 7 codes with 7 different causes.** Do not give the
+15. **`query_pre_check` emits 7 codes with 7 different causes.** Do not give the
    layer one refusal sentence — that shipped "this isn't in the Class 5 book" for
    vague questions and for deliberate declines. `PRE_CHECK_LINES` in `answer.py`
    is the map; a `clarify` outcome must not be styled as a refusal.
 
-13. **Known open bug:** typed `x2+5x+6…` classifies as `asr_suspect_code_mixed`
-   (the trigger is code-mixing, not speech) and pre-empts the beyond-Class-5
-   layer. Outcome is right, label is wrong. Fixing it means re-measuring against
-   `eval/refusal_set.py` — do not hand-tune it.
+16. **Closed (D15):** typed `x2+5x+6…` classifies as `asr_suspect_code_mixed`
+   typed `x2+5x+6…` used to classify as `asr_suspect_code_mixed`. Fixed by
+   `_ALGEBRA_NOTATION`, and the Latin-script rule narrowed to fragments fused to
+   Devanagari so code-mixed input works. Curve re-measured: unchanged.
 
-14. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
+17. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
    it both invents overlaps that aren't there and hides ones that are. Measure
    `getBoundingClientRect()` intersections instead of looking (D12).
 
-15. **Wait on hidden elements with `state="attached"`.** Playwright's
+18. **Wait on hidden elements with `state="attached"`.** Playwright's
    `wait_for_selector` defaults to "visible"; the dev panel is hidden by design,
    so the default made a correct implementation fail.
 
-16. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+19. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports
