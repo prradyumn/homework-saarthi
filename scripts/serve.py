@@ -178,7 +178,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             payload = json.loads(self.rfile.read(length) or b"{}")
         except json.JSONDecodeError:
-            return self._json(400, {"error": "bad json"})
+            return self._json(400, {"error": "bad json", "error_hi": "कुछ गड़बड़ हो गई, फिर कोशिश कीजिए।"})
 
         if url.path == "/api/transcribe":
             return self._transcribe(payload)
@@ -203,7 +203,7 @@ class Handler(BaseHTTPRequestHandler):
 
         audio = payload.get("audio_base64") or ""
         if not audio:
-            return self._json(400, {"error": "no audio"})
+            return self._json(400, {"error_hi": "आवाज़ रिकॉर्ड नहीं हुई, फिर बोलिए।"})
         # ~1 MB of base64 is roughly 45s of 16 kHz mono PCM; FR-1 allows 60s
         if len(audio) > 2_000_000:
             return self._json(400, {"error_hi": "आवाज़ का संदेश बहुत लंबा है, "
@@ -228,7 +228,7 @@ class Handler(BaseHTTPRequestHandler):
 
         text = (payload.get("text") or "").strip()
         if not text:
-            return self._json(400, {"error": "no text"})
+            return self._json(400, {"error_hi": "सुनाने के लिए कुछ नहीं मिला।"})
         try:
             out = bhashini.speak(text[:1200])
             print(f"  TTS {out['seconds']}s for {out['chars']} chars", flush=True)
@@ -250,9 +250,9 @@ class Handler(BaseHTTPRequestHandler):
         """
         q = (payload.get("question") or "").strip()
         if not q:
-            return self._json(400, {"error": "empty"})
+            return self._json(400, {"error_hi": "पहले सवाल लिखिए।"})
         if len(q) > 500:
-            return self._json(400, {"error": "too long"})
+            return self._json(400, {"error_hi": "सवाल बहुत लंबा है — छोटा करके पूछिए।"})
 
         from query_gate import pre_check
 
@@ -269,12 +269,12 @@ class Handler(BaseHTTPRequestHandler):
     # ------------------------------------------------------- FR-3/4/5/9
     def _answer(self, payload: dict) -> None:
         if not _state["ready"]:
-            return self._json(503, {"error": "still loading the models, one moment"})
+            return self._json(503, {"error_hi": "एक मिनट रुकिए, तैयारी हो रही है…"})
 
         q = (payload.get("question") or "").strip()
         sid = (payload.get("session") or "anon")[:64]
         if not q:
-            return self._json(400, {"error": "empty"})
+            return self._json(400, {"error_hi": "पहले सवाल लिखिए।"})
 
         from answer import answer
 

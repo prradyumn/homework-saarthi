@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~60% of the project
+## 3. State: ~68% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -68,7 +68,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
 | Wk 3 — refusal calibration + curve | **DONE** — **84% coverage at 1.2% wrong**, refusal on real traffic 16% (inside the 25% guardrail). Curve published and updated. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
-| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`. WhatsApp not started. |
+| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **34 Playwright assertions, all passing** at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
 ## 4. Accounts and secrets
@@ -303,7 +303,19 @@ cd "/Users/pradyumnawasthi/homework saarthi"
    (prints availability) then `--speak` to write a test WAV. The browser records
    16 kHz mono WAV in JS — encoder maths verified against Python's `wave` module —
    so there is no ffmpeg dependency. Measure the §7.3 20s p95 round trip once live.
-8. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+8. **Never show the parent a reason code.** All 14 gate codes have Hindi text in
+   the `WHY` map in `web/index.html`; a test sweeps rendered text for
+   `[a-z]+_[a-z_]+` and fails on a leak. Add the Hindi line whenever you add a code.
+
+9. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
+   it both invents overlaps that aren't there and hides ones that are. Measure
+   `getBoundingClientRect()` intersections instead of looking (D12).
+
+10. **Wait on hidden elements with `state="attached"`.** Playwright's
+   `wait_for_selector` defaults to "visible"; the dev panel is hidden by design,
+   so the default made a correct implementation fail.
+
+11. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports

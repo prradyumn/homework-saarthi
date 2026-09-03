@@ -1197,3 +1197,92 @@ labelled parts with part 4 distinct · FR-3 citation · legibility floor · no
 horizontal overflow at 430 px · FR-10 image renders and is data-cheap · FR-6
 listen control · FR-7 prompt and recording · FR-4 out-of-syllabus refusal with no
 irrelevant page · dark mode painting its own background · zero JavaScript errors.
+
+---
+
+## D12 — The interface was showing the parent my internal variable names
+
+**Rewrote `web/index.html`, put Hindi on every error path, and grew the browser
+suite 23 → 34 assertions.** The trigger was one line visible in a D11 screenshot:
+
+```
+कारण: beyond_class5_topic_in_question
+```
+
+A parent with limited literacy, reading Devanagari slowly (§3.1), was being shown
+an English snake_case identifier from `query_gate.py`. Every refusal did this.
+§8.1 says a refusal must never be a bare no — but a refusal in a language the user
+cannot read is *worse* than a bare no, because it looks like a malfunction.
+
+### The fix is a translation layer the parent's side owns
+
+There are **14 refusal reason codes** across the gate layers. Each now has a Hindi
+line written as *what to do next*, not as a diagnosis:
+
+| code | what the parent now reads |
+|---|---|
+| `beyond_class5_topic_in_question` | यह सवाल कक्षा 5 की किताब से आगे का है — इस किताब में यह नहीं सिखाया गया। |
+| `out_of_syllabus_by_margin` | यह बात कक्षा 5 की किताब में नहीं, बड़ी कक्षा की किताब में मिलती है। |
+| `no_maths_topic` | यह गणित का सवाल नहीं लगा। किताब के किसी विषय के बारे में पूछिए। |
+
+The reason code is still carried in the response — it is how the refusal curve is
+measured — it just stopped being user-facing. **A new assertion sweeps all
+rendered text for `[a-z]+_[a-z_]+` and fails if any internal code reaches the
+parent**, so this class of leak cannot come back through some path I did not think
+to check by hand.
+
+Server errors had the same problem in a quieter form: rate limits, warm-up 503s
+and transcription failures reached the browser as English exception text. Every
+client-facing error in `scripts/serve.py` now carries an `error_hi`.
+
+### The sticky header was covering the answer, and the screenshot hid it
+
+I took a full-page screenshot to check the rewrite and the header appeared drawn
+across the middle of the answer card. I nearly dismissed it: **Chromium renders
+`position: sticky` at its current scroll offset in a full-page capture**, which
+puts a sticky header mid-image as a matter of course. Measuring instead of looking
+settled it:
+
+```
+at rest after auto-scroll: { headerBottom: 118, covered: 1, scrollY: 292 }
+scrolled to top:           { covered: 0 }
+```
+
+**Real bug.** Auto-scroll jumped to the bottom of the page, and the 118 px opaque
+header then sat on whatever landed at the top — part 1 of a long answer. Two
+changes: cards carry `scroll-margin-top: 126px` and a new card is brought to its
+**top** rather than the page bottom (an answer is read from part 1 down, so this
+is the better behaviour regardless), and the header compacts once scrolled,
+returning the tagline's space to the answer. The assertion is a rect
+intersection between `header` and every `.part p`, not a screenshot.
+
+*Recurring lesson, third form:* D0 was a metric blind to the corruption it was
+measuring; D11 was a test that matched the string for "not ready yet"; this was a
+capture mode that renders the defect away. **The instrument has its own failure
+mode, and it is usually silent.**
+
+### Rewritten rather than patched
+
+`web/index.html` had grown by accretion across D8–D11. Rewriting it cost less than
+threading another change through it. What is new beyond the above:
+
+- **`HOW IT WORKS`** — a dev toggle rendering gate layer, retrieval score, chunk
+  id, context chunks, contract stats, latency and voice provider. The system was
+  previously only inspectable from a terminal, which made it impossible to show
+  anyone. Asserted hidden by default (`state="attached"`, since it is *meant* to
+  be invisible — the default "visible" wait made this test fail for being right).
+- `setBusy()` locks the composer while an answer is in flight — double-send
+  previously fired two Groq calls, which on an 8,000 TPM free tier is a
+  self-inflicted rate limit.
+- A refusal now offers "दूसरा सवाल पूछिए" instead of ending the conversation.
+- Safe-area padding and `theme-color` for both schemes.
+
+### New assertions (23 → 34)
+
+FR-2 "no" restores the question and re-enables the composer · vague question gets
+a Hindi clarification · **no internal reason code visible to the parent** ·
+dev panel hidden by default and reveals internals when asked · over-long question
+refused in Hindi · empty send creates no turn · composer disabled during and
+re-enabled after an answer · **sticky header covers no answer text**.
+
+**34 passed, 0 failed.**

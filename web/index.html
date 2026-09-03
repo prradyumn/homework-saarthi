@@ -2,212 +2,293 @@
 <html lang="hi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
 <title>होमवर्क साथी</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
 <style>
-  /* Palette from the textbook itself: the amber is Maths Mela's section-header
-     pill fill, the lavender its शिक्षण संकेत callout fill. */
+  /* Palette taken from the textbook being taught from: the amber is Maths Mela's
+     section-header pill fill, the lavender its शिक्षण संकेत callout fill. */
   :root {
-    --amber: #C8891F; --amber-soft: #FBF1DE;
-    --lavender: #7C6B96; --lavender-soft: #F1EDF5;
-    --ok: #2C6A58; --ok-soft: #E3EFEA;
-    --warn: #A63328; --warn-soft: #F7E7E4;
-    --ink: #16181D; --ink-2: #4C525D; --ink-3: #7A808B;
-    --ground: #F4F5F7; --surface: #FFFFFF; --rule: #DEE1E6;
+    --amber: #B87B14; --amber-soft: #FBF1DE; --amber-line: #E8CFA0;
+    --lavender: #6E5C8A; --lavender-soft: #F1EDF5;
+    --ok: #226352;
+    --warn: #96301F; --warn-soft: #FAEBE7; --warn-line: #E8C4BB;
+    --ink: #14161A; --ink-2: #474D57; --ink-3: #6F757F;
+    --ground: #F4F5F7; --surface: #FFFFFF; --rule: #DDE0E5; --rule-2: #ECEEF1;
     --deva: "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
     --sans: "IBM Plex Sans", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --shadow: 0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.05);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --amber: #E0A93C; --amber-soft: #33291480;
-      --lavender: #A797C2; --lavender-soft: #2A2534;
-      --ok: #63B79C; --ok-soft: #1B302A;
-      --warn: #E0705F; --warn-soft: #33201D;
-      --ink: #E9EAED; --ink-2: #AFB4BE; --ink-3: #7E848F;
-      --ground: #101216; --surface: #191C22; --rule: #2D323B;
+      --amber: #E3AC45; --amber-soft: #2E2513; --amber-line: #4A3B1C;
+      --lavender: #B0A0CB; --lavender-soft: #262232;
+      --ok: #6DBFA3;
+      --warn: #EE8171; --warn-soft: #2E1C19; --warn-line: #4A2620;
+      --ink: #EAEBEE; --ink-2: #B2B7C0; --ink-3: #838994;
+      --ground: #101216; --surface: #1A1D23; --rule: #2E333C; --rule-2: #23272E;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
     }
   }
+  :root[data-theme="dark"] {
+    --amber: #E3AC45; --amber-soft: #2E2513; --amber-line: #4A3B1C;
+    --lavender: #B0A0CB; --lavender-soft: #262232;
+    --ok: #6DBFA3;
+    --warn: #EE8171; --warn-soft: #2E1C19; --warn-line: #4A2620;
+    --ink: #EAEBEE; --ink-2: #B2B7C0; --ink-3: #838994;
+    --ground: #101216; --surface: #1A1D23; --rule: #2E333C; --rule-2: #23272E;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0; background: var(--ground); color: var(--ink);
+    /* §3.1: this parent reads Devanagari slowly and with effort, and the answer is
+       text they read ALOUD to a child. Larger and looser than a chat default. */
     font-family: var(--deva); font-size: 18px; line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 140px; }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 15px 150px; }
 
-  /* ---------- header ---------- */
-  header { padding: 10px 0 18px; }
-  .brand { display: flex; align-items: baseline; gap: 10px; }
-  h1 { font-size: 25px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-  .brand span {
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--ink-3);
+  /* ------------------------------ header ------------------------------ */
+  header {
+    position: sticky; top: 0; z-index: 5; background: var(--ground);
+    padding: 14px 0 11px; border-bottom: 1px solid var(--rule-2);
   }
-  .tagline { color: var(--ink-2); font-size: 15px; margin: 4px 0 0; }
+  .bar { display: flex; align-items: center; gap: 10px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -.015em; }
+  .cls {
+    font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .04em;
+    color: var(--amber); background: var(--amber-soft); border: 1px solid var(--amber-line);
+    padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+  }
+  .spacer { flex: 1; }
+  .devtoggle {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    color: var(--ink-3); background: none; border: 1px solid var(--rule);
+    padding: 4px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap;
+  }
+  .devtoggle[aria-pressed="true"] {
+    color: var(--amber); border-color: var(--amber-line); background: var(--amber-soft);
+  }
+  .tagline {
+    color: var(--ink-2); font-size: 14.5px; margin: 5px 0 0; line-height: 1.5;
+    transition: opacity .15s, max-height .2s, margin .2s;
+  }
+  /* Once the parent is reading answers, the tagline has done its job; giving the
+     space back to the answer matters more on a phone. */
+  body.scrolled .tagline { opacity: 0; max-height: 0; margin: 0; overflow: hidden; }
+  body.scrolled header { padding-bottom: 8px; }
+  @media (prefers-reduced-motion: reduce) { .tagline { transition: none; } }
   .status {
-    display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
+    display: flex; align-items: center; gap: 7px; margin-top: 7px;
     font-family: var(--sans); font-size: 12.5px; color: var(--ink-3);
   }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); flex: 0 0 auto; }
   .dot.ready { background: var(--ok); }
-  .dot.busy { background: var(--amber); }
+  .dot.warn { background: var(--warn); }
 
-  /* ---------- chat ---------- */
-  #thread { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
-  .msg { max-width: 100%; }
+  /* ------------------------------ thread ------------------------------ */
+  #thread { display: flex; flex-direction: column; gap: 13px; padding-top: 16px; }
   .from-parent {
-    align-self: flex-end; background: var(--lavender-soft);
-    border: 1px solid var(--rule); border-radius: 14px 14px 4px 14px;
-    padding: 11px 15px; max-width: 85%;
+    scroll-margin-top: 126px;
+    align-self: flex-end; max-width: 86%;
+    background: var(--lavender-soft); border: 1px solid var(--rule);
+    border-radius: 15px 15px 5px 15px; padding: 10px 15px; font-size: 17px;
   }
-  .from-saathi {
+  .mic-mark { color: var(--lavender); font-size: 14px; }
+  .card {
+    /* The sticky header is ~118px tall and opaque. Scrolling a card flush to the
+       top of the viewport therefore hid its first part behind the header — caught
+       by measuring element rects, not by looking at a screenshot, because a
+       full-page screenshot renders position:sticky at its scroll offset and hides
+       the problem. */
+    scroll-margin-top: 126px;
     background: var(--surface); border: 1px solid var(--rule);
-    border-radius: 14px 14px 14px 4px; padding: 4px 0 0; overflow: hidden;
+    border-radius: 15px 15px 15px 5px; box-shadow: var(--shadow); overflow: hidden;
   }
   .who {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--ink-3); margin: 0 0 5px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); padding: 10px 16px 0; margin: 0;
   }
 
-  /* the four parts of the answer contract, each labelled */
-  .part { padding: 14px 16px; border-top: 1px solid var(--rule); }
+  /* the four parts of the answer contract (§10) */
+  .part { padding: 13px 16px; border-top: 1px solid var(--rule-2); }
   .part:first-of-type { border-top: 0; }
   .part-label {
+    display: flex; align-items: center; gap: 7px; margin: 0 0 4px;
     font-family: var(--sans); font-size: 12px; font-weight: 500;
-    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
-    margin: 0 0 3px; display: flex; align-items: center; gap: 6px;
+    letter-spacing: .04em; color: var(--ink-3);
   }
   .part-num {
-    display: inline-grid; place-items: center; width: 16px; height: 16px;
+    display: inline-grid; place-items: center; width: 17px; height: 17px;
     border-radius: 50%; background: var(--amber); color: #fff;
-    font-size: 10px; font-weight: 600; font-family: var(--sans);
+    font-size: 10.5px; font-weight: 600; font-family: var(--sans); flex: 0 0 auto;
   }
-  /* The answer is read aloud to a child by someone who reads Devanagari with
-     effort (§3.1). Larger and looser than the rest of the page, deliberately. */
   .part p { margin: 0; font-size: 19px; line-height: 1.72; }
-  .part.say {
-    background: var(--amber-soft);
-  }
-  .part.say p { font-weight: 500; font-size: 20px; }  /* the sentence to say */
+  .part.say { background: var(--amber-soft); border-top-color: var(--amber-line); }
+  .part.say p { font-weight: 500; font-size: 20px; }
 
   .cite {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-    padding: 11px 16px; border-top: 1px solid var(--rule);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+    padding: 11px 16px; border-top: 1px solid var(--rule-2);
     font-family: var(--sans); font-size: 13px; color: var(--ink-3);
   }
-  .cite button {
-    font: inherit; font-family: var(--sans); color: var(--amber);
+  .cite .src { flex: 1 1 100%; }
+  .link {
+    font-family: var(--sans); font-size: 13px; color: var(--amber);
     background: none; border: 0; padding: 0; cursor: pointer;
-    text-decoration: underline; text-underline-offset: 2px;
+    text-decoration: underline; text-underline-offset: 3px;
   }
-  .cite button:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
-  .page-img { display: block; width: 100%; border-top: 1px solid var(--rule); }
-
-  /* refusal — never a bare no */
-  .refusal { background: var(--warn-soft); }
-  .refusal .part { border-top-color: color-mix(in srgb, var(--warn) 25%, transparent); }
-  .refusal-why {
-    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
-    padding: 0 16px 12px;
+  .link:hover { color: var(--ink); }
+  .link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 3px; }
+  .page-img {
+    display: block; width: 100%; border-top: 1px solid var(--rule);
+    background: var(--rule-2);
   }
 
-  /* FR-2 confirmation turn */
-  .confirm { background: var(--surface); border: 1px dashed var(--amber); border-radius: 12px; padding: 13px 16px; }
-  .confirm .q { font-weight: 500; margin: 4px 0 12px; }
+  /* refusal — §8.1: never a bare no */
+  .card.refusal { border-color: var(--warn-line); }
+  .card.refusal .who { color: var(--warn); }
+  .refusal-body { padding: 12px 16px 2px; }
+  .refusal-body p { margin: 0 0 10px; font-size: 18.5px; }
+  .refusal-why { font-size: 16.5px !important; color: var(--ink-2); }
+  .next { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 14px; }
+
+  /* FR-2 confirmation */
+  .confirm { padding: 13px 16px; }
+  .confirm .lead { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+  .confirm .q { margin: 3px 0 12px; font-size: 19px; font-weight: 500; }
+  .clarify {
+    background: var(--amber-soft); border: 1px solid var(--amber-line);
+    border-radius: 9px; padding: 9px 12px; margin: 0 0 11px; font-size: 16px;
+  }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  button.act {
-    font-family: var(--deva); font-size: 15px; padding: 9px 18px;
-    border-radius: 999px; border: 1px solid var(--rule);
-    background: var(--surface); color: var(--ink); cursor: pointer;
+  .btn {
+    font-family: var(--deva); font-size: 16px; padding: 9px 17px; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+    cursor: pointer; line-height: 1.35;
   }
-  button.act.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-  button.act:hover { border-color: var(--amber); }
-  button.act:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-  button.act[disabled] { opacity: .45; cursor: default; }
+  .btn.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .btn:hover:not([disabled]) { border-color: var(--amber); }
+  .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .btn[disabled] { opacity: .45; cursor: default; }
+  .decided { font-family: var(--sans); font-size: 13.5px; color: var(--ok); margin: 0; }
 
   /* FR-7 feedback */
-  .fb { padding: 12px 16px; border-top: 1px solid var(--rule); }
+  .fb { padding: 13px 16px; border-top: 1px solid var(--rule-2); }
   .fb p { font-size: 16.5px; margin: 0 0 10px; }
-  .fb.done { color: var(--ok); font-family: var(--sans); font-size: 13.5px; }
+  .fb-done {
+    color: var(--ok); font-family: var(--sans); font-size: 14px;
+    padding: 13px 16px; border-top: 1px solid var(--rule-2); margin: 0;
+  }
 
-  /* ---------- composer ---------- */
+  /* The machinery, for whoever is evaluating this. Off by default, so the parent
+     never sees a reason code or a similarity score. */
+  .dev {
+    display: none; font-family: var(--mono); font-size: 11px; line-height: 1.75;
+    color: var(--ink-3); background: var(--rule-2); border-top: 1px solid var(--rule);
+    padding: 9px 16px; overflow-x: auto; white-space: pre; margin: 0;
+  }
+  body.devmode .dev { display: block; }
+
+  /* ------------------------------ composer ------------------------------ */
   .composer {
-    position: fixed; left: 0; right: 0; bottom: 0; background: var(--ground);
-    border-top: 1px solid var(--rule); padding: 12px 16px 16px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+    background: var(--ground); border-top: 1px solid var(--rule);
+    padding: 11px 15px calc(14px + env(safe-area-inset-bottom));
   }
-  .composer-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 9px; align-items: flex-end; }
+  .composer-inner {
+    position: relative; max-width: 620px; margin: 0 auto;
+    display: flex; gap: 9px; align-items: flex-end;
+  }
   textarea {
-    flex: 1; font-family: var(--deva); font-size: 16.5px; line-height: 1.5;
-    padding: 11px 14px; border-radius: 14px; border: 1px solid var(--rule);
-    background: var(--surface); color: var(--ink); resize: none; min-height: 46px;
-    max-height: 130px;
+    flex: 1; font-family: var(--deva); font-size: 17px; line-height: 1.5;
+    padding: 12px 14px; border-radius: 15px; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--ink); resize: none;
+    min-height: 48px; max-height: 132px;
   }
-  textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: -1px; border-color: var(--amber); }
-  .mic, .send {
-    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
+  textarea:focus-visible {
+    outline: 2px solid var(--amber); outline-offset: -1px; border-color: var(--amber);
+  }
+  .rnd {
+    flex: 0 0 auto; width: 48px; height: 48px; border-radius: 50%;
     border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
-    cursor: pointer; display: grid; place-items: center; font-size: 19px;
+    cursor: pointer; display: grid; place-items: center; font-size: 18px;
   }
-  .send { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-  .mic[disabled] { opacity: .5; cursor: not-allowed; }
-  .mic.rec {
+  .rnd.send { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .rnd[disabled] { opacity: .4; cursor: not-allowed; }
+  .rnd:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .rnd.rec {
     background: var(--warn); color: #fff; border-color: var(--warn);
     animation: pulse 1.1s infinite ease-in-out;
   }
-  @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.09) } }
-  @media (prefers-reduced-motion: reduce) { .mic.rec { animation: none } }
-  .rec-timer {
-    position: absolute; left: 50%; transform: translateX(-50%); top: -26px;
-    font-family: var(--mono); font-size: 12px; color: var(--warn);
-    background: var(--ground); padding: 1px 8px; border-radius: 999px;
+  @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.08) } }
+  .rec-badge {
+    position: absolute; left: 0; top: -32px;
+    font-family: var(--sans); font-size: 13px; color: var(--warn);
+    background: var(--warn-soft); border: 1px solid var(--warn-line);
+    padding: 3px 11px; border-radius: 999px; white-space: nowrap;
   }
-  .composer-inner { position: relative; }
-  .listen {
-    display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans);
-    font-size: 12.5px; color: var(--amber); background: none; border: 0;
-    padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
-  }
-  .listen:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
-  .mic:focus-visible, .send:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
   .hint {
-    max-width: 640px; margin: 8px auto 0; font-family: var(--sans);
-    font-size: 11.5px; color: var(--ink-3); text-align: center;
+    max-width: 620px; margin: 8px auto 0; font-family: var(--sans);
+    font-size: 11.5px; color: var(--ink-3); text-align: center; min-height: 17px;
   }
-  .examples { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 4px; }
-  .examples button {
-    font-family: var(--deva); font-size: 14px; padding: 7px 13px; border-radius: 999px;
-    border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2); cursor: pointer;
+
+  /* first-run examples */
+  .examples { padding-top: 18px; }
+  .examples p {
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-3);
+    margin: 0 0 9px; letter-spacing: .02em;
   }
-  .examples button:hover { border-color: var(--amber); color: var(--ink); }
-  .thinking { display: flex; gap: 5px; padding: 14px 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chips button {
+    font-family: var(--deva); font-size: 15px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2);
+    cursor: pointer; text-align: left;
+  }
+  .chips button:hover { border-color: var(--amber); color: var(--ink); }
+  .chips button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .thinking { display: flex; gap: 5px; padding: 17px 16px; }
   .thinking i {
     width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3);
     animation: b 1.2s infinite ease-in-out;
   }
   .thinking i:nth-child(2) { animation-delay: .15s; }
   .thinking i:nth-child(3) { animation-delay: .3s; }
-  @keyframes b { 0%,80%,100% { opacity: .25 } 40% { opacity: 1 } }
-  @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; opacity: .6 } }
+  @keyframes b { 0%,80%,100% { opacity: .22 } 40% { opacity: 1 } }
+  @media (prefers-reduced-motion: reduce) {
+    .thinking i, .rnd.rec { animation: none; opacity: .7; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="brand">
+    <div class="bar">
       <h1>होमवर्क साथी</h1>
-      <span>कक्षा 5 · गणित</span>
+      <span class="cls">कक्षा 5 · गणित</span>
+      <span class="spacer"></span>
+      <button class="devtoggle" id="devtoggle" aria-pressed="false">HOW IT WORKS</button>
     </div>
-    <p class="tagline">बच्चे को समझाने में मदद — जवाब नहीं, समझाने का तरीका।</p>
-    <div class="status"><i class="dot" id="dot"></i><span id="statusText">तैयार हो रहा है…</span></div>
+    <p class="tagline">बच्चे को समझाने में मदद — तैयार जवाब नहीं, समझाने का तरीका।</p>
+    <div class="status"><i class="dot" id="dot"></i><span id="statusText">तैयारी हो रही है…</span></div>
   </header>
 
   <div class="examples" id="examples">
-    <button>1 किलोग्राम में कितने ग्राम होते हैं?</button>
-    <button>तुल्य भिन्न क्या होती है?</button>
-    <button>सम पंचभुज से टाइल क्यों नहीं बनती?</button>
-    <button>नक्शे में जगह कैसे ढूँढ़ते हैं?</button>
+    <p>कुछ इस तरह पूछिए —</p>
+    <div class="chips">
+      <button>1 किलोग्राम में कितने ग्राम होते हैं?</button>
+      <button>तुल्य भिन्न क्या होती है?</button>
+      <button>सम पंचभुज से टाइल क्यों नहीं बनती?</button>
+      <button>नक्शे में जगह कैसे ढूँढ़ते हैं?</button>
+    </div>
   </div>
 
   <div id="thread"></div>
@@ -215,274 +296,347 @@
 
 <div class="composer">
   <div class="composer-inner">
-    <button class="mic" id="mic" disabled title="आवाज़ की सुविधा भाषिणी जुड़ने पर">🎤</button>
+    <button class="rnd" id="mic" disabled aria-label="बोलकर पूछिए">🎤</button>
     <textarea id="input" rows="1" placeholder="अपना सवाल लिखिए…" aria-label="सवाल"></textarea>
-    <button class="send" id="send" title="भेजिए" aria-label="भेजिए">↑</button>
+    <button class="rnd send" id="send" aria-label="भेजिए">↑</button>
   </div>
-  <p class="hint" id="hint">आवाज़ में पूछने की सुविधा भाषिणी (भारत सरकार) जुड़ने पर आएगी</p>
+  <p class="hint" id="hint"></p>
 </div>
 
 <script>
-let VOICE = false;          // server-side voice (Bhashini) available
-let VOICE_MODE = 'none';    // 'bhashini' | 'browser' | 'none'
+'use strict';
+const SESSION = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 24);
+const $ = (s) => document.querySelector(s);
+const thread = $('#thread'), input = $('#input'), dot = $('#dot');
+const statusText = $('#statusText'), hint = $('#hint');
+const micBtn = $('#mic'), sendBtn = $('#send');
 
-/* The browser's own speech engines: no account, no key, no cost, works today.
+let busy = false;
+let VOICE_MODE = 'none';        // 'bhashini' | 'browser' | 'none'
+let voiceProvider = 'none';
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const el = (h) => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstElementChild; };
+const scroll = () => requestAnimationFrame(() =>
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+/* An answer is read from part 1 downwards, so bring the card's top into view
+   (respecting scroll-margin-top) instead of jumping to the bottom of the page. */
+const scrollCard = (node) => requestAnimationFrame(() => {
+  if (node && node.scrollIntoView) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+const say = (m) => { hint.textContent = m || ''; };
+
+/* Every refusal reason in Hindi, written as WHAT TO DO NEXT rather than as a
+   translation of the internal code. The parent is the user (§3.1); a raw
+   identifier like `beyond_class5_topic_in_question` on screen is a product
+   failure, and it was on screen until now. */
+const WHY = {
+  beyond_class5_topic_in_question: 'यह सवाल कक्षा 5 की किताब से आगे का है — इस किताब में यह नहीं सिखाया गया।',
+  out_of_syllabus_by_margin: 'यह बात कक्षा 5 की किताब में नहीं, बड़ी कक्षा की किताब में मिलती है।',
+  no_maths_topic: 'यह गणित का सवाल नहीं लगा। किताब के किसी विषय के बारे में पूछिए।',
+  too_short: 'सवाल थोड़ा और पूरा लिखिए — किस बात के बारे में जानना है?',
+  two_questions: 'इसमें दो सवाल हैं। एक-एक करके पूछिए, तो ठीक से समझा पाऊँगा।',
+  answer_copying: 'मैं तैयार जवाब लिखकर नहीं देता। मेरा काम है आपको समझाने का तरीका बताना, ताकि बच्चा खुद समझे।',
+  asr_suspect_code_mixed: 'आवाज़ ठीक से समझ नहीं आई। फिर बोलिए, या सवाल लिख दीजिए।',
+  figure_value_lookup: 'इसका जवाब किताब के चित्र में है, लिखा हुआ नहीं। नीचे दिया पेज देख लीजिए।',
+  answer_is_in_a_chart: 'इसका जवाब किताब के आरेख से पढ़ना होगा — वह लिखा हुआ नहीं है।',
+  passage_does_not_cover_question: 'किताब के इस हिस्से में यह बात नहीं लिखी है, इसलिए मैं अंदाज़े से नहीं बताऊँगा।',
+  below_similarity_floor: 'मुझे किताब में इससे मिलती-जुलती बात नहीं मिली।',
+  chunk_below_extraction_gate: 'किताब का यह पेज साफ़ नहीं पढ़ा जा सका, इसलिए मैं यहाँ से जवाब नहीं दूँगा।',
+  answer_failed_contract: 'मैं इसका जवाब ठीक से बना नहीं पाया, और अधूरा बताना ठीक नहीं।',
+};
+const whyText = (c) => WHY[c] || 'मैं इसका पक्का जवाब नहीं दे सकता।';
+
+/* ---- browser speech: the no-account fallback ----
    Bhashini stays the production path (§8.4 makes it a sovereignty and
-   data-governance decision, not just a cost one) — this is the prototype
-   fallback so the demo is never blocked on a portal.
-
-   Deliberately NOT Gemini's free tier, which would also work: §14 names
-   "prompts used for provider model training" as a risk, and its free tier trains
-   on submitted data. This is a child's homework and a parent's voice. */
-const BrowserSpeech = {
+   data-governance decision). This exists so the demo is never blocked on a portal.
+   Deliberately not Gemini: §14 flags provider training on submitted data, and the
+   data here is a child's homework and a parent's voice. */
+const Speech = {
   Rec: window.SpeechRecognition || window.webkitSpeechRecognition,
   canListen() { return !!this.Rec; },
   canSpeak() { return 'speechSynthesis' in window; },
   hindiVoice() {
-    const vs = window.speechSynthesis.getVoices();
-    return vs.find(v => v.lang === 'hi-IN')
-        || vs.find(v => (v.lang || '').startsWith('hi'))
-        || null;
+    const v = window.speechSynthesis.getVoices();
+    return v.find(x => x.lang === 'hi-IN') || v.find(x => (x.lang || '').startsWith('hi')) || null;
   },
   listen(onResult, onError) {
     const r = new this.Rec();
-    r.lang = 'hi-IN';
-    r.interimResults = false;
-    r.maxAlternatives = 1;
+    r.lang = 'hi-IN'; r.interimResults = false; r.maxAlternatives = 1;
     r.onresult = (e) => onResult(e.results[0][0].transcript);
     r.onerror = (e) => onError(e.error);
-    r.start();
-    return r;
+    r.start(); return r;
   },
   speak(text, onEnd) {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    const v = this.hindiVoice();
-    if (v) u.voice = v;
+    const v = this.hindiVoice(); if (v) u.voice = v;
     u.lang = 'hi-IN';
-    u.rate = 0.92;            // slightly slow: this is an explanation to repeat aloud
-    u.onend = onEnd;
-    window.speechSynthesis.speak(u);
-    return u;
+    u.rate = 0.92;              // an explanation to repeat aloud, not a notification
+    u.onend = onEnd; u.onerror = onEnd;
+    window.speechSynthesis.speak(u); return u;
   },
 };
-const SESSION = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 24);
-const thread = document.getElementById('thread');
-const input = document.getElementById('input');
-const dot = document.getElementById('dot');
-const statusText = document.getElementById('statusText');
-let busy = false;
+if ('speechSynthesis' in window) {
+  // getVoices() is async in Chrome; without this the Hindi voice is missed on the
+  // first call and the answer gets read out in an English accent.
+  window.speechSynthesis.onvoiceschanged = () => Speech.hindiVoice();
+  Speech.hindiVoice();
+}
 
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const el = (html) => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
-const scroll = () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
+/* ------------------------------ status ------------------------------ */
 async function poll() {
   try {
     const s = await (await fetch('/api/status')).json();
-    if (s.error) { dot.className = 'dot'; statusText.textContent = 'शुरू नहीं हो सका'; return; }
+    if (s.error) {
+      dot.className = 'dot warn';
+      statusText.textContent = 'शुरू नहीं हो सका — पेज दोबारा खोलिए';
+      return;
+    }
     if (s.ready) {
+      const server = !!(s.voice && s.voice.ok);
+      const browser = Speech.canListen() || Speech.canSpeak();
+      VOICE_MODE = server ? 'bhashini' : (browser ? 'browser' : 'none');
+      voiceProvider = server ? 'Bhashini (भारत सरकार)' : (browser ? 'browser speech' : 'none');
       dot.className = 'dot ready';
-      VOICE = !!(s.voice && s.voice.ok);
-      const browserOK = BrowserSpeech.canListen() || BrowserSpeech.canSpeak();
-      VOICE_MODE = VOICE ? 'bhashini' : (browserOK ? 'browser' : 'none');
-
-      const mic = document.getElementById('mic');
-      mic.disabled = (VOICE_MODE === 'none') ||
-                     (VOICE_MODE === 'browser' && !BrowserSpeech.canListen());
-      const label = {
-        bhashini: 'तैयार — आवाज़ में पूछ सकते हैं (भाषिणी, भारत सरकार)',
-        browser:  'तैयार — आवाज़ इस ब्राउज़र से (भाषिणी जुड़ने पर बदल जाएगी)',
-        none:     'तैयार — किताब: NCERT गणित मेला, कक्षा 5',
-      }[VOICE_MODE];
-      statusText.textContent = label;
-      mic.title = mic.disabled ? 'इस ब्राउज़र में आवाज़ नहीं चलेगी' : 'बोलकर पूछिए';
-      document.getElementById('hint').textContent = mic.disabled
-        ? 'नीचे लिखकर पूछिए'
-        : 'माइक दबाकर बोलिए — या नीचे लिख दीजिए';
+      /* Parent-facing. Which speech provider is wired is our problem, not theirs —
+         that detail lives in the HOW IT WORKS panel. */
+      statusText.textContent = VOICE_MODE === 'none'
+        ? 'तैयार — किताब: NCERT गणित मेला, कक्षा 5'
+        : 'तैयार — बोलकर या लिखकर पूछिए';
+      const canMic = VOICE_MODE === 'bhashini' ||
+                     (VOICE_MODE === 'browser' && Speech.canListen());
+      micBtn.disabled = !canMic;
+      micBtn.title = canMic ? 'बोलकर पूछिए' : 'इस ब्राउज़र में आवाज़ नहीं चलेगी';
       return;
     }
   } catch (e) { /* server not up yet */ }
   setTimeout(poll, 1200);
 }
 poll();
-if ('speechSynthesis' in window) {
-  // Chrome populates getVoices() asynchronously; without this the Hindi voice
-  // is missed on the first call and the answer is read in an English accent.
-  window.speechSynthesis.onvoiceschanged = () => BrowserSpeech.hindiVoice();
-  BrowserSpeech.hindiVoice();
-}
 
-function addParent(text) {
-  thread.appendChild(el(`<div class="msg from-parent">${esc(text)}</div>`));
+$('#devtoggle').onclick = (e) => {
+  const on = document.body.classList.toggle('devmode');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+};
+
+/* ------------------------------ rendering ------------------------------ */
+function addParent(text, viaVoice) {
+  thread.appendChild(el(`<div class="from-parent">${
+    viaVoice ? '<span class="mic-mark">🎤 </span>' : ''}${esc(text)}</div>`));
   scroll();
 }
-
 function addThinking() {
-  const n = el('<div class="msg from-saathi"><div class="thinking"><i></i><i></i><i></i></div></div>');
+  const n = el('<div class="card"><div class="thinking"><i></i><i></i><i></i></div></div>');
   thread.appendChild(n); scroll(); return n;
 }
+function setBusy(v) { busy = v; sendBtn.disabled = v; input.disabled = v; }
 
-/* FR-2 — read the question back and require confirmation before answering.
-   §8.3 makes this mandatory: mishearing a number silently changes the question,
-   and one extra turn turns a silent wrong answer into a visible correction. */
-function askConfirm(interpreted, clarify) {
-  const node = el(`
-    <div class="msg from-saathi">
-      <div class="confirm">
-        <p class="who">साथी</p>
-        ${clarify ? `<p style="margin:0 0 8px">सवाल थोड़ा और साफ़ बताइए — <span style="font-family:var(--mono);font-size:12px">${esc(clarify)}</span></p>` : ''}
-        <p style="margin:0;color:var(--ink-2);font-size:14.5px">आपने पूछा:</p>
-        <p class="q">“${esc(interpreted)}”</p>
-        <div class="row">
-          <button class="act primary" data-yes>हाँ, सही है</button>
-          <button class="act" data-no>नहीं, बदलना है</button>
-        </div>
-      </div>
-    </div>`);
-  thread.appendChild(node); scroll();
-  node.querySelector('[data-yes]').onclick = () => {
-    node.querySelector('.row').innerHTML = '<span style="font-family:var(--sans);font-size:13px;color:var(--ok)">✓ हाँ</span>';
-    getAnswer(interpreted);
-  };
-  node.querySelector('[data-no]').onclick = () => {
-    node.querySelector('.row').innerHTML = '<span style="font-family:var(--sans);font-size:13px;color:var(--ink-3)">सवाल फिर लिखिए</span>';
-    input.value = interpreted; input.focus(); busy = false;
-  };
+const PARTS = [['answer','जवाब'], ['rule','एक नियम'],
+               ['example','अलग संख्याओं से उदाहरण'], ['say_to_child','बच्चे से यह कहिए']];
+
+function devPanel(d) {
+  const c = d.citation || {}, r = d.refusal || {};
+  const lines = [
+    `outcome     ${d.answered ? 'answered' : 'refused'}`,
+    d.answered ? null : `gate        ${r.layer || '—'} / ${r.reason || '—'}`,
+    d.score != null ? `retrieval   score ${d.score}   floor 0.30 · decoy margin 0.08` : null,
+    c.chunk_id ? `chunk       ${c.chunk_id}` : null,
+    (d.context_chunks || []).length
+      ? `context     ${d.context_chunks.map(x => `ch${x.chapter} p${x.page} @${x.score}`).join('  ')}` : null,
+    d.stats ? `contract    ${d.stats.words} words · q${JSON.stringify(d.stats.question_numbers)} → ex${JSON.stringify(d.stats.example_numbers)}` : null,
+    d.retried ? 'retry       contract failed once, regenerated' : null,
+    d.elapsed != null ? `latency     ${d.elapsed}s   guardrail 20s p95` : null,
+    `voice       ${voiceProvider}`,
+  ].filter(Boolean);
+  return `<pre class="dev">${esc(lines.join('\n'))}</pre>`;
 }
-
-const PART_LABELS = [
-  ['answer', 'जवाब'],
-  ['rule', 'एक नियम'],
-  ['example', 'अलग संख्याओं से उदाहरण'],
-  ['say_to_child', 'बच्चे से यह कहिए'],
-];
 
 function renderAnswer(node, d) {
   if (d.answered) {
-    const parts = PART_LABELS.map(([k, label], i) => d.parts[k] ? `
-      <div class="part ${k === 'say_to_child' ? 'say' : ''}">
+    const c = d.citation || {};
+    const parts = PARTS.map(([k, label], i) => d.parts[k] ? `
+      <div class="part${k === 'say_to_child' ? ' say' : ''}">
         <p class="part-label"><span class="part-num">${i + 1}</span>${label}</p>
         <p>${esc(d.parts[k])}</p>
       </div>` : '').join('');
-    const c = d.citation || {};
     node.outerHTML = `
-      <div class="msg from-saathi">
-        <p class="who" style="padding:8px 16px 0">साथी</p>
+      <div class="card">
+        <p class="who">साथी</p>
         ${parts}
         <div class="cite">
-          <span>किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
-          <button data-page="${esc(c.page)}">पेज देखिए</button>
-          ${VOICE_MODE !== 'none' ? `<button class="listen" data-speak>🔊 सुनिए</button>` : ''}
+          <span class="src">किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
+          <button class="link" data-page="${esc(c.page)}">पेज देखिए</button>
+          ${VOICE_MODE !== 'none' ? '<button class="link" data-speak>🔊 सुनकर देखिए</button>' : ''}
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
           <div class="row">
-            <button class="act primary" data-exp="1">हाँ, समझा दिया</button>
-            <button class="act" data-exp="0">अभी नहीं</button>
+            <button class="btn primary" data-exp="1">हाँ, समझा दिया</button>
+            <button class="btn" data-exp="0">अभी नहीं</button>
           </div>
         </div>
+        ${devPanel(d)}
       </div>`;
   } else if (d.error_hi) {
-    node.outerHTML = `<div class="msg from-saathi refusal"><div class="part"><p>${esc(d.error_hi)}</p></div></div>`;
+    node.outerHTML = `<div class="card refusal"><div class="refusal-body">
+      <p>${esc(d.error_hi)}</p></div>${devPanel(d)}</div>`;
   } else {
-    /* §8.1's refusal package: a spoken line, the textbook page, and the teacher.
-       Never a bare no. */
-    const r = d.refusal || {};
-    // only when §8.1 actually has a relevant page to offer
-    const page = r.page_image ? (d.citation || {}).page : null;
+    /* §8.1's refusal package: an honest line, the page when one is actually
+       relevant, and a way forward. Never a bare no, never a reason code. */
+    const r = d.refusal || {}, page = r.page_image ? (d.citation || {}).page : null;
     node.outerHTML = `
-      <div class="msg from-saathi refusal">
-        <p class="who" style="padding:8px 16px 0">साथी</p>
-        <div class="part"><p>${esc(r.spoken || '')}</p></div>
-        ${page ? `<div class="cite"><span>यह पेज देख लीजिए: पेज ${esc(page)}</span>
-          <button data-page="${esc(page)}">पेज देखिए</button></div>` : ''}
-        <p class="refusal-why">कारण: ${esc(r.reason || '')}</p>
+      <div class="card refusal">
+        <p class="who">साथी</p>
+        <div class="refusal-body">
+          <p>${esc(r.spoken || 'मुझे पक्का नहीं पता।')}</p>
+          <p class="refusal-why">${esc(whyText(r.reason))}</p>
+        </div>
+        ${page ? `<div class="cite">
+          <span class="src">किताब का पेज ${esc(page)} देख लीजिए</span>
+          <button class="link" data-page="${esc(page)}">पेज देखिए</button></div>` : ''}
+        <div class="next"><button class="btn" data-ask>दूसरा सवाल पूछिए</button></div>
+        ${devPanel(d)}
       </div>`;
   }
-  wire(); scroll();
+  wire();
+  scrollCard(thread.lastElementChild);
 }
 
-/* FR-10 — show the actual textbook page, so the parent can find it in the book */
 function wire() {
-  document.querySelectorAll('[data-page]').forEach(b => {
-    if (b.dataset.wired) return; b.dataset.wired = '1';
+  document.querySelectorAll('[data-page]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
     b.onclick = () => {
-      const n = b.dataset.page;
-      if (b.dataset.shown) { b.parentElement.parentElement.querySelector('.page-img')?.remove();
-        delete b.dataset.shown; b.textContent = 'पेज देखिए'; return; }
-      const img = el(`<img class="page-img" src="/page/${n}" alt="किताब का पेज ${n}">`);
-      b.parentElement.after(img); b.dataset.shown = '1'; b.textContent = 'पेज छिपाइए';
+      const card = b.closest('.card'), shown = card.querySelector('.page-img');
+      if (shown) { shown.remove(); b.textContent = 'पेज देखिए'; return; }
+      b.textContent = 'पेज छिपाइए';
+      b.closest('.cite').after(el(`<img class="page-img" src="/page/${b.dataset.page}"
+        alt="किताब का पेज ${b.dataset.page}">`));
     };
   });
-  document.querySelectorAll('[data-speak]').forEach(b => {
-    if (b.dataset.wired) return; b.dataset.wired = '1';
-    b.onclick = () => {
-      /* read the four parts aloud in order, as one utterance */
-      const box = b.closest('.from-saathi');
-      const text = [...box.querySelectorAll('.part p')].map(p => p.textContent).join(' ');
-      speak(b, text);
-    };
+  document.querySelectorAll('[data-speak]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
+    b.onclick = () => speak(b, [...b.closest('.card').querySelectorAll('.part p')]
+      .map(p => p.textContent).join(' '));
   });
-  document.querySelectorAll('[data-exp]').forEach(b => {
-    if (b.dataset.wired) return; b.dataset.wired = '1';
+  document.querySelectorAll('[data-exp]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
     b.onclick = async () => {
-      const box = b.closest('[data-fb]');
-      const explained = b.dataset.exp === '1';
-      box.innerHTML = `<p class="fb done">${explained ? '✓ शुक्रिया — यही सबसे बड़ी बात है।' : 'ठीक है, कोई बात नहीं।'}</p>`;
+      const box = b.closest('[data-fb]'), yes = b.dataset.exp === '1';
+      box.outerHTML = `<p class="fb-done">${yes
+        ? '✓ शुक्रिया — यही सबसे बड़ी बात है।'
+        : 'ठीक है। कुछ और पूछना हो तो पूछिए।'}</p>`;
       try {
         await fetch('/api/feedback', { method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ session: SESSION, understood: explained, explained }) });
-      } catch (e) {}
+          body: JSON.stringify({ session: SESSION, understood: yes, explained: yes }) });
+      } catch (e) { /* feedback is best-effort */ }
     };
   });
+  document.querySelectorAll('[data-ask]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
+    b.onclick = () => { input.focus(); scroll(); };
+  });
+}
+
+/* ------------------------------ FR-6: listen ------------------------------ */
+let audio = null;
+async function speak(btn, text) {
+  const was = btn.textContent;
+  if (VOICE_MODE === 'browser') {
+    if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); btn.textContent = was; return; }
+    btn.textContent = '⏸ रोकिए';
+    Speech.speak(text, () => { btn.textContent = was; });
+    return;
+  }
+  if (audio) { audio.pause(); audio = null; btn.textContent = was; return; }
+  btn.textContent = '⏳ बन रहा है…';
+  try {
+    const d = await (await fetch('/api/speak', { method: 'POST',
+      headers: {'Content-Type':'application/json'}, body: JSON.stringify({ text }) })).json();
+    if (!d.audio_base64) { btn.textContent = d.error_hi || 'आवाज़ उपलब्ध नहीं'; return; }
+    audio = new Audio('data:audio/wav;base64,' + d.audio_base64);
+    btn.textContent = '⏸ रोकिए';
+    audio.onended = () => { btn.textContent = was; audio = null; };
+    audio.play();
+  } catch (e) { btn.textContent = was; }
+}
+
+/* ------------------------------ FR-2: confirm first ------------------------------
+   §8.3 makes this mandatory: "एक बटा चार" (1/4) misheard as "एक बटा चालीस" (1/40)
+   silently changes the question, and the parent cannot detect it — they asked
+   because they did not know. One visible turn makes a wrong hearing correctable. */
+function askConfirm(q, clarify) {
+  const node = el(`
+    <div class="card">
+      <p class="who">साथी</p>
+      <div class="confirm">
+        ${clarify ? `<p class="clarify">${esc(whyText(clarify))}</p>` : ''}
+        <p class="lead">आपने पूछा:</p>
+        <p class="q">“${esc(q)}”</p>
+        <div class="row">
+          <button class="btn primary" data-yes>हाँ, सही है</button>
+          <button class="btn" data-no>नहीं, बदलना है</button>
+        </div>
+      </div>
+    </div>`);
+  thread.appendChild(node); scrollCard(node);
+  node.querySelector('[data-yes]').onclick = () => {
+    node.querySelector('.row').outerHTML = '<p class="decided">✓ हाँ</p>';
+    getAnswer(q);
+  };
+  node.querySelector('[data-no]').onclick = () => {
+    node.querySelector('.row').outerHTML =
+      '<p class="decided" style="color:var(--ink-3)">सवाल फिर लिखिए</p>';
+    setBusy(false);
+    input.value = q; autosize(); input.focus();
+    input.setSelectionRange(q.length, q.length);
+  };
 }
 
 async function getAnswer(q) {
   const node = addThinking();
   try {
-    const r = await fetch('/api/answer', { method: 'POST', headers: {'Content-Type':'application/json'},
+    const r = await fetch('/api/answer', { method: 'POST',
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ question: q, session: SESSION }) });
     renderAnswer(node, await r.json());
   } catch (e) {
-    renderAnswer(node, { error_hi: 'जुड़ने में दिक्कत हुई। फिर कोशिश कीजिए।' });
+    renderAnswer(node, { error_hi: 'जुड़ने में दिक्कत हुई। थोड़ी देर बाद कोशिश कीजिए।' });
   }
-  busy = false;
+  setBusy(false); say('');
 }
 
-async function send() {
-  const q = input.value.trim();
-  if (!q || busy) return;
-  busy = true; input.value = ''; input.style.height = 'auto';
-  document.getElementById('examples').style.display = 'none';
-  addParent(q);
+async function submit(text, viaVoice) {
+  const q = (text ?? input.value).trim();
+  if (busy) return;
+  if (!q) { say('पहले सवाल लिखिए'); return; }
+  if (q.length > 500) { say('सवाल बहुत लंबा है — छोटा करके पूछिए'); return; }
+  setBusy(true); say('');
+  input.value = ''; autosize();
+  $('#examples').hidden = true;
+  addParent(q, viaVoice);
   try {
-    const r = await fetch('/api/interpret', { method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ question: q }) });
-    const d = await r.json();
+    const d = await (await fetch('/api/interpret', { method: 'POST',
+      headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: q }) })).json();
+    if (d.error_hi) { say(d.error_hi); setBusy(false); return; }
     askConfirm(d.interpreted, d.clarify);
   } catch (e) {
-    busy = false;
+    renderAnswer(addThinking(), { error_hi: 'जुड़ने में दिक्कत हुई।' });
+    setBusy(false);
   }
 }
 
-/* ---------------- FR-1: record in the browser, encode WAV in JS ----------------
-   MediaRecorder produces WebM/Opus, and Bhashini's ASR wants WAV or FLAC. Rather
-   than add ffmpeg to the server, raw PCM is captured through Web Audio and
-   encoded as 16-bit mono WAV here. No dependency, works in every browser that
-   can reach a microphone. */
+/* ------------------------------ FR-1: voice in ------------------------------ */
 const TARGET_RATE = 16000;
-let rec = null;
+let pcm = null, listening = null;
 
 function encodeWav(samples, rate) {
-  const buf = new ArrayBuffer(44 + samples.length * 2);
-  const v = new DataView(buf);
+  const buf = new ArrayBuffer(44 + samples.length * 2), v = new DataView(buf);
   const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-  str(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); str(8, 'WAVE');
-  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
-  v.setUint16(22, 1, true); v.setUint32(24, rate, true);
-  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-  str(36, 'data'); v.setUint32(40, samples.length * 2, true);
+  str(0,'RIFF'); v.setUint32(4, 36 + samples.length*2, true); str(8,'WAVE');
+  str(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  str(36,'data'); v.setUint32(40, samples.length*2, true);
   let o = 44;
   for (let i = 0; i < samples.length; i++, o += 2) {
     const x = Math.max(-1, Math.min(1, samples[i]));
@@ -490,178 +644,128 @@ function encodeWav(samples, rate) {
   }
   return new Uint8Array(buf);
 }
-
-function downsample(input, from, to) {
-  if (to >= from) return input;
-  const ratio = from / to, out = new Float32Array(Math.round(input.length / ratio));
+function downsample(inp, from, to) {
+  if (to >= from) return inp;
+  const ratio = from / to, out = new Float32Array(Math.round(inp.length / ratio));
   for (let i = 0; i < out.length; i++) {
-    const start = Math.round(i * ratio), end = Math.min(Math.round((i + 1) * ratio), input.length);
-    let sum = 0;
-    for (let j = start; j < end; j++) sum += input[j];
-    out[i] = sum / Math.max(end - start, 1);   // average, not nearest — less aliasing
+    const a = Math.round(i * ratio), b = Math.min(Math.round((i + 1) * ratio), inp.length);
+    let sum = 0; for (let j = a; j < b; j++) sum += inp[j];
+    out[i] = sum / Math.max(b - a, 1);    // average, not nearest — less aliasing
   }
   return out;
 }
+function recUI(on, label) {
+  micBtn.classList.toggle('rec', on);
+  micBtn.textContent = on ? '■' : '🎤';
+  const old = document.querySelector('.rec-badge'); if (old) old.remove();
+  if (on) $('.composer-inner').appendChild(el(`<span class="rec-badge">${esc(label)}</span>`));
+}
 
-async function startRec() {
-  const mic = document.getElementById('mic');
+async function startPcm() {
   let stream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
-  } catch (e) {
-    document.getElementById('hint').textContent = 'माइक की अनुमति नहीं मिली — लिखकर पूछिए';
-    return;
-  }
+  } catch (e) { say('माइक की अनुमति नहीं मिली — लिखकर पूछिए'); return; }
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const src = ctx.createMediaStreamSource(stream);
-  const node = ctx.createScriptProcessor(4096, 1, 1);
+  const src = ctx.createMediaStreamSource(stream), node = ctx.createScriptProcessor(4096, 1, 1);
   const chunks = [];
   node.onaudioprocess = (e) => chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
   src.connect(node); node.connect(ctx.destination);
-
-  const timer = el('<span class="rec-timer">0:00 · दबाकर रोकिए</span>');
-  document.querySelector('.composer-inner').appendChild(timer);
   const t0 = Date.now();
   const tick = setInterval(() => {
-    const sec = Math.floor((Date.now() - t0) / 1000);
-    timer.textContent = `0:${String(sec).padStart(2, '0')} · दबाकर रोकिए`;
-    if (sec >= 60) stopRec();          /* FR-1 caps a voice note at 60s */
+    const s = Math.floor((Date.now() - t0) / 1000);
+    recUI(true, `0:${String(s).padStart(2,'0')} · दबाकर रोकिए`);
+    if (s >= 60) stopPcm();              // FR-1 caps a voice note at 60s
   }, 250);
-
-  mic.classList.add('rec'); mic.textContent = '■';
-  rec = { stream, ctx, src, node, chunks, timer, tick };
+  recUI(true, '0:00 · दबाकर रोकिए');
+  pcm = { stream, ctx, src, node, chunks, tick };
 }
 
-async function stopRec() {
-  if (!rec) return;
-  const { stream, ctx, src, node, chunks, timer, tick } = rec;
-  rec = null;
-  clearInterval(tick); timer.remove();
-  const mic = document.getElementById('mic');
-  mic.classList.remove('rec'); mic.textContent = '🎤';
+async function stopPcm() {
+  if (!pcm) return;
+  const { stream, ctx, src, node, chunks, tick } = pcm; pcm = null;
+  clearInterval(tick); recUI(false);
   node.disconnect(); src.disconnect();
   stream.getTracks().forEach(t => t.stop());
-  const rate = ctx.sampleRate;
-  await ctx.close();
+  const rate = ctx.sampleRate; await ctx.close();
 
   let n = 0; chunks.forEach(c => n += c.length);
-  if (n < rate * 0.4) { document.getElementById('hint').textContent = 'बहुत छोटा — फिर बोलिए'; return; }
-  const flat = new Float32Array(n);
-  let o = 0; chunks.forEach(c => { flat.set(c, o); o += c.length; });
+  if (n < rate * 0.4) { say('बहुत छोटा — फिर बोलिए'); return; }
+  const flat = new Float32Array(n); let o = 0;
+  chunks.forEach(c => { flat.set(c, o); o += c.length; });
   const wav = encodeWav(downsample(flat, rate, TARGET_RATE), TARGET_RATE);
   let bin = ''; wav.forEach(b => bin += String.fromCharCode(b));
 
-  busy = true;
-  document.getElementById('examples').style.display = 'none';
-  const node2 = addThinking();
+  setBusy(true); say('आवाज़ समझ रहा हूँ…');
+  const n2 = addThinking();
   try {
-    const r = await fetch('/api/transcribe', { method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ audio_base64: btoa(bin), sample_rate: TARGET_RATE }) });
-    const d = await r.json();
-    node2.remove();
-    if (d.text) {
-      addParent('🎤 ' + d.text);
-      /* Straight into FR-2. This is the whole reason the confirmation turn exists:
-         a misheard number changes the question silently. */
-      const ir = await fetch('/api/interpret', { method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ question: d.text }) });
-      const id = await ir.json();
-      askConfirm(id.interpreted, id.clarify);
-    } else {
-      renderAnswer(addThinking(), { error_hi: d.error_hi || d.detail || 'आवाज़ समझ नहीं आई।' });
-      busy = false;
-    }
-  } catch (e) {
-    node2.remove(); busy = false;
-  }
+    const d = await (await fetch('/api/transcribe', { method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ audio_base64: btoa(bin), sample_rate: TARGET_RATE }) })).json();
+    n2.remove(); say('');
+    if (d.text) { $('#examples').hidden = true; addParent(d.text, true); afterTranscript(d.text); }
+    else { renderAnswer(addThinking(), { error_hi: d.error_hi || 'आवाज़ समझ नहीं आई।' }); setBusy(false); }
+  } catch (e) { n2.remove(); setBusy(false); }
 }
 
-let browserRec = null;
-
-function startBrowserListen() {
-  const mic = document.getElementById('mic');
-  mic.classList.add('rec'); mic.textContent = '■';
-  const timer = el('<span class="rec-timer">सुन रहा हूँ… दबाकर रोकिए</span>');
-  document.querySelector('.composer-inner').appendChild(timer);
-  const cleanup = () => {
-    mic.classList.remove('rec'); mic.textContent = '🎤';
-    timer.remove(); browserRec = null;
-  };
+function startListen() {
+  recUI(true, 'सुन रहा हूँ… दबाकर रोकिए');
+  const done = () => { recUI(false); listening = null; };
   try {
-    browserRec = BrowserSpeech.listen(
-      async (text) => {
-        cleanup();
-        if (!text || !text.trim()) {
-          document.getElementById('hint').textContent = 'कुछ सुनाई नहीं दिया — फिर बोलिए';
-          return;
-        }
-        busy = true;
-        document.getElementById('examples').style.display = 'none';
-        addParent('🎤 ' + text);
-        /* straight into FR-2 — a misheard number must be visible before it is used */
-        const ir = await fetch('/api/interpret', { method: 'POST',
-          headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: text }) });
-        const id = await ir.json();
-        askConfirm(id.interpreted, id.clarify);
+    listening = Speech.listen(
+      (text) => {
+        done();
+        if (!text || !text.trim()) { say('कुछ सुनाई नहीं दिया — फिर बोलिए'); return; }
+        setBusy(true); $('#examples').hidden = true;
+        addParent(text, true); afterTranscript(text);
       },
       (err) => {
-        cleanup();
-        document.getElementById('hint').textContent = err === 'not-allowed'
-          ? 'माइक की अनुमति नहीं मिली — लिखकर पूछिए'
-          : 'आवाज़ समझ नहीं आई — फिर बोलिए या लिख दीजिए';
+        done();
+        say(err === 'not-allowed' ? 'माइक की अनुमति नहीं मिली — लिखकर पूछिए'
+                                  : 'आवाज़ समझ नहीं आई — फिर बोलिए या लिख दीजिए');
       });
-  } catch (e) { cleanup(); }
+  } catch (e) { done(); }
 }
 
-function stopBrowserListen() { try { browserRec && browserRec.stop(); } catch (e) {} }
+/* A transcript never goes straight to an answer — it goes through FR-2. */
+async function afterTranscript(text) {
+  try {
+    const d = await (await fetch('/api/interpret', { method: 'POST',
+      headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: text }) })).json();
+    askConfirm(d.interpreted, d.clarify);
+  } catch (e) { setBusy(false); }
+}
 
-document.getElementById('mic').onclick = () => {
-  if (VOICE_MODE === 'bhashini') { rec ? stopRec() : startRec(); return; }
-  if (VOICE_MODE === 'browser')  { browserRec ? stopBrowserListen() : startBrowserListen(); }
+micBtn.onclick = () => {
+  if (busy) return;
+  if (VOICE_MODE === 'bhashini') { pcm ? stopPcm() : startPcm(); return; }
+  if (VOICE_MODE === 'browser') { listening ? listening.stop() : startListen(); }
 };
 
-/* ---------------- FR-6: play the answer aloud ---------------- */
-let playing = null;
-async function speak(btn, text) {
-  const was = btn.textContent;
-
-  /* Browser TTS: instant, offline, no key. Used until Bhashini is connected. */
-  if (VOICE_MODE === 'browser') {
-    if (!BrowserSpeech.canSpeak()) { btn.textContent = 'आवाज़ उपलब्ध नहीं'; return; }
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel(); btn.textContent = was; return;
-    }
-    btn.textContent = '⏸ रोकिए';
-    BrowserSpeech.speak(text, () => { btn.textContent = was; });
-    return;
-  }
-
-  if (playing) { playing.pause(); playing = null; }
-  btn.textContent = '⏳ बन रहा है…';
-  try {
-    const r = await fetch('/api/speak', { method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ text }) });
-    const d = await r.json();
-    if (!d.audio_base64) { btn.textContent = d.error_hi || 'आवाज़ उपलब्ध नहीं'; return; }
-    const a = new Audio('data:audio/wav;base64,' + d.audio_base64);
-    playing = a; btn.textContent = '⏸ रोकिए';
-    a.onended = () => { btn.textContent = was; playing = null; };
-    a.play();
-  } catch (e) { btn.textContent = was; }
-}
-
-document.getElementById('send').onclick = send;
-input.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-});
-input.addEventListener('input', () => {
+/* ------------------------------ composer ------------------------------ */
+function autosize() {
   input.style.height = 'auto';
-  input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+  input.style.height = Math.min(input.scrollHeight, 132) + 'px';
+}
+sendBtn.onclick = () => submit();
+input.addEventListener('input', autosize);
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
 });
-document.querySelectorAll('#examples button').forEach(b => {
-  b.onclick = () => { input.value = b.textContent; send(); };
+document.querySelectorAll('.chips button').forEach(b => {
+  b.onclick = () => submit(b.textContent, false);
 });
+
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    document.body.classList.toggle('scrolled', window.scrollY > 40);
+    ticking = false;
+  });
+}, { passive: true });
 </script>
 </body>
 </html>
