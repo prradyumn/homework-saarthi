@@ -59,14 +59,14 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~45% of the project
+## 3. State: ~50% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
 | Wk 1 — parent interviews | **0%** — only the user can do these. The whole thesis is gated on Q11 (do parents accept "I don't know"?) and the Card A/B test (kill criterion: <5 of 8 pick Card B → re-scope to answer-verification). |
 | Wk 1 — golden set 100 Q + 150 refusal set | 30-Q seed golden set done; **150-Q refusal set done** (`eval/refusal_set.py`). Full 100-Q Track A golden set with *verified answers* not done. |
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
-| Wk 3 — refusal calibration + curve | **DONE** — 71% coverage at 1.4% wrong-answer rate. Curve published. |
+| Wk 3 — refusal calibration + curve | **DONE** — **84% coverage at 1.2% wrong**, refusal on real traffic 16% (inside the 25% guardrail). Curve published and updated. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
 | Wk 5 — Bhashini voice + WhatsApp + web chat | **0%.** Needs Bhashini + WhatsApp Cloud API signups. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
@@ -153,6 +153,18 @@ out-of-syllabus maths.
 measurement: **`qwen/qwen3.8-27b` on Groq: 50% conformance (with groundedness),
 median 1.4s, p95 15.3s.** `openai/gpt-oss-120b`: 0% (answered in English).
 Local `qwen3:1.7b`: 25%, p95 44.8s — safe but nearly useless.
+
+**D6 — Parent vocabulary ≠ book vocabulary.** Of 51 colloquial terms, **24 appear
+nowhere in the textbook**. नक्शा: 0 occurrences, though ch14 is titled
+मानचित्र और अवस्थितियाँ. सममिति: 0, though ch10 teaches symmetry by folding about an
+अक्ष and never names it. Fixed with a 22-entry audited query expansion
+(`retrieval.PARENT_TO_BOOK`), NOT by relabelling those chapters unanswerable —
+which is what I was one step from doing.
+
+**D1-FINAL — gate coverage 73% → 84% at 1.2% wrong**, floor 0.545, decoy margin
+0.07. No gate logic changed: the 73% ceiling was a ceiling on the *retriever*.
+Chose 0.07/84% over the spec-rule peak of 0.08/85% — same headroom, one step back
+from a cliff set by a single label.
 
 **D3 — Hybrid retrieval.** Dense cosine + IDF term overlap at weight 0.35, and
 the generator gets the **top 3** Class 5 chunks (§11.1 says "chunks", plural — I
@@ -257,17 +269,18 @@ cd "/Users/pradyumnawasthi/homework saarthi"
 
 ## 10. Next steps, in order
 
-1. **Re-run `eval_generation.py groq --n 30 --tag v5_hybrid` once the daily token
-   budget resets.** The hybrid-retrieval run aborted on the 200k TPD cap, so the
-   end-to-end effect of D3 on conformance is measured for retrieval (77%→87%) but
-   NOT yet for conformance. Last valid conformance figure: 50% (v4, top-3 context).
-2. **Re-label the refusal set for chapters 10 and 11.** Symmetry and quilt-design
-   questions are figure-dependent — the corpus text does not contain दर्पण or
-   सममित — so they belong in the `figure_only` refuse class, not `answer`. This
-   will raise measured conformance for the right reason rather than by tuning.
-3. **Then chase conformance.** Remaining real failure mode is `ungrounded_number`
-   (the model adds correct-but-absent facts, e.g. 360°/108° for pentagon tiling).
-   Lever: few-shot with the GOOD example from `answer.py` selftest.
+1. **Re-run `eval_generation.py groq --n 30 --tag v7` once the daily budget
+   resets.** Two runs aborted on the 200k TPD cap. Last full figure: 50% (v4);
+   last partial: **57% on 23 of 30** (v6, everything fixed) — partial, not a score.
+   NOTE: the daily budget is **per organisation**, so rotating the key does not
+   reset it. A 30-question run costs ~66k tokens, a third of the day.
+2. **Do NOT relabel ch10/ch11 as figure-only** — that was investigated and was
+   wrong (D6). The content is present under different words.
+3. **Then chase conformance.** Remaining failure modes, in order of frequency:
+   `passage_does_not_cover_question` (retrieval, ~6 of 23), `answer_is_in_a_chart`
+   (correct refusals), `unglossed_jargon` (1). The `ungrounded_number` failures are
+   gone. Lever for the rest: few-shot with the GOOD example from `answer.py`
+   selftest, and continued retrieval work.
 4. **Track A golden set with verified answers** (100 Q). Answers must be verified
    against the book — numeric exact-match where possible. Then measure answer
    *accuracy*, not just conformance. That gives §8.1's full curve.
@@ -304,10 +317,12 @@ Tell the user these when relevant; several are already flagged to them:
 
 - Refusal on legitimate traffic ≈ 29% (guardrail 25%).
 - One residual gate leak: "तीन भिन्नों को जोड़ना है जिनके हर अलग हैं" (unlike denominators).
-- Generation conformance 50% (v4). Now gated by **retrieval**, not generation: the
-  remaining refusals are mostly the model honestly declining on passages that lack
-  the answer.
-- The refusal set mislabels figure-dependent questions (ch10, ch11) as answerable.
-- Decoy coverage ceiling 73%; the fix is better retrieval, not a better gate.
+- Generation conformance 50% (v4 full) / 57% (v6 partial, 23 of 30). Gated by
+  **retrieval**, not generation.
+- Chunk-level retrieval relevance 90%; the 3 remaining misses are artifacts of the
+  metric's key-term picker choosing conversational framing, not real misses.
+- §12.1 says the eval runs on every prompt/chunking/threshold change. At ~66k
+  tokens per 30-question run against a 200k/day org budget, that cadence is
+  unaffordable. The retrieval, gate and audit evals need NO LLM and now carry it.
 - The riskiest assumption (parents accept "I don't know") is entirely untested.
 - All test questions are authored, not observed.

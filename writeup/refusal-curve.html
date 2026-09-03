@@ -254,22 +254,22 @@
     A wrong maths answer that a parent then teaches their child is far worse than a
     refusal, because the parent asked <em>precisely because</em> they cannot detect the
     error. So the gate that decides whether to answer at all was calibrated against a
-    150-question labelled set rather than set by intuition. The curve came out flat —
-    and that turned out to be the finding.
+    150-question labelled set rather than set by intuition. It was calibrated three
+    times: the first two curves were measuring <em>the retriever</em>, not the gate.
   </p>
 
   <dl class="readout">
     <div>
       <dt>Coverage</dt>
-      <dd class="v-amber">71%<small>of answerable questions</small></dd>
+      <dd class="v-amber">84%<small>of answerable questions</small></dd>
     </div>
     <div>
       <dt>Wrong-answer rate</dt>
-      <dd class="v-ok">1.4%<small>budget is 2% — non-negotiable</small></dd>
+      <dd class="v-ok">1.2%<small>budget is 2% — non-negotiable</small></dd>
     </div>
     <div>
       <dt>Threshold</dt>
-      <dd>0.415<small>cosine similarity floor</small></dd>
+      <dd>0.545<small>hybrid score floor</small></dd>
     </div>
     <div>
       <dt>Labelled set</dt>
@@ -287,12 +287,10 @@
 
   <figure>
     <div class="chart-panel">
-      <svg viewBox="0 0 720 408" role="img" aria-label="Wrong-answer rate against coverage. Coverage rises to 71% while the wrong-answer rate falls to 1.4%, with a discontinuity at 26% coverage where the single residual leak enters the answered set.">
-        <!-- out-of-budget region -->
+      <svg viewBox="0 0 720 408" role="img" aria-label="Wrong-answer rate against coverage. Coverage reaches 84% at a 1.2% wrong-answer rate once the similarity floor excludes the low-scoring leaks.">
         <rect x="64" y="40" width="626" height="128.6" fill="var(--breach-soft)"></rect>
         <text class="c-label" x="682" y="55" text-anchor="end" fill="var(--breach)">OVER BUDGET</text>
 
-        <!-- gridlines + y axis -->
         <g stroke="var(--rule)" stroke-width="1">
           <line x1="64" y1="340" x2="690" y2="340"></line>
           <line x1="64" y1="254.3" x2="690" y2="254.3" stroke="var(--rule-2)"></line>
@@ -309,87 +307,110 @@
         </g>
         <line x1="64" y1="40" x2="64" y2="340" stroke="var(--rule)" stroke-width="1"></line>
 
-        <!-- x axis ticks -->
         <g class="c-axis" text-anchor="middle">
           <text x="64" y="362">0%</text>
-          <text x="189" y="362">15%</text>
-          <text x="314" y="362">30%</text>
-          <text x="440" y="362">45%</text>
-          <text x="565" y="362">60%</text>
-          <text x="690" y="362">75%</text>
+          <text x="203" y="362">20%</text>
+          <text x="342" y="362">40%</text>
+          <text x="481" y="362">60%</text>
+          <text x="620" y="362">80%</text>
         </g>
         <text class="c-label" x="377" y="384" text-anchor="middle">COVERAGE — SHARE OF ANSWERABLE QUESTIONS ANSWERED</text>
         <text class="c-label" x="18" y="196" text-anchor="middle" transform="rotate(-90 18 196)">WRONG-ANSWER RATE</text>
 
-        <!-- branch A: threshold >= 0.640, the residual leak excluded, zero wrong -->
-        <polyline points="72,340 281,340" fill="none" stroke="var(--lavender)" stroke-width="2.5"></polyline>
-        <circle cx="72" cy="340" r="3" fill="var(--lavender)"></circle>
-        <circle cx="281" cy="340" r="4.5" fill="var(--lavender)"></circle>
-        <text class="c-note" x="176" y="330" text-anchor="middle" fill="var(--lavender)">threshold ≥ 0.640 — nothing wrong, and almost nothing answered</text>
+        <!-- branch A: floor high enough to exclude every leak. nothing wrong, little answered -->
+        <polyline points="307,340 363,340" fill="none" stroke="var(--lavender)" stroke-width="2.5"></polyline>
+        <circle cx="307" cy="340" r="3" fill="var(--lavender)"></circle>
+        <circle cx="363" cy="340" r="4.5" fill="var(--lavender)"></circle>
+        <text class="c-note" x="335" y="330" text-anchor="middle" fill="var(--lavender)">floor ≥ 0.755 — nothing wrong, little answered</text>
 
-        <!-- the discontinuity -->
-        <line x1="281" y1="336" x2="306" y2="60" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"></line>
+        <line x1="363" y1="336" x2="363" y2="151" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"></line>
 
-        <!-- branch B: threshold < 0.640, one leak inside the answered set -->
+        <!-- branch B: coverage rises as the floor drops, and the wrong-answer rate FALLS -->
         <polyline
-          points="306,54.6 356,101.7 364,108.6 415,140.3 423,145.4 448,157.4 456,161.7 465,165.1 498,178 523,186.6 548,195.1 556,196.9 581,203.7 598,208 606,209.7 615,212.3 623,214 640,217.4 648,219.1 657,220.9"
+          points="363,145.4 391,161.7 405,168.6 426,178 454,190 481,199.4 502,206.3 530,214 558,220.9 572,224.3 586,226.9 607,231.1 620,234.6 634,237.1 641,238 648,238.9"
           fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linejoin="round"></polyline>
         <g fill="var(--amber)">
-          <circle cx="306" cy="54.6" r="3"></circle>
-          <circle cx="364" cy="108.6" r="3"></circle>
-          <circle cx="415" cy="140.3" r="3"></circle>
-          <circle cx="465" cy="165.1" r="3"></circle>
-          <circle cx="523" cy="186.6" r="3"></circle>
-          <circle cx="581" cy="203.7" r="3"></circle>
-          <circle cx="623" cy="214" r="3"></circle>
+          <circle cx="391" cy="161.7" r="3"></circle>
+          <circle cx="426" cy="178" r="3"></circle>
+          <circle cx="481" cy="199.4" r="3"></circle>
+          <circle cx="530" cy="214" r="3"></circle>
+          <circle cx="586" cy="226.9" r="3"></circle>
+          <circle cx="620" cy="234.6" r="3"></circle>
         </g>
 
-        <!-- the low-threshold point where the GK question also gets in -->
-        <circle cx="657" cy="105.1" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"></circle>
-        <text class="c-note" x="647" y="99" text-anchor="end">threshold below 0.415: a second leak enters</text>
+        <!-- the vertical: below the floor, coverage stops rising and only error does -->
+        <polyline points="648,238.9 648,140.3 648,44.3" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="4 3"></polyline>
+        <circle cx="648" cy="140.3" r="3.5" fill="none" stroke="var(--ink-3)" stroke-width="1.5"></circle>
+        <circle cx="648" cy="44.3" r="3.5" fill="none" stroke="var(--ink-3)" stroke-width="1.5"></circle>
+        <text class="c-note" x="638" y="60" text-anchor="end">floor below 0.545: same coverage,</text>
+        <text class="c-note" x="638" y="75" text-anchor="end">three times the error</text>
 
-        <!-- operating point -->
-        <circle cx="657" cy="220.9" r="9" fill="none" stroke="var(--amber)" stroke-width="1.5"></circle>
-        <circle cx="657" cy="220.9" r="4.5" fill="var(--amber)"></circle>
-        <text class="c-note-b" x="647" y="240" text-anchor="end">OPERATING POINT — 71% at 1.4%</text>
-        <text class="c-note" x="647" y="255" text-anchor="end">threshold 0.415</text>
+        <circle cx="648" cy="238.9" r="9" fill="none" stroke="var(--amber)" stroke-width="1.5"></circle>
+        <circle cx="648" cy="238.9" r="4.5" fill="var(--amber)"></circle>
+        <text class="c-note-b" x="638" y="258" text-anchor="end">OPERATING POINT — 84% at 1.2%</text>
+        <text class="c-note" x="638" y="273" text-anchor="end">floor 0.545, decoy margin 0.07</text>
       </svg>
     </div>
     <figcaption>
-      The plateau is the point. From threshold 0.30 to 0.475 the coverage never
-      moves — the similarity score is doing almost no work. It needs only to be a
-      floor low enough to keep real questions and just high enough to drop
-      <span class="hi">भारत के प्रधानमंत्री कौन हैं?</span> at 0.414.
+      Read the corner. Raising the floor past 0.545 buys nothing — it only sheds
+      real questions while the error rate drifts <em>up</em>, because a stricter floor
+      removes good answers faster than bad ones. Lowering it holds coverage at 84% and
+      triples the error. The whole decision is one point, and everything that moved it
+      lives upstream in retrieval.
     </figcaption>
   </figure>
 
-  <h2>Why the threshold barely matters</h2>
+  <h2>Two of these curves were measuring the wrong thing</h2>
   <p>
-    The PRD frames this decision as sweeping one threshold and picking a point. In
-    practice the gate’s behaviour is set almost entirely by <strong>categorical
-    layers</strong>. Tuning the score alone reached 26% coverage; getting the layers
-    right reached 71% at a <em>lower</em> threshold.
+    The gate was calibrated three times. The first two runs produced a coverage ceiling
+    of 71%, then 73%, and both were honest measurements of the wrong system — the
+    threshold was being tuned against a <em>retriever</em> that could not surface the
+    right passage. Nothing about the gate was the constraint.
   </p>
 
   <div class="t-scroll">
     <table>
-      <caption>Coverage at or below the 2% wrong-answer budget, by gate design</caption>
+      <caption>Coverage at or below the 2% wrong-answer budget</caption>
       <thead>
-        <tr><th>Gate design</th><th class="num">Coverage</th></tr>
+        <tr><th>What changed</th><th class="num">Coverage</th><th class="num">Refusal on real traffic</th></tr>
       </thead>
       <tbody>
-        <tr><td>Similarity only</td><td class="num">1%</td></tr>
-        <tr><td>+ Class 5 metadata (decoy corpus)</td><td class="num">26%</td></tr>
-        <tr><td>+ margin ≥ 0.03</td><td class="num">25%</td></tr>
-        <tr><td>+ chunk flags</td><td class="num">22%</td></tr>
-        <tr><td>+ query-side pre-checks</td><td class="num">26%</td></tr>
-        <tr class="highlight"><td>+ numeric answerability &amp; chart-axis detection</td><td class="num">71%</td></tr>
+        <tr><td>Similarity score only</td><td class="num">1%</td><td class="num">—</td></tr>
+        <tr><td>+ Class 5 metadata, via a decoy corpus</td><td class="num">26%</td><td class="num">—</td></tr>
+        <tr><td>+ query-side pre-checks</td><td class="num">26%</td><td class="num">—</td></tr>
+        <tr><td>+ chart-axis detection</td><td class="num">71%</td><td class="num">29%</td></tr>
+        <tr><td>+ decoy margin instead of rank</td><td class="num">73%</td><td class="num">27%</td></tr>
+        <tr><td>+ top-3 passages, not top-1</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>+ lexical signal beside the embedding</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr class="highlight"><td>+ parent→textbook vocabulary, then recalibrate</td><td class="num">84%</td><td class="num">16%</td></tr>
       </tbody>
     </table>
   </div>
   <p style="font-size:13.5px;color:var(--ink-3);max-width:66ch">
-    Similarity alone reaches 1% coverage, which is the same as not shipping.
+    The last three rows changed no gate logic at all. Recalibrating the
+    <em>unchanged</em> gate on the improved retriever moved coverage from 73% to 84% and
+    brought refusal on real traffic inside the 25% guardrail for the first time.
   </p>
+
+  <h2>Chapter-level accuracy hid a chunk-level miss</h2>
+  <p>
+    Retrieval was reported at <strong>97% chapter accuracy</strong> and the ingest
+    milestone passed on that number. It was too coarse. Downstream, a third of
+    questions received the right chapter and the <em>wrong passage inside it</em>, which
+    surfaced as the generator honestly declining: <span class="hi">पाठ में समकोण की बात
+    नहीं है।</span>
+  </p>
+  <div class="t-scroll">
+    <table>
+      <caption>Does the retrieved context contain the concept asked about?</caption>
+      <thead><tr><th>Retrieval</th><th class="num">Chunk-level relevance</th></tr></thead>
+      <tbody>
+        <tr><td>Dense embeddings only</td><td class="num">83%</td></tr>
+        <tr><td>+ IDF term overlap</td><td class="num">87%</td></tr>
+        <tr class="highlight"><td>+ parent→textbook query expansion</td><td class="num">90%</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <h2>Every refusal class needs its own instrument</h2>
   <p class="dek">
@@ -465,7 +486,44 @@
     </p>
   </div>
 
-  <h2>The finding that unlocked 71%</h2>
+  <div class="correction">
+    <span class="tag">Nearly a wrong conclusion</span>
+    <h3>The parent’s word is not the book’s word</h3>
+    <p>
+      Eight questions had the generator declining, and the corpus appeared to confirm
+      it: searching for the words those questions used returned nothing. Three chapters
+      looked like they simply weren’t covered in text, and were one step from being
+      relabelled “figure-only”.
+    </p>
+    <div class="t-scroll">
+      <table>
+        <caption>Occurrences in 188,000 characters of textbook</caption>
+        <thead><tr><th>Concept</th><th>Parent says</th><th>The book says</th></tr></thead>
+        <tbody>
+          <tr><td>map</td><td class="mech hi">नक्शा — 0</td><td class="mech hi">मानचित्र 25 · दिशा 47 · मार्ग 32</td></tr>
+          <tr><td>symmetry</td><td class="mech hi">सममिति — 0</td><td class="mech hi">अक्ष 24 · मोड़ 37 · अभिकल्पना 25</td></tr>
+          <tr><td>design (ch 11)</td><td class="mech hi">डिजाइन — 0</td><td class="mech hi">वर्ग 54 · चौकोर 11 · टुकड़ 11</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Chapter 14 is <em>titled</em> <span class="hi">मानचित्र और अवस्थितियाँ</span> and
+      never once says <span class="hi">नक्शा</span>. Chapter 10 teaches symmetry by
+      folding paper about an axis and <strong>never names it</strong>. The content is
+      entirely there — the words are not. Of 51 colloquial terms a parent might
+      plausibly use, <strong>24 appear nowhere in the textbook</strong>, including
+      <span class="hi">बटा</span>, the word in “<span class="hi">एक बटा चार</span>”.
+    </p>
+    <p>
+      Recording “the book doesn’t cover this” would have permanently depressed the
+      measured ceiling and hidden a fixable problem behind a plausible limitation. The
+      fix is a 22-entry audited vocabulary map, not a relabelling — and it is the
+      product’s own premise showing up as a retrieval bug: this parent speaks fluent
+      Hindi but did not finish the schooling the book is written for.
+    </p>
+  </div>
+
+  <h2>The finding that unlocked the jump to 71%</h2>
   <p>
     One question defeated every signal:
     <span class="hi">शीला ने रमन की अपेक्षा अध्ययन पर कितने घंटे अधिक समय व्यतीत किया?</span>
@@ -496,9 +554,17 @@
       next milestone.
     </li>
     <li>
-      <strong>Refusal on legitimate traffic is ~29%</strong>, just outside the 25%
-      guardrail. The binding constraint is no longer the threshold: 21 of 100 real
-      questions still retrieve a decoy as their best match.
+      <strong>Refusal on legitimate traffic is now ~16%</strong>, inside the 25%
+      guardrail. It got there by fixing retrieval, not by loosening the gate: the
+      wrong-answer rate fell at the same time, from 1.4% to 1.2%.
+    </li>
+    <li>
+      <strong>The operating point is one step back from the peak.</strong> The rule in
+      the spec would take the highest coverage inside budget, which is 85% at a decoy
+      margin of 0.08. 0.07 and 84% is used instead: the plateau from 0.05 to 0.08 all
+      carries the same headroom, and the collapse just past it is caused by a single
+      question out of 150 — on a set that small, one item is worth 1.2 points of
+      wrong-answer rate.
     </li>
     <li>
       <strong>One residual leak</strong> at the operating point —
@@ -517,7 +583,8 @@
 
   <footer>
     Class 5 Mathematics · Hindi · NCERT <span class="hi">गणित मेला</span> (NCF-2023) ·
-    248 concept-unit chunks · BGE-M3 embeddings run locally on an 8 GB M1 ·
+    248 concept-unit chunks · BGE-M3 run locally on an 8 GB M1 · generation on a free
+    tier capped at 200,000 tokens/day ≈ 90 answers ·
     reproduce with <code>scripts/calibrate_refusal.py</code>
   </footer>
 </div>
