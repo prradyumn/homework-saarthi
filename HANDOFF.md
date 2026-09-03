@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~76% of the project
+## 3. State: ~80% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -67,7 +67,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 1 — golden set 100 Q + 150 refusal set | 30-Q seed golden set done; **150-Q refusal set done** (`eval/refusal_set.py`). Full 100-Q Track A golden set with *verified answers* not done. |
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5; chunk-level 93% after the D14 id-collision fix, up from 90%). |
 | Wk 3 — refusal calibration + curve | **DONE** — **87% coverage at 1.1% wrong** (was 84%/1.2% before D14), refusal on real traffic 13%. Curve needs republishing with the new numbers. |
-| Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
+| Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance **83%** (25/30, D16) — up from 56.5%; the top remaining failure is the §10 different-numbers-in-the-example rule (3 of 30). Track A accuracy (needs verified answers) not done. |
 | Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **37 Playwright assertions, all passing** (run the server with `--backend stub` — the suite refuses a metered backend without `--live`) at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
@@ -281,16 +281,21 @@ cd "/Users/pradyumnawasthi/homework saarthi"
 
 ## 10. Next steps, in order
 
-0. **FIRST, on a fresh budget — the whole corpus changed under D14, so every
-   generation figure predates it.** Baseline, then the two queued experiments:
-   ```
-   ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag v8-postD14
-   SAATHI_CONTEXT_CHUNKS=5 ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag k5
-   SAATHI_CONTEXT_CHARS=1550 ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag w1550
-   ```
-   That is 3 runs and the day allows about 3. v6's 56.5% is no longer comparable.
+0. **Context-window experiments are DONE — do not re-run them.** Depth (5
+   chunks) bought nothing and width (1550 chars) was worse; more context inflates
+   answer length rather than improving grounding. `CONTEXT_CHUNKS=3`,
+   `CONTEXT_CHARS=900` stand. See D16.
 
-1. **Re-run `eval_generation.py groq --n 30 --tag v7` once the daily budget
+1. **Next lever: the §10 example-number rules** — 3 of the 5 remaining contract
+   failures. The worked example must use different numbers from the question.
+   Run `eval_generation.py gemini --n 30` to measure; Gemini meters requests per
+   day, not tokens, so this no longer eats the Groq budget.
+
+2. **Still worth doing when Groq budget allows:** a Groq run on the fixed corpus,
+   to separate D14's corpus fix from the change of model. The 56.5% → 73% jump
+   currently confounds both.
+
+3. **Old note, superseded:** re-run `eval_generation.py groq --n 30` once the daily budget
    resets.** Two runs aborted on the 200k TPD cap. Last full figure: 50% (v4);
    last partial: **57% on 23 of 30** (v6, everything fixed) — partial, not a score.
    NOTE: the daily budget is **per organisation**, so rotating the key does not

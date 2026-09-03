@@ -1663,3 +1663,95 @@ that exists only because a picture was read is a different kind of evidence and 
 reviewer should see which.
 
 **Browser suite 37 → 43 assertions, all passing.**
+
+---
+
+## D16 — Conformance 56.5% → 83%, and both context knobs are settled
+
+### A second free backend, because the ceiling was the measurement
+
+Groq's free tier is 200,000 tokens **per day per organisation** — about 90
+answers — and a 30-question conformance run costs a third of it. That had blocked
+the §12.1 measurement two days running. Gemini meters requests per day rather
+than tokens, so `call_gemini` joins `BACKENDS` on the same `(raw, limits)`
+contract and the two together give the project real headroom.
+
+### The first run reported 27% and was worthless
+
+A DNS outage mid-run meant **18 of 30 questions never reached the API**, and
+`eval_generation.py` counted every transport failure as a contract failure. The
+summary printed "contract conformance 8/30 = 27%" in exactly the format a real
+result uses.
+
+An infrastructure failure is not evidence about the model. Transport errors are
+now excluded from the denominator, listed explicitly, and any run with more than
+20% of them prints a warning that its figures are provisional; a run where
+nothing completed refuses to print a conformance figure at all.
+
+That is the same failure this log keeps recording in new costumes — D0's
+corruption-blind detector, D11's test matching "not ready yet", D12's screenshot
+mode that renders the defect away, D14's truncated corpus. **The instrument has
+its own failure mode, and it is usually silent.** Fifth entry.
+
+### Clean baseline on the fixed corpus
+
+| | v6 (pre-D14, Groq) | v8 (post-D14, Gemini) |
+|---|---|---|
+| contract conformance | 56.5% (13/23) | **73% (22/30)** |
+| refused by the gate | 9/23 | **3/30** |
+| failed the contract | 1/23 | 5/30 |
+| cited the right chapter | — | 20/22 |
+| latency p95 | — | **10.8s** (guardrail 20s) |
+
+The jump is **not attributable to one cause**: it mixes D14's corpus fix, the
+gate corrections, and a change of model. Isolating the model needs a Groq run on
+the fixed corpus, which the daily budget still blocks. Said plainly rather than
+claimed as a win.
+
+The gate-refusal collapse from 39% to 10% is the part D14 predicted.
+
+### Both context knobs: settled, and the answer is no
+
+D13 priced these and queued them. Now measured, same backend and corpus:
+
+| configuration | conformance | contract failures | of which `too_long` |
+|---|---|---|---|
+| 3 chunks × 900 chars | **73%** | 6 | 2 |
+| 5 chunks × 900 chars | **73%** | 4 | 4 |
+| 3 chunks × 1550 chars | **63%** | 9 | 6 |
+
+**Depth buys nothing and width is worse.** With n=30 the 73/63 gap is three
+questions, so the honest claim is "no evidence of benefit" rather than "proven
+harm" — but the decision is the same either way, and it saves the 17–24% of daily
+capacity D13 costed. `CONTEXT_CHUNKS=3`, `CONTEXT_CHARS=900` stand.
+
+The `too_long` column explains why, and it is the useful part: **more context
+does not improve grounding, it inflates answer length.** 2 → 4 → 6 as the window
+grows. The model spends the extra material on words rather than accuracy.
+
+### Which turned the next lever into an obvious one
+
+Passing answers were crowding the limit — word counts up to **117 against a
+ceiling of 120** — while the prompt asked for "under 100 words" as a total, which
+is not something a model can self-monitor mid-answer. Replaced with per-part
+sentence budgets (parts 1, 2 and 4 one sentence each; part 3 at most two), a
+total of 80, and the plain statement that a long answer counts as a wrong answer.
+
+| | before | after |
+|---|---|---|
+| conformance | 73% | **83% (25/30)** |
+| `too_long` | 2 | **1** |
+| word counts | up to 117 | 63–120, median 88 |
+| latency p95 | 10.8s | 13.2s |
+
+**This one is attributable** — same model, same corpus, one variable changed.
+
+### What is left
+
+Three of the five remaining contract failures are the example-number rules
+(`example_has_no_numbers`, `example_introduces_no_new_numbers`,
+`example_reuses_question_numbers`) — the §10 requirement that the worked example
+use *different* numbers from the question. That is now the top failure mode and
+the next thing to work on. Two gate refusals remain, one of which is correct.
+
+**56.5% → 73% → 83%. The §12.1 bar is 100%.**
