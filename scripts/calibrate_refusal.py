@@ -282,7 +282,7 @@ def sweep(rows: list[dict]) -> list[dict]:
     # lever on the remaining constraint: 21 of 100 legitimate questions still had
     # a decoy as their nearest neighbour, which caps coverage at 79% before any
     # threshold is applied. Swept, because the right gap is an empirical question.
-    for gap in (0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12):
+    for gap in (0.07, 0.08, 0.09, 0.10, 0.12, 0.15, 0.20, 0.30):
         designs[f"margin_{gap:g}"] = (
             lambda r, t, g=gap: (
                 r["pre_check"]["outcome"] == "pass"

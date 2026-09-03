@@ -50,7 +50,25 @@ TOPIC_WORDS = [
     "बाँट", "बांट", "चौकोर", "डिजाइन", "अभिकल्पना", "टुकड़", "घुमा",
     "ब्लॉक", "छपाई", "रजाई", "कटआउट", "मोड़",
 ]
-_TOPIC_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(TOPIC_WORDS) + r")")
+# Prefix guard so a keyword only matches at a word start, AND a suffix guard so it
+# cannot be the opening syllables of a different word. Hindi inflects with matras
+# (भिन्न -> भिन्नों), so suffixes must be allowed — but a following CONSONANT means
+# a different word entirely, and without that guard "भारत" (India) matched the
+# topic word "भार" (weight), letting a general-knowledge question through the gate
+# to be refused later on a similarity score and offered an irrelevant page.
+# Explicit codepoints: a literal [क-हक़-य़] is an invalid range, because क़ is
+# two codepoints (क + nukta) rather than one.
+_CONSONANT = "[\u0915-\u0939\u0958-\u095f]"
+# A following consonant usually means a different word (भार -> भारत), but Hindi
+# verb inflection adds consonant-initial endings to the same stem
+# (जोड़ -> जोड़ने, माप -> मापना). Matra-initial endings (भिन्नों, भिन्नें) need no
+# exception because a matra is not a consonant. So: block a following consonant
+# UNLESS it opens a known inflection.
+_INFLECTIONS = ("ना", "ने", "नी", "कर", "ते", "ता", "ती", "या", "वा")
+_STEM_END = f"(?:(?!{_CONSONANT})|(?={'|'.join(_INFLECTIONS)}))"
+_TOPIC_RX = re.compile(
+    r"(?<![ऀ-ॿ])(?:" + "|".join(TOPIC_WORDS) + r")" + _STEM_END
+)
 
 # Requests that ask the product to be an answer-vending machine. Refusing these
 # is a positioning decision (§4), not a confidence decision: answering them well
@@ -107,7 +125,7 @@ TOPIC_GROUPS = {
     "data": ["आँकड़", "आंकड़", "तालिका", "दंड", "आरेख", "चित्रालेख"],
 }
 _GROUP_RX = {
-    g: re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(ws) + r")")
+    g: re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(ws) + r")" + _STEM_END)
     for g, ws in TOPIC_GROUPS.items()
 }
 

@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>होमवर्क साथी</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+  /* Palette from the textbook itself: the amber is Maths Mela's section-header
+     pill fill, the lavender its शिक्षण संकेत callout fill. */
+  :root {
+    --amber: #C8891F; --amber-soft: #FBF1DE;
+    --lavender: #7C6B96; --lavender-soft: #F1EDF5;
+    --ok: #2C6A58; --ok-soft: #E3EFEA;
+    --warn: #A63328; --warn-soft: #F7E7E4;
+    --ink: #16181D; --ink-2: #4C525D; --ink-3: #7A808B;
+    --ground: #F4F5F7; --surface: #FFFFFF; --rule: #DEE1E6;
+    --deva: "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --amber: #E0A93C; --amber-soft: #33291480;
+      --lavender: #A797C2; --lavender-soft: #2A2534;
+      --ok: #63B79C; --ok-soft: #1B302A;
+      --warn: #E0705F; --warn-soft: #33201D;
+      --ink: #E9EAED; --ink-2: #AFB4BE; --ink-3: #7E848F;
+      --ground: #101216; --surface: #191C22; --rule: #2D323B;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--deva); font-size: 17px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 140px; }
+
+  /* ---------- header ---------- */
+  header { padding: 10px 0 18px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  h1 { font-size: 25px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .brand span {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .tagline { color: var(--ink-2); font-size: 15px; margin: 4px 0 0; }
+  .status {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-3);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+  .dot.ready { background: var(--ok); }
+  .dot.busy { background: var(--amber); }
+
+  /* ---------- chat ---------- */
+  #thread { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .msg { max-width: 100%; }
+  .from-parent {
+    align-self: flex-end; background: var(--lavender-soft);
+    border: 1px solid var(--rule); border-radius: 14px 14px 4px 14px;
+    padding: 11px 15px; max-width: 85%;
+  }
+  .from-saathi {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 14px 14px 14px 4px; padding: 4px 0 0; overflow: hidden;
+  }
+  .who {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 5px;
+  }
+
+  /* the four parts of the answer contract, each labelled */
+  .part { padding: 12px 16px; border-top: 1px solid var(--rule); }
+  .part:first-of-type { border-top: 0; }
+  .part-label {
+    font-family: var(--sans); font-size: 11px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
+    margin: 0 0 3px; display: flex; align-items: center; gap: 6px;
+  }
+  .part-num {
+    display: inline-grid; place-items: center; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--amber); color: #fff;
+    font-size: 10px; font-weight: 600; font-family: var(--sans);
+  }
+  .part p { margin: 0; }
+  .part.say {
+    background: var(--amber-soft);
+  }
+  .part.say p { font-weight: 500; }
+
+  .cite {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    padding: 10px 16px; border-top: 1px solid var(--rule);
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-3);
+  }
+  .cite button {
+    font: inherit; font-family: var(--sans); color: var(--amber);
+    background: none; border: 0; padding: 0; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .cite button:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .page-img { display: block; width: 100%; border-top: 1px solid var(--rule); }
+
+  /* refusal — never a bare no */
+  .refusal { background: var(--warn-soft); }
+  .refusal .part { border-top-color: color-mix(in srgb, var(--warn) 25%, transparent); }
+  .refusal-why {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    padding: 0 16px 12px;
+  }
+
+  /* FR-2 confirmation turn */
+  .confirm { background: var(--surface); border: 1px dashed var(--amber); border-radius: 12px; padding: 13px 16px; }
+  .confirm .q { font-weight: 500; margin: 4px 0 12px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.act {
+    font-family: var(--deva); font-size: 15px; padding: 9px 18px;
+    border-radius: 999px; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  button.act.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  button.act:hover { border-color: var(--amber); }
+  button.act:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  button.act[disabled] { opacity: .45; cursor: default; }
+
+  /* FR-7 feedback */
+  .fb { padding: 12px 16px; border-top: 1px solid var(--rule); }
+  .fb p { font-size: 15px; margin: 0 0 9px; }
+  .fb.done { color: var(--ok); font-family: var(--sans); font-size: 13.5px; }
+
+  /* ---------- composer ---------- */
+  .composer {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--ground);
+    border-top: 1px solid var(--rule); padding: 12px 16px 16px;
+  }
+  .composer-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 9px; align-items: flex-end; }
+  textarea {
+    flex: 1; font-family: var(--deva); font-size: 16.5px; line-height: 1.5;
+    padding: 11px 14px; border-radius: 14px; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--ink); resize: none; min-height: 46px;
+    max-height: 130px;
+  }
+  textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: -1px; border-color: var(--amber); }
+  .mic, .send {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+    cursor: pointer; display: grid; place-items: center; font-size: 19px;
+  }
+  .send { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .mic[disabled] { opacity: .5; cursor: not-allowed; }
+  .mic:focus-visible, .send:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .hint {
+    max-width: 640px; margin: 8px auto 0; font-family: var(--sans);
+    font-size: 11.5px; color: var(--ink-3); text-align: center;
+  }
+  .examples { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 4px; }
+  .examples button {
+    font-family: var(--deva); font-size: 14px; padding: 7px 13px; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2); cursor: pointer;
+  }
+  .examples button:hover { border-color: var(--amber); color: var(--ink); }
+  .thinking { display: flex; gap: 5px; padding: 14px 16px; }
+  .thinking i {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3);
+    animation: b 1.2s infinite ease-in-out;
+  }
+  .thinking i:nth-child(2) { animation-delay: .15s; }
+  .thinking i:nth-child(3) { animation-delay: .3s; }
+  @keyframes b { 0%,80%,100% { opacity: .25 } 40% { opacity: 1 } }
+  @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; opacity: .6 } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>होमवर्क साथी</h1>
+      <span>कक्षा 5 · गणित</span>
+    </div>
+    <p class="tagline">बच्चे को समझाने में मदद — जवाब नहीं, समझाने का तरीका।</p>
+    <div class="status"><i class="dot" id="dot"></i><span id="statusText">तैयार हो रहा है…</span></div>
+  </header>
+
+  <div class="examples" id="examples">
+    <button>1 किलोग्राम में कितने ग्राम होते हैं?</button>
+    <button>तुल्य भिन्न क्या होती है?</button>
+    <button>सम पंचभुज से टाइल क्यों नहीं बनती?</button>
+    <button>नक्शे में जगह कैसे ढूँढ़ते हैं?</button>
+  </div>
+
+  <div id="thread"></div>
+</div>
+
+<div class="composer">
+  <div class="composer-inner">
+    <button class="mic" id="mic" disabled title="आवाज़ की सुविधा भाषिणी जुड़ने पर">🎤</button>
+    <textarea id="input" rows="1" placeholder="अपना सवाल लिखिए…" aria-label="सवाल"></textarea>
+    <button class="send" id="send" title="भेजिए" aria-label="भेजिए">↑</button>
+  </div>
+  <p class="hint" id="hint">आवाज़ में पूछने की सुविधा भाषिणी (भारत सरकार) जुड़ने पर आएगी</p>
+</div>
+
+<script>
+const SESSION = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 24);
+const thread = document.getElementById('thread');
+const input = document.getElementById('input');
+const dot = document.getElementById('dot');
+const statusText = document.getElementById('statusText');
+let busy = false;
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const el = (html) => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
+const scroll = () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+async function poll() {
+  try {
+    const s = await (await fetch('/api/status')).json();
+    if (s.error) { dot.className = 'dot'; statusText.textContent = 'शुरू नहीं हो सका'; return; }
+    if (s.ready) {
+      dot.className = 'dot ready';
+      statusText.textContent = 'तैयार — किताब: NCERT गणित मेला, कक्षा 5';
+      return;
+    }
+  } catch (e) { /* server not up yet */ }
+  setTimeout(poll, 1200);
+}
+poll();
+
+function addParent(text) {
+  thread.appendChild(el(`<div class="msg from-parent">${esc(text)}</div>`));
+  scroll();
+}
+
+function addThinking() {
+  const n = el('<div class="msg from-saathi"><div class="thinking"><i></i><i></i><i></i></div></div>');
+  thread.appendChild(n); scroll(); return n;
+}
+
+/* FR-2 — read the question back and require confirmation before answering.
+   §8.3 makes this mandatory: mishearing a number silently changes the question,
+   and one extra turn turns a silent wrong answer into a visible correction. */
+function askConfirm(interpreted, clarify) {
+  const node = el(`
+    <div class="msg from-saathi">
+      <div class="confirm">
+        <p class="who">साथी</p>
+        ${clarify ? `<p style="margin:0 0 8px">सवाल थोड़ा और साफ़ बताइए — <span style="font-family:var(--mono);font-size:12px">${esc(clarify)}</span></p>` : ''}
+        <p style="margin:0;color:var(--ink-2);font-size:14.5px">आपने पूछा:</p>
+        <p class="q">“${esc(interpreted)}”</p>
+        <div class="row">
+          <button class="act primary" data-yes>हाँ, सही है</button>
+          <button class="act" data-no>नहीं, बदलना है</button>
+        </div>
+      </div>
+    </div>`);
+  thread.appendChild(node); scroll();
+  node.querySelector('[data-yes]').onclick = () => {
+    node.querySelector('.row').innerHTML = '<span style="font-family:var(--sans);font-size:13px;color:var(--ok)">✓ हाँ</span>';
+    getAnswer(interpreted);
+  };
+  node.querySelector('[data-no]').onclick = () => {
+    node.querySelector('.row').innerHTML = '<span style="font-family:var(--sans);font-size:13px;color:var(--ink-3)">सवाल फिर लिखिए</span>';
+    input.value = interpreted; input.focus(); busy = false;
+  };
+}
+
+const PART_LABELS = [
+  ['answer', 'जवाब'],
+  ['rule', 'एक नियम'],
+  ['example', 'अलग संख्याओं से उदाहरण'],
+  ['say_to_child', 'बच्चे से यह कहिए'],
+];
+
+function renderAnswer(node, d) {
+  if (d.answered) {
+    const parts = PART_LABELS.map(([k, label], i) => d.parts[k] ? `
+      <div class="part ${k === 'say_to_child' ? 'say' : ''}">
+        <p class="part-label"><span class="part-num">${i + 1}</span>${label}</p>
+        <p>${esc(d.parts[k])}</p>
+      </div>` : '').join('');
+    const c = d.citation || {};
+    node.outerHTML = `
+      <div class="msg from-saathi">
+        <p class="who" style="padding:8px 16px 0">साथी</p>
+        ${parts}
+        <div class="cite">
+          <span>किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
+          <button data-page="${esc(c.page)}">पेज देखिए</button>
+        </div>
+        <div class="fb" data-fb>
+          <p>क्या आपने बच्चे को समझा दिया?</p>
+          <div class="row">
+            <button class="act primary" data-exp="1">हाँ, समझा दिया</button>
+            <button class="act" data-exp="0">अभी नहीं</button>
+          </div>
+        </div>
+      </div>`;
+  } else if (d.error_hi) {
+    node.outerHTML = `<div class="msg from-saathi refusal"><div class="part"><p>${esc(d.error_hi)}</p></div></div>`;
+  } else {
+    /* §8.1's refusal package: a spoken line, the textbook page, and the teacher.
+       Never a bare no. */
+    const r = d.refusal || {};
+    // only when §8.1 actually has a relevant page to offer
+    const page = r.page_image ? (d.citation || {}).page : null;
+    node.outerHTML = `
+      <div class="msg from-saathi refusal">
+        <p class="who" style="padding:8px 16px 0">साथी</p>
+        <div class="part"><p>${esc(r.spoken || '')}</p></div>
+        ${page ? `<div class="cite"><span>यह पेज देख लीजिए: पेज ${esc(page)}</span>
+          <button data-page="${esc(page)}">पेज देखिए</button></div>` : ''}
+        <p class="refusal-why">कारण: ${esc(r.reason || '')}</p>
+      </div>`;
+  }
+  wire(); scroll();
+}
+
+/* FR-10 — show the actual textbook page, so the parent can find it in the book */
+function wire() {
+  document.querySelectorAll('[data-page]').forEach(b => {
+    if (b.dataset.wired) return; b.dataset.wired = '1';
+    b.onclick = () => {
+      const n = b.dataset.page;
+      if (b.dataset.shown) { b.parentElement.parentElement.querySelector('.page-img')?.remove();
+        delete b.dataset.shown; b.textContent = 'पेज देखिए'; return; }
+      const img = el(`<img class="page-img" src="/page/${n}" alt="किताब का पेज ${n}">`);
+      b.parentElement.after(img); b.dataset.shown = '1'; b.textContent = 'पेज छिपाइए';
+    };
+  });
+  document.querySelectorAll('[data-exp]').forEach(b => {
+    if (b.dataset.wired) return; b.dataset.wired = '1';
+    b.onclick = async () => {
+      const box = b.closest('[data-fb]');
+      const explained = b.dataset.exp === '1';
+      box.innerHTML = `<p class="fb done">${explained ? '✓ शुक्रिया — यही सबसे बड़ी बात है।' : 'ठीक है, कोई बात नहीं।'}</p>`;
+      try {
+        await fetch('/api/feedback', { method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ session: SESSION, understood: explained, explained }) });
+      } catch (e) {}
+    };
+  });
+}
+
+async function getAnswer(q) {
+  const node = addThinking();
+  try {
+    const r = await fetch('/api/answer', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ question: q, session: SESSION }) });
+    renderAnswer(node, await r.json());
+  } catch (e) {
+    renderAnswer(node, { error_hi: 'जुड़ने में दिक्कत हुई। फिर कोशिश कीजिए।' });
+  }
+  busy = false;
+}
+
+async function send() {
+  const q = input.value.trim();
+  if (!q || busy) return;
+  busy = true; input.value = ''; input.style.height = 'auto';
+  document.getElementById('examples').style.display = 'none';
+  addParent(q);
+  try {
+    const r = await fetch('/api/interpret', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ question: q }) });
+    const d = await r.json();
+    askConfirm(d.interpreted, d.clarify);
+  } catch (e) {
+    busy = false;
+  }
+}
+
+document.getElementById('send').onclick = send;
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+});
+document.querySelectorAll('#examples button').forEach(b => {
+  b.onclick = () => { input.value = b.textContent; send(); };
+});
+</script>
+</body>
+</html>

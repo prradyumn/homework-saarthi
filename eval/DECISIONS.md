@@ -965,3 +965,70 @@ not assumed as free.
 4. §12.1's "eval runs on every change" cadence costs ~66k tokens per 30-question
    run — a third of the daily budget. The retrieval, gate, audit and cost evals
    need no LLM at all and carry that cadence instead.
+
+---
+
+## D8 — Web chat (FR-8), and the bugs that only appear when you use the thing
+
+**Built the public web chat.** Python standard library only — no Flask, no npm —
+because this is a prototype on free tiers and a dependency that must be installed
+before the demo runs is a worse demo. `scripts/serve.py` + `web/index.html`.
+
+FR-8 is P0 and marked portfolio-critical for a concrete reason: the WhatsApp Cloud
+API test number can only message pre-approved recipients, so WhatsApp cannot be
+shown to a stranger with a link. The web chat is the demo.
+
+Implements the conversation contract that does not need Bhashini: **FR-2** the
+interpretation read back with a confirmation before answering, **FR-3** chapter and
+page cited on every answer, **FR-4** the §8.1 refusal package, **FR-5** the four
+parts rendered as four labelled parts, **FR-7** the post-answer prompt feeding
+WPEC, **FR-10** the actual textbook page image on request. Voice is built for and
+labelled as pending credentials rather than faked. Measured 3.8s end to end.
+
+### Two bugs that only surfaced by using it
+
+**1. The refusal offered an irrelevant page.** Asked for the quadratic formula,
+the product refused correctly and then offered **page 105 — kilograms and grams**.
+§8.1 says a refusal ships "the textbook page image for the relevant chapter", and
+for an out-of-syllabus question there is no relevant chapter. Promising a page and
+then showing an unrelated one is worse than saying plainly that this is not in the
+Class 5 book, so off-topic refusals now get their own spoken line and no page.
+
+**2. `भारत` matched `भार`.** "भारत के प्रधानमंत्री कौन हैं?" (who is India's Prime
+Minister) passed the query gate as a maths question, because the topic word
+**भार** (weight) matches the opening syllables of **भारत** (India). It then got
+refused later on a similarity score and offered a page — a bad outcome reached by
+two wrong turns.
+
+This is the third appearance of the same Devanagari collision class
+(`विभिन्न`/`भिन्न`, `टैनग्राम`/`ग्राम`), now from the other direction: I had guarded
+the prefix but deliberately allowed suffixes, because Hindi inflects
+(`भिन्नों` must match `भिन्न`). A following **consonant** means a different word,
+so it is now blocked — except where it opens a known verb inflection
+(`जोड़` → `जोड़ने`, `माप` → `मापना`), which the first version of the fix broke.
+
+### It made the gate better, and the threshold irrelevant
+
+| | before | after |
+|---|---|---|
+| refusables caught pre-retrieval | 36/50 | **41/50** |
+| false positives on 100 answerable | 0 | **0** |
+| usable decoy-margin plateau | 0.05–0.08 | **0.05–0.10** |
+| cliff | 0.09 | **0.12** |
+| coverage at ≤2% wrong | 84% | **85%** at 1.2% |
+| similarity floor selected by the sweep | 0.545 | **0.300 — inert** |
+
+**The similarity floor is now doing nothing.** The sweep selected the bottom of
+its own range, because the query pre-checks catch the low-scoring leaks
+categorically. It is kept low as defensive depth, and the real backstop is the
+generator declining when its passages do not contain the answer.
+
+That is the third time strengthening a categorical layer has made the tuned score
+matter less — D1 found similarity alone reaches 1% coverage, D1-FINAL found the
+73% ceiling belonged to the retriever, and here the threshold stopped mattering at
+all. For a gate whose spec is written as "sweep a threshold", the repeated finding
+is that almost none of the decision lives in the threshold.
+
+Operating point: **coverage 85%, wrong-answer rate 1.2%, refusal on legitimate
+traffic 15%** — decoy margin 0.08, chosen three steps back from the cliff at 0.12
+since 0.08 and 0.09 both reach 85%.

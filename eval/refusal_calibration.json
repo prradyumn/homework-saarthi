@@ -11,7 +11,7 @@
     "layered": null,
     "layered_plus_numeric": {
       "design": "layered_plus_numeric",
-      "threshold": 0.535,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.65,
       "wrong_answer_rate": 0.0152,
       "answered_total": 66,
@@ -22,7 +22,7 @@
     "topic_first": null,
     "topic+decoy_0.01": {
       "design": "topic+decoy_0.01",
-      "threshold": 0.535,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.74,
       "wrong_answer_rate": 0.0133,
       "answered_total": 75,
@@ -32,7 +32,7 @@
     },
     "topic+decoy_0.03": {
       "design": "topic+decoy_0.03",
-      "threshold": 0.535,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.8,
       "wrong_answer_rate": 0.0123,
       "answered_total": 81,
@@ -42,7 +42,7 @@
     },
     "topic+decoy_0.05": {
       "design": "topic+decoy_0.05",
-      "threshold": 0.545,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.82,
       "wrong_answer_rate": 0.012,
       "answered_total": 83,
@@ -52,7 +52,7 @@
     },
     "topic+decoy_0.08": {
       "design": "topic+decoy_0.08",
-      "threshold": 0.545,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.85,
       "wrong_answer_rate": 0.0116,
       "answered_total": 86,
@@ -65,7 +65,7 @@
     "topic+decoy_0.25": null,
     "decoy_1_0": {
       "design": "decoy_1_0",
-      "threshold": 0.535,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.65,
       "wrong_answer_rate": 0.0152,
       "answered_total": 66,
@@ -76,7 +76,7 @@
     "decoy_1_0.5": null,
     "decoy_2_0": {
       "design": "decoy_2_0",
-      "threshold": 0.535,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.73,
       "wrong_answer_rate": 0.0135,
       "answered_total": 74,
@@ -87,29 +87,9 @@
     "decoy_2_0.5": null,
     "decoy_2_1": null,
     "decoy_3_0.5": null,
-    "margin_0.05": {
-      "design": "margin_0.05",
-      "threshold": 0.545,
-      "coverage_of_answerable": 0.82,
-      "wrong_answer_rate": 0.012,
-      "answered_total": 83,
-      "answered_correctly_allowed": 82,
-      "answered_should_have_refused": 1,
-      "refusal_rate_overall": 0.4467
-    },
-    "margin_0.06": {
-      "design": "margin_0.06",
-      "threshold": 0.545,
-      "coverage_of_answerable": 0.83,
-      "wrong_answer_rate": 0.0119,
-      "answered_total": 84,
-      "answered_correctly_allowed": 83,
-      "answered_should_have_refused": 1,
-      "refusal_rate_overall": 0.44
-    },
     "margin_0.07": {
       "design": "margin_0.07",
-      "threshold": 0.545,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.84,
       "wrong_answer_rate": 0.0118,
       "answered_total": 85,
@@ -119,7 +99,7 @@
     },
     "margin_0.08": {
       "design": "margin_0.08",
-      "threshold": 0.545,
+      "threshold": 0.3,
       "coverage_of_answerable": 0.85,
       "wrong_answer_rate": 0.0116,
       "answered_total": 86,
@@ -129,35 +109,28 @@
     },
     "margin_0.09": {
       "design": "margin_0.09",
-      "threshold": 0.67,
-      "coverage_of_answerable": 0.74,
-      "wrong_answer_rate": 0.0133,
-      "answered_total": 75,
-      "answered_correctly_allowed": 74,
+      "threshold": 0.3,
+      "coverage_of_answerable": 0.85,
+      "wrong_answer_rate": 0.0116,
+      "answered_total": 86,
+      "answered_correctly_allowed": 85,
       "answered_should_have_refused": 1,
-      "refusal_rate_overall": 0.5
+      "refusal_rate_overall": 0.4267
     },
     "margin_0.1": {
       "design": "margin_0.1",
-      "threshold": 0.67,
-      "coverage_of_answerable": 0.75,
-      "wrong_answer_rate": 0.0132,
-      "answered_total": 76,
-      "answered_correctly_allowed": 75,
+      "threshold": 0.3,
+      "coverage_of_answerable": 0.86,
+      "wrong_answer_rate": 0.0115,
+      "answered_total": 87,
+      "answered_correctly_allowed": 86,
       "answered_should_have_refused": 1,
-      "refusal_rate_overall": 0.4933
+      "refusal_rate_overall": 0.42
     },
-    "margin_0.11": {
-      "design": "margin_0.11",
-      "threshold": 0.67,
-      "coverage_of_answerable": 0.75,
-      "wrong_answer_rate": 0.0132,
-      "answered_total": 76,
-      "answered_correctly_allowed": 75,
-      "answered_should_have_refused": 1,
-      "refusal_rate_overall": 0.4933
-    },
-    "margin_0.12": null
+    "margin_0.12": null,
+    "margin_0.15": null,
+    "margin_0.2": null,
+    "margin_0.3": null
   },
   "signals": [
     {
@@ -4248,8 +4221,8 @@
       "top1_figure_dependent": false,
       "top1_needs_review": false,
       "pre_check": {
-        "outcome": "pass",
-        "reason": null
+        "outcome": "clarify",
+        "reason": "no_maths_topic"
       },
       "value_seeking": false,
       "q_beyond_word": true,
@@ -4285,8 +4258,8 @@
       "top1_figure_dependent": false,
       "top1_needs_review": false,
       "pre_check": {
-        "outcome": "pass",
-        "reason": null
+        "outcome": "clarify",
+        "reason": "no_maths_topic"
       },
       "value_seeking": false,
       "q_beyond_word": true,
@@ -4618,8 +4591,8 @@
       "top1_figure_dependent": false,
       "top1_needs_review": false,
       "pre_check": {
-        "outcome": "pass",
-        "reason": null
+        "outcome": "clarify",
+        "reason": "no_maths_topic"
       },
       "value_seeking": false,
       "q_beyond_word": false,
@@ -4803,8 +4776,8 @@
       "top1_figure_dependent": false,
       "top1_needs_review": false,
       "pre_check": {
-        "outcome": "pass",
-        "reason": null
+        "outcome": "clarify",
+        "reason": "no_maths_topic"
       },
       "value_seeking": true,
       "q_beyond_word": false,
@@ -5062,8 +5035,8 @@
       "top1_figure_dependent": false,
       "top1_needs_review": false,
       "pre_check": {
-        "outcome": "pass",
-        "reason": null
+        "outcome": "clarify",
+        "reason": "no_maths_topic"
       },
       "value_seeking": false,
       "q_beyond_word": false,

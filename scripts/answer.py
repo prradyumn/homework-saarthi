@@ -68,9 +68,16 @@ DECOYS = ROOT / "ingest" / "decoy_chunks.json"
 INDEX = ROOT / "ingest" / "index_combined.npz"
 
 EMBED_MODEL = "BAAI/bge-m3"
-# Recalibrated on production retrieval (D1-FINAL). The old 0.415 floor was fitted
-# to dense-only scoring; hybrid scoring shifts the whole distribution upward.
-SIM_FLOOR = 0.545
+# The similarity floor is now INERT, and that is the finding rather than an
+# oversight. Once the query-side pre-checks caught the low-scoring leaks
+# categorically — a general-knowledge question at 0.414, an off-topic one at
+# 0.30 — the sweep selected the bottom of its own range, meaning no floor was
+# needed. It is kept low as defensive depth; the real backstop is the generator,
+# which declines when its passages do not contain the answer.
+#
+# This is the third time strengthening a categorical layer has made the tuned
+# score matter less (D1, D1-FINAL, and here).
+SIM_FLOOR = 0.30
 TOP_K = 5
 
 # A decoy must beat the best Class 5 chunk by this much to disqualify a question.
@@ -84,18 +91,20 @@ TOP_K = 5
 #   margin   coverage   wrong   threshold
 #   0.01       74%       1.3%     0.535
 #   0.05       82%       1.2%     0.545
-#   0.07       84%       1.2%     0.545   <- in use
-#   0.08       85%       1.2%     0.545   <- §8.1's rule would pick this
-#   0.09       74%       1.3%     0.670   <- one more leak forces the floor up
+#   0.07       84%       1.2%     0.300
+#   0.08       85%       1.2%     0.300   <- in use
+#   0.09       85%       1.2%     0.300
+#   0.10       86%       1.1%     0.300   <- §8.1's rule would pick this
 #   0.12       cannot reach the 2% budget at any threshold
 #
-# §8.1 step 4 says take the highest coverage inside the 2% budget, which is 0.08.
-# 0.07 is used instead: the plateau from 0.05 to 0.08 has identical headroom
-# (~0.8pp under budget), and the discontinuity at 0.09 is caused by a single
-# question out of 150 — on a set that small, one item is ~1.2pp of wrong-answer
-# rate, so standing one step back from the cliff costs 1 point of coverage and
-# buys stability. Revisit once the set is built from real parent questions.
-DECOY_MARGIN = 0.07
+# Strengthening the query gate (the भारत/भार suffix-guard fix) widened the usable
+# plateau from 0.05-0.08 to 0.05-0.10 and moved the cliff from 0.09 to 0.12.
+#
+# §8.1 step 4 says take the highest coverage inside budget, which is 0.10 at 86%.
+# 0.08 is used instead, for the same reason as before: 0.08 and 0.09 both reach
+# 85%, so three steps back from the cliff costs one point of coverage rather than
+# two, and the cliff's position is still set by a single question out of 150.
+DECOY_MARGIN = 0.08
 
 # How many Class 5 chunks are handed to the generator. §11.1 specifies "retrieve
 # top-k ... generate against retrieved chunks only" — plural — and passing only
@@ -136,6 +145,14 @@ OLLAMA_MODEL = "qwen3:1.7b"
 REFUSAL_LINE = (
     "मुझे पक्का नहीं पता, और गलत बताकर आपका नुकसान नहीं करना चाहता। "
     "किताब का यह पेज देख लीजिए, और कल शिक्षक जी से एक बार पूछ लीजिए।"
+)
+
+# A separate line for questions that are outside the book altogether. The first
+# line promises a page; promising a page and then showing an unrelated one is
+# worse than saying plainly that this is not in the Class 5 book.
+REFUSAL_LINE_OFF_TOPIC = (
+    "यह सवाल कक्षा 5 की गणित की किताब में नहीं है, इसलिए मैं इसका जवाब नहीं दे सकता। "
+    "इससे मिलता-जुलता कोई सवाल किताब से पूछिए, या शिक्षक जी से पूछ लीजिए।"
 )
 
 # The jargon substitutions are generated FROM the validator's table, so the
@@ -396,12 +413,21 @@ def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
     score = corpora["best_class5"]
 
     if decision["refuse"]:
+        # §8.1 says a refusal ships "the textbook page image for the relevant
+        # chapter". For an out-of-syllabus question there IS no relevant chapter,
+        # and offering one anyway is actively confusing: a quadratic-equation
+        # question was being answered with page 105, on kilograms and grams.
+        # The page is offered only when the question is in-syllabus and we are
+        # merely unsure — which is exactly when the page helps.
+        no_relevant_page = decision["layer"] in (
+            "query_vocabulary", "class_metadata", "query_pre_check",
+        )
         return {
             "answered": False,
             "refusal": {
-                "spoken": REFUSAL_LINE,
-                "page_image": f"ingest/pages/p{top['page']:03d}.png"
-                if top.get("in_syllabus") else None,
+                "spoken": REFUSAL_LINE if not no_relevant_page else REFUSAL_LINE_OFF_TOPIC,
+                "page_image": None if no_relevant_page or not top.get("in_syllabus")
+                else f"ingest/pages/p{top['page']:03d}.png",
                 "reason": decision["reason"],
                 "layer": decision["layer"],
             },
