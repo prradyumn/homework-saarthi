@@ -1,0 +1,380 @@
+<title>Where Free Breaks</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Devanagari:wght@400;500&display=swap">
+<style>
+  :root {
+    /* Same palette as the sibling calibration write-up: amber is Maths Mela's
+       section-header pill fill, lavender its शिक्षण संकेत callout fill. */
+    --amber: #C8891F;
+    --amber-soft: #F5E4C2;
+    --lavender: #7C6B96;
+    --breach: #A63328;
+    --breach-soft: #F0DAD6;
+    --ok: #2C6A58;
+    --ok-soft: #DCEAE4;
+
+    --ink: #14161B;
+    --ink-2: #4A4F5A;
+    --ink-3: #767C88;
+    --ground: #F3F4F6;
+    --surface: #FFFFFF;
+    --rule: #DCDFE4;
+    --rule-2: #EAECEF;
+
+    --serif: "IBM Plex Serif", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --deva: "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --amber: #E0A93C; --amber-soft: #3B2F17;
+      --lavender: #A797C2;
+      --breach: #E0705F; --breach-soft: #3A1F1B;
+      --ok: #63B79C; --ok-soft: #1B302A;
+      --ink: #E9EAED; --ink-2: #AFB4BE; --ink-3: #7E848F;
+      --ground: #0F1115; --surface: #181B21;
+      --rule: #2C313A; --rule-2: #23272E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --amber: #E0A93C; --amber-soft: #3B2F17;
+    --lavender: #A797C2;
+    --breach: #E0705F; --breach-soft: #3A1F1B;
+    --ok: #63B79C; --ok-soft: #1B302A;
+    --ink: #E9EAED; --ink-2: #AFB4BE; --ink-3: #7E848F;
+    --ground: #0F1115; --surface: #181B21;
+    --rule: #2C313A; --rule-2: #23272E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 56px 28px 96px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.12;
+    letter-spacing: -0.015em; text-wrap: balance; margin: 0 0 14px;
+  }
+  .standfirst {
+    font-family: var(--serif); font-size: 18.5px; line-height: 1.55;
+    color: var(--ink-2); max-width: 62ch; margin: 0 0 34px;
+  }
+  .standfirst em { color: var(--ink); font-style: italic; }
+
+  .readout {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 0 0 40px;
+  }
+  .readout div { background: var(--surface); padding: 16px 18px 15px; }
+  .readout dt {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 7px;
+  }
+  .readout dd {
+    margin: 0; font-family: var(--mono); font-size: 24px; font-weight: 500;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  }
+  .readout dd small {
+    display: block; font-family: var(--sans); font-size: 12.5px; font-weight: 400;
+    letter-spacing: 0; color: var(--ink-3); margin-top: 3px;
+  }
+  .v-ok { color: var(--ok); } .v-amber { color: var(--amber); }
+
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: 25px;
+    letter-spacing: -0.01em; text-wrap: balance; margin: 52px 0 6px;
+  }
+  h2 + .dek { color: var(--ink-2); margin: 0 0 22px; max-width: 66ch; }
+  p { max-width: 66ch; margin: 0 0 15px; }
+  .hi { font-family: var(--deva); }
+  code {
+    font-family: var(--mono); font-size: 0.9em; background: var(--rule-2);
+    padding: 1px 5px; border-radius: 2px;
+  }
+  .lead-rule { border: 0; border-top: 2px solid var(--ink); margin: 0 0 26px; width: 44px; }
+
+  figure { margin: 0 0 14px; }
+  .panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    padding: 22px 20px 14px; overflow-x: auto;
+  }
+  .panel svg { display: block; min-width: 640px; width: 100%; height: auto; }
+  figcaption {
+    font-size: 13.5px; color: var(--ink-2); max-width: 68ch; margin-top: 14px;
+    border-left: 2px solid var(--amber); padding: 2px 0 2px 14px;
+  }
+  .c-label { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-3); }
+  .c-axis  { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .c-name  { font-family: var(--sans); font-size: 11.5px; fill: var(--ink); }
+  .c-note  { font-family: var(--sans); font-size: 11.5px; fill: var(--ink-2); }
+
+  .t-scroll { overflow-x: auto; margin: 0 0 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 480px; }
+  caption {
+    text-align: left; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.11em; text-transform: uppercase; color: var(--ink-3);
+    padding-bottom: 9px;
+  }
+  th, td { text-align: left; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  thead th {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+    border-bottom: 1px solid var(--rule);
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; padding-right: 0; }
+  tr.highlight td { background: var(--amber-soft); font-weight: 500; }
+  tr.highlight td:first-child { box-shadow: inset 3px 0 0 var(--amber); padding-left: 11px; }
+  tr.free td { background: var(--ok-soft); }
+  .src { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--lavender); padding: 18px 20px 4px; margin: 0 0 16px;
+  }
+  .callout h3 { font-family: var(--sans); font-weight: 600; font-size: 15.5px; margin: 0 0 8px; }
+  .callout p:last-child { margin-bottom: 14px; }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--lavender);
+    margin-bottom: 6px;
+  }
+  .gaps { padding-left: 20px; margin: 0; }
+  .gaps li { margin-bottom: 11px; max-width: 66ch; }
+
+  footer {
+    margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-size: 13px; color: var(--ink-3);
+  }
+  footer code { background: none; padding: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Homework Saathi · Decision D7 · Priced 3 September 2026</p>
+  <h1>Where free breaks</h1>
+  <p class="standfirst">
+    For a product whose users cannot pay, cost per conversation is not a footnote —
+    it decides whether the thing can exist. The spec deliberately left the rate
+    column blank, because <em>a fabricated number is worse than none</em>. These are
+    live rates against volumes measured from the running system, and the interesting
+    output is not the price. It is which free tier gives out first, and how far away
+    that is.
+  </p>
+
+  <dl class="readout">
+    <div><dt>Per conversation</dt><dd class="v-amber">₹0.065<small>₹0.016 with caching + batch</small></dd></div>
+    <div><dt>Per parent / month</dt><dd class="v-amber">₹1.11<small>at 4 questions a week</small></dd></div>
+    <div><dt>Free until</dt><dd class="v-ok">158<small>active parents</small></dd></div>
+    <div><dt>At 10 million</dt><dd>₹1.11 cr<small>per month, ₹27.8 L with levers</small></dd></div>
+  </dl>
+
+  <hr class="lead-rule">
+
+  <h2>The break-even map</h2>
+  <p class="dek">
+    Every free tier in the stack, placed at the number of active parents where it
+    stops being free. Log scale, because the answers are four orders of magnitude apart.
+  </p>
+
+  <figure>
+    <div class="panel">
+      <svg viewBox="0 0 720 300" role="img" aria-label="Break-even map on a log scale of active parents. Groq's daily token budget binds first at about 158 active parents; requests per day at 1,750; Supabase at 2,025; PostHog at 7,267. WhatsApp never binds. The 25-parent pilot sits comfortably inside free.">
+        <!-- free zone -->
+        <rect x="64" y="40" width="125" height="170" fill="var(--ok-soft)"></rect>
+        <text class="c-label" x="70" y="56" fill="var(--ok)">EVERYTHING FREE</text>
+
+        <!-- axis -->
+        <line x1="64" y1="210" x2="690" y2="210" stroke="var(--rule)" stroke-width="1"></line>
+        <g class="c-axis" text-anchor="middle">
+          <text x="64" y="230">10</text>
+          <text x="168" y="230">100</text>
+          <text x="273" y="230">1k</text>
+          <text x="377" y="230">10k</text>
+          <text x="481" y="230">100k</text>
+          <text x="586" y="230">1M</text>
+          <text x="690" y="230">10M</text>
+        </g>
+        <g stroke="var(--rule-2)" stroke-width="1">
+          <line x1="168" y1="40" x2="168" y2="210"></line>
+          <line x1="273" y1="40" x2="273" y2="210"></line>
+          <line x1="377" y1="40" x2="377" y2="210"></line>
+          <line x1="481" y1="40" x2="481" y2="210"></line>
+          <line x1="586" y1="40" x2="586" y2="210"></line>
+        </g>
+        <text class="c-label" x="377" y="252" text-anchor="middle">ACTIVE PARENTS, AT 4 QUESTIONS PER WEEK EACH</text>
+
+        <!-- the pilot -->
+        <line x1="105" y1="196" x2="105" y2="210" stroke="var(--ok)" stroke-width="2"></line>
+        <circle cx="105" cy="196" r="4" fill="var(--ok)"></circle>
+        <text class="c-name" x="105" y="188" text-anchor="middle" fill="var(--ok)">pilot · 25</text>
+
+        <!-- binding points -->
+        <g>
+          <line x1="189" y1="60" x2="189" y2="210" stroke="var(--breach)" stroke-width="2.5"></line>
+          <circle cx="189" cy="60" r="5" fill="var(--breach)"></circle>
+          <text class="c-name" x="199" y="57" fill="var(--breach)" font-weight="600">Groq tokens/day · 158</text>
+          <text class="c-note" x="199" y="72">200,000 tokens = 90 answers a day</text>
+        </g>
+        <g>
+          <line x1="298" y1="100" x2="298" y2="210" stroke="var(--amber)" stroke-width="2"></line>
+          <circle cx="298" cy="100" r="4" fill="var(--amber)"></circle>
+          <text class="c-name" x="308" y="97">Groq requests/day · 1,750</text>
+        </g>
+        <g>
+          <line x1="305" y1="128" x2="305" y2="210" stroke="var(--amber)" stroke-width="2"></line>
+          <circle cx="305" cy="128" r="4" fill="var(--amber)"></circle>
+          <text class="c-name" x="315" y="125">Supabase 500 MB · 2,025</text>
+        </g>
+        <g>
+          <line x1="362" y1="156" x2="362" y2="210" stroke="var(--amber)" stroke-width="2"></line>
+          <circle cx="362" cy="156" r="4" fill="var(--amber)"></circle>
+          <text class="c-name" x="372" y="153">PostHog 1M events/mo · 7,267</text>
+        </g>
+
+        <!-- district marker -->
+        <line x1="450" y1="180" x2="450" y2="210" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3 3"></line>
+        <text class="c-note" x="456" y="176">one district ≈ 50,000</text>
+
+        <!-- whatsapp never binds -->
+        <line x1="64" y1="90" x2="690" y2="90" stroke="var(--lavender)" stroke-width="2" stroke-dasharray="6 4"></line>
+        <text class="c-name" x="686" y="85" text-anchor="end" fill="var(--lavender)" font-weight="600">WhatsApp — never binds</text>
+      </svg>
+    </div>
+    <figcaption>
+      The spec predicted the order <em>LLM requests → WhatsApp fees → Supabase storage</em>.
+      Measured, it is <em>LLM tokens → Supabase → PostHog</em>. Requests never bind before
+      tokens do, and WhatsApp does not bind at all.
+    </figcaption>
+  </figure>
+
+  <h2>WhatsApp is free, and that is the positioning working</h2>
+  <p>
+    Service messages sent inside WhatsApp's 24-hour customer-service window cost
+    nothing. This product is purely responsive — the parent asks, we answer, and even
+    the post-answer prompt <span class="hi">“क्या आपने बच्चे को समझा दिया?”</span> lands
+    inside the same window. So the per-message fee in the cost formula is
+    <strong>zero by design, not by luck</strong>: the decision to be a coach who
+    responds rather than a service that broadcasts is also the decision that deletes a
+    whole line from the cost model.
+  </p>
+  <div class="t-scroll">
+    <table>
+      <caption>WhatsApp Business Platform, India, rates effective 1 July 2026</caption>
+      <thead><tr><th>Message category</th><th class="num">Rate</th><th>Applies to us?</th></tr></thead>
+      <tbody>
+        <tr class="free"><td>Service, inside the 24-hour window</td><td class="num">₹0</td><td>Every answer we send</td></tr>
+        <tr><td>Utility template</td><td class="num">₹0.115 <span class="src">+18% GST</span></td><td>Only if we start nudging</td></tr>
+        <tr><td>Marketing template</td><td class="num">₹0.8631</td><td>Never — 7.5× utility</td></tr>
+        <tr><td>Platform subscription</td><td class="num">₹0</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">
+    A weekly re-engagement nudge for all 25 pilot parents would cost ₹13.57 a month.
+  </p>
+
+  <h2>Scale, honestly</h2>
+  <div class="t-scroll">
+    <table>
+      <caption>Monthly cost at 4 questions per active parent per week</caption>
+      <thead><tr><th>Scale</th><th class="num">On-demand</th><th class="num">Caching + batch</th></tr></thead>
+      <tbody>
+        <tr class="free"><td>25-parent pilot</td><td class="num">₹28 → ₹0 free</td><td class="num">₹7</td></tr>
+        <tr><td>One school, 300 children</td><td class="num">₹334</td><td class="num">₹84</td></tr>
+        <tr><td>One district, ~50,000 children</td><td class="num">₹55,681</td><td class="num">₹13,920</td></tr>
+        <tr class="highlight"><td>10 million parents</td><td class="num">₹1.11 crore</td><td class="num">₹27.84 lakh</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    At every scale the LLM is essentially the whole bill. That is why caching and
+    context selection are <strong>the strategy, not an optimisation</strong> — a 4×
+    difference at ten million, which is the gap between a fundable per-user cost and
+    an unfundable one.
+  </p>
+
+  <h2>Retrieved context is the cost</h2>
+  <p class="dek">
+    54% of every prompt is retrieved textbook passages. The spec predicted this would
+    dominate, and it does — which makes the quality/cost trade explicit and priceable.
+  </p>
+  <div class="t-scroll">
+    <table>
+      <caption>Passages handed to the model, per answer</caption>
+      <thead><tr><th>Context</th><th class="num">Tokens</th><th class="num">Free answers/day</th><th class="num">Paid</th><th class="num">Chunk relevance</th></tr></thead>
+      <tbody>
+        <tr class="highlight"><td>Top-3 <span class="src">in use</span></td><td class="num">2,213</td><td class="num">90</td><td class="num">₹0.065</td><td class="num">90%</td></tr>
+        <tr><td>Top-2</td><td class="num">1,839</td><td class="num">109</td><td class="num">₹0.054</td><td class="num">—</td></tr>
+        <tr><td>Top-1</td><td class="num">1,464</td><td class="num">137</td><td class="num">₹0.043</td><td class="num">83%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Dropping to a single passage buys ~45% more daily capacity and costs 7 points of
+    retrieval relevance. The three-passage choice is recorded here as a cost rather
+    than assumed to be free.
+  </p>
+
+  <div class="callout">
+    <span class="tag">Corrected</span>
+    <h3>The Devanagari tax is real, and smaller than I first claimed</h3>
+    <p>
+      Token counts were first inferred three ways that disagreed by 1.6× — the rate
+      limiter's messages, a local tokenizer, and implied consumption from exhausting
+      the daily budget. The local tokenizer was wrong: it over-counted prompt tokens by
+      1.8×, because the model actually in use tokenises Devanagari considerably better
+      than the one I had loaded.
+    </p>
+    <p>
+      Capturing the provider's own usage accounting — free, and something the client
+      should have recorded from the start — settled it at <strong>2,213 tokens per
+      answer</strong>. The real Hindi penalty is <strong>1.75 characters per token
+      against ~4 for English, about 2.3×</strong>, not the 3.7× first reported. A Hindi
+      product does pay a structural token premium; it is just not as steep as the wrong
+      measurement suggested.
+    </p>
+  </div>
+
+  <h2>What this model cannot tell you</h2>
+  <ul class="gaps">
+    <li>
+      <strong>Bhashini's commercial rates are not published.</strong> Free for
+      non-commercial use, and ₹250/month for 50,000 TTS characters a day on the
+      published individual plan — about 143 answers at our 348 characters. Past that,
+      "contact Bhashini". This is the largest unknown, and note the shape of the risk:
+      at district scale the <em>voice</em> layer could plausibly exceed the LLM layer,
+      and it is the one line that cannot be modelled from public information.
+    </li>
+    <li>
+      <strong>Speech duration is assumed, not measured.</strong> 20 seconds per voice
+      note comes from the spec. There is no voice loop built yet, so there is nothing
+      to measure.
+    </li>
+    <li>
+      <strong>The model in use has no published price.</strong> Qwen3-32B
+      ($0.29/$0.59 per million) stands in as the nearest listed equivalent. A smaller
+      model is likely cheaper, so these figures probably <em>overstate</em> cost.
+    </li>
+    <li>
+      <strong>Evaluation competes with the product for the same budget.</strong> A
+      30-question conformance run costs ~66,000 tokens — a third of the free daily
+      allowance — so the spec's "re-run on every change" cadence is not affordable as
+      written. The retrieval, gate, audit and cost evaluations need no model at all,
+      and carry that cadence instead.
+    </li>
+  </ul>
+
+  <footer>
+    Rates priced 3 September 2026 · USD/INR 94.98 · volumes measured from the running
+    system via the provider's usage accounting · Class 5 Mathematics, Hindi, NCERT
+    <span class="hi">गणित मेला</span> · reproduce with <code>scripts/cost_model.py</code>
+  </footer>
+</div>
