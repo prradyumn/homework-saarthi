@@ -1,0 +1,41 @@
+{
+  "tpd": 200000,
+  "chars_per_token": 2.132,
+  "completion_tokens": 133,
+  "context_chunks": 3,
+  "sample_questions": 12,
+  "windows": [
+    {
+      "context_chars": 900,
+      "prompt_chars": 4433,
+      "tokens_per_answer": 2212,
+      "answers_per_day": 90,
+      "tokens_per_30q_run": 66375,
+      "runs_per_day": 3.0
+    },
+    {
+      "context_chars": 1100,
+      "prompt_chars": 4862,
+      "tokens_per_answer": 2414,
+      "answers_per_day": 82,
+      "tokens_per_30q_run": 72412,
+      "runs_per_day": 2.8
+    },
+    {
+      "context_chars": 1300,
+      "prompt_chars": 5186,
+      "tokens_per_answer": 2566,
+      "answers_per_day": 77,
+      "tokens_per_30q_run": 76974,
+      "runs_per_day": 2.6
+    },
+    {
+      "context_chars": 1550,
+      "prompt_chars": 5388,
+      "tokens_per_answer": 2660,
+      "answers_per_day": 75,
+      "tokens_per_30q_run": 79812,
+      "runs_per_day": 2.5
+    }
+  ]
+}
