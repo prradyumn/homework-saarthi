@@ -61,23 +61,41 @@ from query_gate import (  # noqa: E402
     is_value_seeking,
     pre_check,
 )
-from retrieval import LexicalIndex  # noqa: E402
+from retrieval import LexicalIndex, expand_query  # noqa: E402
 
 CHUNKS = ROOT / "ingest" / "chunks.json"
 DECOYS = ROOT / "ingest" / "decoy_chunks.json"
 INDEX = ROOT / "ingest" / "index_combined.npz"
 
 EMBED_MODEL = "BAAI/bge-m3"
-SIM_FLOOR = 0.415  # the calibrated operating point (DECISIONS.md D1)
+# Recalibrated on production retrieval (D1-FINAL). The old 0.415 floor was fitted
+# to dense-only scoring; hybrid scoring shifts the whole distribution upward.
+SIM_FLOOR = 0.545
 TOP_K = 5
 
 # A decoy must beat the best Class 5 chunk by this much to disqualify a question.
-# Merely ranking first is too weak: higher-class books teach Class 5 topics at
-# greater length and so win on similarity for legitimate questions
-# ("सम और विषम संख्या में क्या फर्क है?" lost to a Class 7 chunk by 0.071).
-# Swept in calibration: 0.01 gives 73% coverage vs 71% for rank-only, and every
-# looser gap collapses because it lets real out-of-syllabus questions through.
-DECOY_MARGIN = 0.01
+#
+# On dense-only retrieval the usable margin was 0.01 and coverage capped at 73%,
+# because higher-class books teach Class 5 topics at greater length and won on
+# similarity ("सम और विषम संख्या में क्या फर्क है?" lost to a Class 7 chunk by
+# 0.071). Once retrieval improved (D3: hybrid scoring + query expansion), Class 5
+# chunks outscore the decoys and a much wider margin becomes safe:
+#
+#   margin   coverage   wrong   threshold
+#   0.01       74%       1.3%     0.535
+#   0.05       82%       1.2%     0.545
+#   0.07       84%       1.2%     0.545   <- in use
+#   0.08       85%       1.2%     0.545   <- §8.1's rule would pick this
+#   0.09       74%       1.3%     0.670   <- one more leak forces the floor up
+#   0.12       cannot reach the 2% budget at any threshold
+#
+# §8.1 step 4 says take the highest coverage inside the 2% budget, which is 0.08.
+# 0.07 is used instead: the plateau from 0.05 to 0.08 has identical headroom
+# (~0.8pp under budget), and the discontinuity at 0.09 is caused by a single
+# question out of 150 — on a set that small, one item is ~1.2pp of wrong-answer
+# rate, so standing one step back from the cliff costs 1 point of coverage and
+# buys stability. Revisit once the set is built from real parent questions.
+DECOY_MARGIN = 0.07
 
 # How many Class 5 chunks are handed to the generator. §11.1 specifies "retrieve
 # top-k ... generate against retrieved chunks only" — plural — and passing only
@@ -296,8 +314,12 @@ def retrieve(question: str) -> tuple[list[tuple[dict, float]], dict]:
     by_id = load_chunks()
     data = np.load(INDEX, allow_pickle=False)
     vectors, ids = data["vectors"], [str(x) for x in data["ids"]]
-    qv = _embed([question])[0]
-    sims = vectors @ qv + LEXICAL_WEIGHT * _lexical(ids, by_id, question)
+    # Expanded with the textbook's vocabulary for any colloquial term used, so a
+    # parent asking about a "नक्शा" reaches a chapter that only ever says
+    # "मानचित्र" (see retrieval.PARENT_TO_BOOK).
+    expanded = expand_query(question)
+    qv = _embed([expanded])[0]
+    sims = vectors @ qv + LEXICAL_WEIGHT * _lexical(ids, by_id, expanded)
     order = np.argsort(-sims)[:TOP_K]
     hits = [(by_id[ids[i]], float(sims[i])) for i in order]
 

@@ -730,3 +730,131 @@ This has three consequences worth carrying into the cost model:
   daily cap recorded 13 errors and reported "20% conformance", which is
   meaningless. The client now distinguishes per-minute from per-day limits, retries
   the former, and aborts the run on the latter saying so explicitly.
+
+---
+
+## D6 — The parent's word is not the book's word
+
+**Decision: expand every query with the textbook's vocabulary for any colloquial
+term the parent used** (`retrieval.PARENT_TO_BOOK`, 22 entries, each audited).
+
+This began as a suspected content gap and turned out to be a vocabulary gap —
+the opposite conclusion, and it saved three chapters from being mislabelled.
+
+### How it was found
+
+D3 left 8 questions where the generator correctly declined. Auditing them against
+the corpus (`scripts/audit_answerability.py`) produced this:
+
+| concept | the parent's word | occurrences in the book | the book's word |
+|---|---|---|---|
+| map | नक्शा / नक्शे | **0** | मानचित्र (25), दिशा (47), मार्ग (32) |
+| symmetry | सममिति / दर्पण | **0** | अक्ष (24), मोड़ (37), अभिकल्पना (25) |
+| design (ch11) | डिजाइन | **0 in ch11** | वर्ग (54), चौकोर (11), टुकड़ (11) |
+
+Chapter 14 is titled मानचित्र और अवस्थितियाँ and never once says नक्शा. Chapter 10
+teaches symmetry by folding paper about an axis and **never names it**. The
+content is entirely present; the words are not.
+
+Of 51 colloquial terms a parent might plausibly use, **24 appear nowhere in the
+textbook** — including बटा (as in "एक बटा चार" for 1/4, which §8.3 uses as its
+own worked example of an ASR risk), वजन, पैसा, बाकी, तिकोना, दुगना, पहाड़ा.
+
+This is §3.1 as a measurable retrieval failure rather than a persona note: the
+parent speaks fluent Hindi but did not finish the schooling the book is written
+for, so the register genuinely differs. Every mapping target was checked to occur
+in the corpus before being used.
+
+### Why this mattered more than it looks
+
+I was one step from re-labelling chapters 10, 11 and 14's questions as
+`figure_only` — recording "the book doesn't cover this" for content the book
+covers thoroughly. That would have permanently depressed the measured ceiling and
+hidden a fixable problem behind a plausible-sounding limitation.
+
+**Two automatic ways of picking the "important" word failed first**, in opposite
+directions, and both are recorded in the audit script so they are not retried:
+"any content word present" passes "दर्पण जैसी आकृति" on the generic word आकृति;
+"rarest word by IDF" selects verb inflections (घटाना, मापते, बदलें) because the
+textbook conjugates differently than a parent speaks, flagging 15 questions on
+grammar alone. Curated vocabulary on both sides avoids inferring what matters.
+
+### A metric that punished the fix
+
+Chunk-level relevance *fell* from 87% to 83% when query expansion was switched on
+— because the metric asked whether the retrieved passage contains **the
+question's own words**, and the entire point of expansion is to reach the book's
+words instead. Corrected to accept the substitution it asked for:
+
+| retrieval | chunk-level relevance |
+|---|---|
+| dense only | 83% |
+| + lexical signal | 87% |
+| **+ lexical + query expansion** | **90%** |
+
+The three remaining misses are all the metric's framing-word artifact
+(होमवर्क, आसान भाषा), not retrieval failures.
+
+---
+
+## D1-FINAL — the 73% ceiling was a ceiling on the retriever, not the gate
+
+**Operating point: 84% coverage at a 1.2% wrong-answer rate** — threshold 0.545,
+decoy margin 0.07. Refusal on legitimate traffic **16%**, inside §7.3's 25%
+guardrail for the first time.
+
+D1-REVISED concluded that "the fix is better retrieval, not a better gate" and
+then left the calibration running on dense-only scoring. Recalibrating the same
+gate on the retriever that actually ships (D3 + D6) moved everything:
+
+| | coverage | wrong | refusal on legit traffic |
+|---|---|---|---|
+| D1 (dense, rank-only decoys) | 71% | 1.4% | 29% |
+| D1-REVISED (dense, margin 0.01) | 73% | 1.4% | 27% |
+| **D1-FINAL (hybrid + expansion, margin 0.07)** | **84%** | **1.2%** | **16%** ✓ |
+
+The wider margin only became safe once Class 5 chunks outscored the decoys. On
+dense-only scoring, any margin above 0.01 collapsed coverage to 15%; on
+production retrieval the usable range runs to 0.08.
+
+### Choosing 0.07 over the peak at 0.08
+
+The margin sweep, at each margin's best threshold:
+
+| margin | coverage | wrong | threshold |
+|---|---|---|---|
+| 0.05 | 82% | 1.20% | 0.545 |
+| 0.06 | 83% | 1.19% | 0.545 |
+| **0.07** | **84%** | **1.18%** | **0.545** |
+| 0.08 | 85% | 1.16% | 0.545 |
+| 0.09 | 74% | 1.33% | 0.670 |
+| 0.12 | — | cannot reach 2% at any threshold | |
+
+§8.1 step 4 says take the highest coverage inside the budget, which is 0.08 at
+85%. **0.07 is used instead.** The plateau from 0.05 to 0.08 carries identical
+headroom (~0.8pp under budget), and the collapse at 0.09 is caused by one
+question out of 150 — on a set that small a single item is worth ~1.2pp of
+wrong-answer rate. One point of coverage buys a step back from a cliff whose
+position is set by a single label. Revisit when the set is built from real parent
+questions rather than my guesses at them.
+
+---
+
+## D5 ADDENDUM — the daily token budget is per organisation, not per key
+
+Rotating the API key does **not** reset the 200,000-token daily allowance: the
+new key reported the same organisation id and the same spent budget. Worth
+knowing before assuming a rotation buys a fresh quota.
+
+Practical consequence: **evaluation and the pilot draw on one shared daily
+budget of ~90 answers.** A 30-question conformance run costs ~66k tokens, a third
+of the day, so the eval cadence in §12.1 ("runs on every prompt, chunking or
+threshold change") is not affordable on the free tier as written. Either the
+regression set shrinks, or the gate and retrieval evals — which need **no** LLM at
+all (`eval_retrieval.py`, `calibrate_refusal.py`, `audit_answerability.py`) —
+carry the routine cadence, with generation measured less often. Building those to
+run budget-free was accidental at first and is now deliberate.
+
+Current partial figure, honestly labelled: **57% contract conformance on 23 of 30
+questions** before the run aborted on the daily cap (1 contract failure, 9 gate
+refusals). The full number needs the next reset.

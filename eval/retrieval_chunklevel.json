@@ -3,23 +3,23 @@
   "n": 30,
   "by_weight": {
     "lexical_0": {
-      "term_in_context": 0.7666666666666667,
+      "term_in_context": 0.8333333333333334,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.2": {
-      "term_in_context": 0.8,
+      "term_in_context": 0.8666666666666667,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.35": {
-      "term_in_context": 0.8666666666666667,
+      "term_in_context": 0.9,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.5": {
-      "term_in_context": 0.8666666666666667,
+      "term_in_context": 0.9,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.8": {
-      "term_in_context": 0.8666666666666667,
+      "term_in_context": 0.9,
       "questions_whose_term_is_absent_from_corpus": 0
     }
   },
@@ -163,14 +163,17 @@
       "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
       "key_terms": [
         "सममिति",
-        "बनाना"
+        "बनाना",
+        "अक्ष",
+        "मोड़",
+        "अभिकल्पना"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
       "top_chapters": [
+        10,
         4,
-        4,
-        2
+        10
       ]
     },
     {
@@ -388,7 +391,9 @@
       "question_hi": "दर्पण जैसी आकृति कैसे बनाते हैं?",
       "key_terms": [
         "दर्पण",
-        "बनाते"
+        "बनाते",
+        "अक्ष",
+        "मोड़"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
@@ -448,14 +453,16 @@
       "question_hi": "नक्शे में जगह कैसे ढूँढ़ते हैं?",
       "key_terms": [
         "नक्शे",
-        "जगह"
+        "जगह",
+        "मानचित्र",
+        "दिशा"
       ],
-      "term_in_context": false,
+      "term_in_context": true,
       "term_in_corpus": true,
       "top_chapters": [
         14,
         14,
-        5
+        14
       ]
     },
     {

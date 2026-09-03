@@ -14,6 +14,12 @@ Labelling follows §8.1's asymmetry. Of the two error types:
 So the operating point is chosen as the **highest coverage whose
 wrong-answer rate stays at or below 2%**, exactly as the PRD specifies.
 
+Retrieval here uses the SAME scoring as production (D3): dense cosine plus an
+IDF term-overlap signal, over a query expanded with the textbook's vocabulary.
+The earlier 73% coverage ceiling was measured with dense-only scoring, so it was
+a ceiling on the old retriever, not on the gate — the fix for it was always
+better retrieval rather than a better threshold.
+
 Signals per question (§8.1 step 2):
   top1        cosine similarity of the best chunk
   margin      top1 minus top5 — a foreign question sits roughly equidistant
@@ -47,6 +53,8 @@ REPORT = ROOT / "eval" / "refusal_calibration.json"
 CURVE = ROOT / "eval" / "accuracy_vs_coverage.csv"
 
 MODEL = "BAAI/bge-m3"
+LEXICAL_WEIGHT = 0.35  # matches scripts/answer.py, so the gate is calibrated on
+                       # the retriever that actually runs in production
 # (min beyond-syllabus marker hits, min beyond:class5 hit ratio) — the decoy
 # corpus is the binding constraint on coverage, so its definition is swept.
 DECOY_FILTERS = [(1, 0.0), (1, 0.5), (2, 0.0), (2, 0.5), (2, 1.0), (3, 0.5)]
@@ -94,6 +102,7 @@ def signals() -> list[dict]:
     from sentence_transformers import SentenceTransformer
 
     from query_gate import has_beyond_class5_word, is_value_seeking, pre_check
+    from retrieval import LexicalIndex, expand_query
 
     chunks = load_all_chunks()
     by_id = {c["id"]: c for c in chunks}
@@ -102,14 +111,19 @@ def signals() -> list[dict]:
 
     qs = json.loads(QSET.read_text(encoding="utf-8"))
     model = SentenceTransformer(MODEL, device="cpu")
+    expanded = [expand_query(q["question_hi"]) for q in qs]
     qvecs = model.encode(
-        [q["question_hi"] for q in qs], batch_size=4,
-        normalize_embeddings=True, convert_to_numpy=True,
+        expanded, batch_size=4, normalize_embeddings=True, convert_to_numpy=True,
     )
+    lex = LexicalIndex([
+        f"{by_id[i].get('section_header_hi', '')} {by_id[i]['text_hi']}" for i in ids
+    ])
 
     rows = []
-    for q, qv in zip(qs, qvecs):
-        sims = vectors @ qv
+    for q, qv, qtext in zip(qs, qvecs, expanded):
+        sims = vectors @ qv + LEXICAL_WEIGHT * np.asarray(
+            lex.score(qtext), dtype=np.float32
+        )
         order = np.argsort(-sims)[:TOP_K]
         top = [by_id[ids[i]] for i in order]
         scores = [float(sims[i]) for i in order]
@@ -232,7 +246,7 @@ def sweep(rows: list[dict]) -> list[dict]:
     # decoy corpus rather than replacing it. Vocabulary handles the clear cases
     # categorically; the decoy margin backstops the vocabulary's blind spots, and
     # can therefore be looser than it could be alone.
-    for gap in (0.01, 0.02, 0.03, 0.05):
+    for gap in (0.01, 0.03, 0.05, 0.08, 0.12, 0.18, 0.25):
         designs[f"topic+decoy_{gap:g}"] = (
             lambda r, t, g=gap: (
                 r["pre_check"]["outcome"] == "pass"
@@ -268,7 +282,7 @@ def sweep(rows: list[dict]) -> list[dict]:
     # lever on the remaining constraint: 21 of 100 legitimate questions still had
     # a decoy as their nearest neighbour, which caps coverage at 79% before any
     # threshold is applied. Swept, because the right gap is an empirical question.
-    for gap in (0.005, 0.01, 0.02, 0.03, 0.05, 0.08):
+    for gap in (0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12):
         designs[f"margin_{gap:g}"] = (
             lambda r, t, g=gap: (
                 r["pre_check"]["outcome"] == "pass"

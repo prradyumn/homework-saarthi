@@ -1,0 +1,360 @@
+{
+  "backend": "groq",
+  "n": 23,
+  "conformance": 0.5652173913043478,
+  "gate_refusals": 9,
+  "contract_failures": 1,
+  "retries": 3,
+  "chapter_precision": 0.9230769230769231,
+  "latency_median": 1.43,
+  "failure_codes": {
+    "gate:answer_is_in_a_chart": 2,
+    "gate:passage_does_not_cover_question": 6,
+    "unglossed_jargon": 1,
+    "gate:out_of_syllabus_by_margin": 1
+  },
+  "rows": [
+    {
+      "id": "rs-in-001",
+      "question_hi": "दस हजार के बाद कौन सी संख्या आती है और कैसे लिखते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 1,
+      "note": "place value",
+      "answered": true,
+      "retried": true,
+      "seconds": 16.06,
+      "failures": [],
+      "words": 52,
+      "cited_chapter": 1
+    },
+    {
+      "id": "rs-in-008",
+      "question_hi": "एक जैसी भिन्न कौन सी होती हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 2,
+      "note": "equivalent, parent wording",
+      "answered": true,
+      "retried": false,
+      "seconds": 3.1,
+      "failures": [],
+      "words": 65,
+      "cited_chapter": 7
+    },
+    {
+      "id": "rs-in-017",
+      "question_hi": "समकोण क्या होता है? बेटी पूछ रही है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 3,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.49,
+      "failures": [
+        "gate:answer_is_in_a_chart"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-023",
+      "question_hi": "बड़ी संख्याओं का घटाना कैसे सिखाऊँ?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 4,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 2.07,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 6
+    },
+    {
+      "id": "rs-in-030",
+      "question_hi": "किलोमीटर को मीटर में कैसे बदलते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 5,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 1.6,
+      "failures": [],
+      "words": 48,
+      "cited_chapter": 5
+    },
+    {
+      "id": "rs-in-037",
+      "question_hi": "10 और 100 से गुणा करने पर संख्या के साथ क्या होता है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 6,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.1,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 6
+    },
+    {
+      "id": "rs-in-045",
+      "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 7,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.84,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 7
+    },
+    {
+      "id": "rs-in-052",
+      "question_hi": "1 किलोग्राम में कितने ग्राम होते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 8,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 0.96,
+      "failures": [],
+      "words": 45,
+      "cited_chapter": 8
+    },
+    {
+      "id": "rs-in-059",
+      "question_hi": "भाग देने का सूत्र क्या है, भाज्य भाजक वाला?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 9,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.43,
+      "failures": [
+        "unglossed_jargon"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-066",
+      "question_hi": "सममिति क्या होती है? बच्चे को डिजाइन बनाना है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 10,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 1.14,
+      "failures": [],
+      "words": 83,
+      "cited_chapter": 10
+    },
+    {
+      "id": "rs-in-072",
+      "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 11,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 3.31,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 11
+    },
+    {
+      "id": "rs-in-077",
+      "question_hi": "1 मिनट में कितने सेकंड होते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 12,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 2.71,
+      "failures": [],
+      "words": 62,
+      "cited_chapter": 12
+    },
+    {
+      "id": "rs-in-084",
+      "question_hi": "जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 13,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.32,
+      "failures": [
+        "gate:answer_is_in_a_chart"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-089",
+      "question_hi": "मानचित्र में दिशाएँ कैसे देखते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 14,
+      "note": "seed",
+      "answered": true,
+      "retried": true,
+      "seconds": 2.22,
+      "failures": [],
+      "words": 74,
+      "cited_chapter": 14
+    },
+    {
+      "id": "rs-in-095",
+      "question_hi": "दंड आरेख कैसे बनाते हैं? बच्चे को होमवर्क मिला है",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 15,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 1.01,
+      "failures": [],
+      "words": 85,
+      "cited_chapter": 15
+    },
+    {
+      "id": "rs-in-002",
+      "question_hi": "मेरे बच्चे को दस हजार से बड़ी संख्या लिखना नहीं आ रहा, ये कैसे सिखाऊँ?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 1,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 1.04,
+      "failures": [],
+      "words": 58,
+      "cited_chapter": 1
+    },
+    {
+      "id": "rs-in-009",
+      "question_hi": "तुल्य भिन्न क्या होती है? 1/3 और 2/6 एक जैसी कैसे हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 2,
+      "note": "seed",
+      "answered": true,
+      "retried": false,
+      "seconds": 1.33,
+      "failures": [],
+      "words": 68,
+      "cited_chapter": 2
+    },
+    {
+      "id": "rs-in-018",
+      "question_hi": "चौथाई घुमाव का मतलब क्या है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 3,
+      "note": "quarter turn",
+      "answered": true,
+      "retried": false,
+      "seconds": 4.21,
+      "failures": [],
+      "words": 77,
+      "cited_chapter": 3
+    },
+    {
+      "id": "rs-in-024",
+      "question_hi": "बड़ी संख्याओं को जोड़ने में हासिल कैसे लगाते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 4,
+      "note": "carrying",
+      "answered": false,
+      "retried": null,
+      "seconds": 2.91,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 4
+    },
+    {
+      "id": "rs-in-031",
+      "question_hi": "मीटर और सेंटीमीटर में क्या संबंध है?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 5,
+      "note": "unit conversion",
+      "answered": true,
+      "retried": false,
+      "seconds": 0.92,
+      "failures": [],
+      "words": 47,
+      "cited_chapter": 5
+    },
+    {
+      "id": "rs-in-038",
+      "question_hi": "गुणा करने के और कौन कौन से तरीके हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 6,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 0.22,
+      "failures": [
+        "gate:out_of_syllabus_by_margin"
+      ],
+      "words": null,
+      "cited_chapter": null
+    },
+    {
+      "id": "rs-in-046",
+      "question_hi": "सम त्रिभुज एक बिंदु के चारों ओर कैसे जमते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 7,
+      "note": "seed",
+      "answered": true,
+      "retried": true,
+      "seconds": 1.93,
+      "failures": [],
+      "words": 87,
+      "cited_chapter": 7
+    },
+    {
+      "id": "rs-in-053",
+      "question_hi": "धारिता या क्षमता कैसे मापते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 8,
+      "note": "seed",
+      "answered": false,
+      "retried": null,
+      "seconds": 1.43,
+      "failures": [
+        "gate:passage_does_not_cover_question"
+      ],
+      "words": null,
+      "cited_chapter": 8
+    }
+  ]
+}

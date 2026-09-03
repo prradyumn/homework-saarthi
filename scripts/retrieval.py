@@ -49,6 +49,68 @@ def tokens(text: str) -> list[str]:
     return _TOKEN_RX.findall(text or "")
 
 
+# ---------------------------------------------------------------------------
+# Parent vocabulary -> textbook vocabulary.
+#
+# §3.1 says the parent speaks fluent Hindi but did not finish the schooling the
+# book is written for. That shows up as a measurable retrieval failure: the word
+# the parent uses is simply not in the book.
+#
+# Audited against the corpus (scripts/audit_answerability.py). Every LEFT-hand
+# word below occurs ZERO times in 188k characters of the textbook; every
+# right-hand word was checked to occur, with its count:
+#
+#   parent says       book says                          content present?
+#   नक्शा (0)          मानचित्र (25), दिशा (47), मार्ग (32)   yes, fully
+#   सममिति (0)         अक्ष (24), मोड़ (37), अभिकल्पना (25)   yes — ch10 teaches
+#                                                          symmetry by folding
+#                                                          about an axis, and
+#                                                          never names it
+#   डिजाइन in ch11 (0) वर्ग (54), चौकोर, टुकड़               yes
+#
+# This is why three chapters looked "unanswerable" and were nearly re-labelled
+# as figure-only. They are answerable; the question and the book were using
+# different words for the same thing. Mapping is the fix, not re-labelling.
+PARENT_TO_BOOK: dict[str, list[str]] = {
+    "नक्शा": ["मानचित्र", "दिशा"],
+    "नक्शे": ["मानचित्र", "दिशा"],
+    "सममिति": ["अक्ष", "मोड़", "अभिकल्पना"],
+    "सममित": ["अक्ष", "मोड़"],
+    "दर्पण": ["अक्ष", "मोड़"],
+    "रास्ता": ["मार्ग"],
+    "पहाड़ा": ["गुणन", "गुणा"],
+    "बटा": ["भिन्न"],
+    "पौना": ["भिन्न"],
+    "डेढ़": ["भिन्न"],
+    "वजन": ["भार"],
+    "नापना": ["माप", "मापन"],
+    "पैसा": ["रुपये"],
+    "रुपया": ["रुपये"],
+    "बाकी": ["शेष", "शेषफल"],
+    "तिकोना": ["त्रिभुज"],
+    "भारी": ["भार"],
+    "हल्का": ["भार"],
+    "खाली": ["रिक्त"],
+    "दुगना": ["दोगुना"],
+    "तिगुना": ["गुना", "गुणन"],
+    "चौगुना": ["गुना", "गुणन"],
+}
+
+
+def expand_query(question: str) -> str:
+    """Append the textbook's words for any parent-vocabulary term used.
+
+    The original question is kept intact — the expansion is additive, so a
+    question that already uses the book's register is unchanged.
+    """
+    extra: list[str] = []
+    for term in tokens(question):
+        for book_word in PARENT_TO_BOOK.get(term, ()):
+            if book_word not in extra:
+                extra.append(book_word)
+    return f"{question} {' '.join(extra)}".strip() if extra else question
+
+
 class LexicalIndex:
     """IDF-weighted term overlap. Deliberately not full BM25: without document
     length normalisation tuning to justify, the simpler score is easier to reason
