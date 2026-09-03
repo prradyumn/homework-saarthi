@@ -1135,3 +1135,65 @@ Nothing was removed. `scripts/bhashini.py` still holds the ULCA two-step flow, t
 browser still encodes 16 kHz mono WAV for it, and the mode selector prefers it
 whenever the server reports credentials. Getting the keys remains worth doing —
 it is the difference between the prototype's story and the product's.
+
+---
+
+## D11 — Browser testing (Playwright), and three bugs it caught immediately
+
+**Added `scripts/test_ui.py`: 23 assertions driven through a real Chromium at
+phone width.** Everything before it was tested with `curl`, which exercises the
+server and none of the interface — and the interface is where the product is.
+
+It also meant seeing the thing for the first time. Screenshots land in `/tmp/ui/`.
+
+### It caught three bugs, two of them in the tests themselves
+
+**1. A test that passed for the wrong reason.** Readiness was detected by waiting
+for the status text to contain "तैयार" (ready) — which also matches
+**"तैयार हो रहा है…"** ("still getting ready"). The test charged ahead before the
+models had loaded, got a 503, and recorded it as a refusal. It only ever passed
+because the server happened to be warm from a previous run. Now it waits on the
+status dot's class, and the fix was verified against a deliberately cold server.
+
+**2. A flaky assertion that blamed the interface for a generation outcome.** An
+answer and a refusal both render `.part`, so on runs where the contract validator
+rejected the answer the test counted one "part" and then spent 30 seconds waiting
+for labels a refusal never has. It now distinguishes the two outcomes and reports
+which it got — which also surfaces a real property: the same question does not
+always clear the contract, because generation runs at temperature 0.2.
+
+**3. Two false failures from measuring too early.** `document.fonts.check()` at
+`domcontentloaded` reported the Devanagari webfont missing while it was still in
+flight, and `naturalWidth` was 0 because the image had not decoded. Both now wait
+properly — and the font check additionally measures rendered text width against a
+different family, because `fonts.check()` can be optimistic about a face that is
+loaded but not actually applied.
+
+### And one real product bug
+
+**The page image was 652 KB.** §3.1 says this parent's "data is metered and
+intermittent", and FR-10 sends a textbook page on request and with every refusal.
+Serving the 300 dpi ingest render straight to a phone is a real cost to the user.
+The web path now downscales to a 1000 px progressive JPEG: **652 KB → 90 KB, 86%
+less data**, cached in memory, with the 300 dpi originals untouched on disk for
+ingest. The test asserts the served weight stays under 150 KB so it cannot drift
+back.
+
+### Legibility, raised on the PRD's own reasoning
+
+Seeing it rendered made an omission obvious. §3.1 calls reading Devanagari "slowly
+and with effort" **the single most consequential user attribute**, and the answer
+is text the parent reads *aloud to a child* — so it should be the most legible
+thing on the page rather than chat-default sizing. Body 17→18 px, answer text
+19 px, the say-this-to-your-child line 20 px, labels 11→12 px. The test now
+asserts a floor, so it cannot silently regress.
+
+### What the suite covers
+
+Page load and title · Devanagari webfont loaded **and applied** · warm-up
+readiness · voice provider selection · example prompts · FR-2 confirmation shown,
+quoting the question, and **blocking the answer until confirmed** · FR-5 four
+labelled parts with part 4 distinct · FR-3 citation · legibility floor · no
+horizontal overflow at 430 px · FR-10 image renders and is data-cheap · FR-6
+listen control · FR-7 prompt and recording · FR-4 out-of-syllabus refusal with no
+irrelevant page · dark mode painting its own background · zero JavaScript errors.

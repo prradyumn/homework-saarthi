@@ -57,6 +57,36 @@ _sessions: dict[str, dict] = {}
 MAX_TURNS = 3
 
 
+WEB_PAGE_WIDTH = 1000     # readable on a phone, and cheap on a metered connection
+WEB_PAGE_QUALITY = 78
+_page_cache: dict[int, bytes] = {}
+
+
+def _page_for_web(path: pathlib.Path, n: int) -> tuple[bytes, str]:
+    """Downscale a 300dpi page render to a phone-sized JPEG, cached in memory.
+
+    Falls back to the original PNG if Pillow is unavailable, so the demo degrades
+    rather than breaks.
+    """
+    if n in _page_cache:
+        return _page_cache[n], "image/jpeg"
+    try:
+        import io
+
+        from PIL import Image
+
+        img = Image.open(path).convert("RGB")
+        if img.width > WEB_PAGE_WIDTH:
+            h = round(img.height * WEB_PAGE_WIDTH / img.width)
+            img = img.resize((WEB_PAGE_WIDTH, h), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=WEB_PAGE_QUALITY, optimize=True, progressive=True)
+        _page_cache[n] = buf.getvalue()
+        return _page_cache[n], "image/jpeg"
+    except Exception:  # noqa: BLE001
+        return path.read_bytes(), "image/png"
+
+
 def check_voice() -> None:
     try:
         import bhashini
@@ -115,7 +145,13 @@ class Handler(BaseHTTPRequestHandler):
                                     "backend": _state["backend"],
                                     "voice": _state.get("voice", {"ok": False})})
 
-        # FR-10: the textbook page image, by printed page number
+        # FR-10: the textbook page image, by printed page number.
+        #
+        # Served downscaled as JPEG, not as the 300dpi PNG. §3.1 says this parent's
+        # "data is metered and intermittent", and the source renders are ~670 KB
+        # each — a real cost to someone on a metered connection, for an image that
+        # only has to be readable on a phone. The 300dpi originals stay on disk for
+        # ingest; only the web path is downscaled.
         if url.path.startswith("/page/"):
             try:
                 n = int(url.path.rsplit("/", 1)[1].split(".")[0])
@@ -124,7 +160,8 @@ class Handler(BaseHTTPRequestHandler):
             f = PAGES / f"p{n:03d}.png"
             if not f.exists():
                 return self._json(404, {"error": f"page {n} not rendered"})
-            return self._send(200, f.read_bytes(), "image/png")
+            data, ctype = _page_for_web(f, n)
+            return self._send(200, data, ctype)
 
         if url.path.startswith("/static/"):
             f = WEB / url.path[len("/static/"):]
