@@ -294,6 +294,8 @@ class Handler(BaseHTTPRequestHandler):
         sess["turns"] = (sess["turns"] + [{"q": q, "answered": out.get("answered")}])[-MAX_TURNS:]
 
         out["elapsed"] = round(time.time() - t0, 2)
+        # so a stubbed answer can never be mistaken for a real one
+        out["backend"] = _state["backend"]
         out["refusal_line_hi"] = out.get("refusal", {}).get("spoken")
         return self._json(200, out)
 
@@ -323,7 +325,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--host", default="127.0.0.1")
-    ap.add_argument("--backend", default="groq", choices=["groq", "ollama"])
+    ap.add_argument("--backend", default="groq",
+                    choices=["groq", "ollama", "stub"],
+                    help="stub = canned generation, for UI tests; spends no tokens")
     args = ap.parse_args()
     _state["backend"] = args.backend
 

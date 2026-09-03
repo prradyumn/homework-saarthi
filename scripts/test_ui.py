@@ -24,6 +24,34 @@ import pathlib
 import sys
 
 BASE = "http://127.0.0.1:8000"
+
+
+def require_free_backend() -> str:
+    """Refuse to run against a metered backend unless --live is given.
+
+    Nothing previously stopped this suite from calling the real model, and it
+    quietly spent 197,907 of the free tier's 200,000 daily tokens — which then
+    aborted the conformance run at 1 of 30 questions. The interface is what this
+    file tests; real generation is eval_generation.py's job.
+
+        python scripts/serve.py --backend stub    # then run this
+        python scripts/test_ui.py --live          # deliberately use the real model
+    """
+    import json as _json
+    import urllib.request
+
+    with urllib.request.urlopen(f"{BASE}/api/status", timeout=10) as r:
+        backend = _json.loads(r.read()).get("backend")
+    if backend == "stub" or "--live" in sys.argv:
+        return backend
+    print(f"\n  REFUSING TO RUN: the server at {BASE} is using the '{backend}' "
+          f"backend.\n"
+          f"  Every run of this suite would spend real tokens from the free "
+          f"tier's\n  200,000/day, which is the budget the conformance eval "
+          f"needs.\n\n"
+          f"    restart it as:  python scripts/serve.py --backend stub\n"
+          f"    or force it:    python scripts/test_ui.py --live\n")
+    raise SystemExit(2)
 SHOTS = pathlib.Path("/tmp/ui")
 
 PASS, FAIL = [], []
@@ -40,7 +68,12 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--headed", action="store_true")
     ap.add_argument("--question", default="1 किलोग्राम में कितने ग्राम होते हैं?")
+    ap.add_argument("--live", action="store_true",
+                    help="allow a metered backend; spends real tokens")
     args = ap.parse_args()
+    backend = require_free_backend()
+    print(f"  backend: {backend}"
+          + ("   (real tokens being spent)" if backend != "stub" else "   (free)"))
     SHOTS.mkdir(parents=True, exist_ok=True)
 
     from playwright.sync_api import sync_playwright

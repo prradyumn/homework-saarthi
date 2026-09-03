@@ -1,0 +1,31 @@
+{
+  "backend": "groq",
+  "n": 1,
+  "conformance": 0.0,
+  "gate_refusals": 0,
+  "contract_failures": 1,
+  "retries": 0,
+  "chapter_precision": null,
+  "latency_median": 16.78,
+  "failure_codes": {
+    "ungrounded_number": 1
+  },
+  "rows": [
+    {
+      "id": "rs-in-001",
+      "question_hi": "दस हजार के बाद कौन सी संख्या आती है और कैसे लिखते हैं?",
+      "label": "answer",
+      "subtype": "in_syllabus",
+      "expected_chapter": 1,
+      "note": "place value",
+      "answered": false,
+      "retried": null,
+      "seconds": 16.78,
+      "failures": [
+        "ungrounded_number"
+      ],
+      "words": null,
+      "cited_chapter": null
+    }
+  ]
+}

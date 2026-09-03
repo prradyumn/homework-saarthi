@@ -445,6 +445,9 @@ function devPanel(d) {
   const c = d.citation || {}, r = d.refusal || {};
   const lines = [
     `outcome     ${d.answered ? 'answered' : 'refused'}`,
+    // A stubbed answer must be impossible to mistake for a real one.
+    d.backend && d.backend !== 'groq'
+      ? `BACKEND     ${d.backend.toUpperCase()} — canned text, not a real answer` : null,
     d.answered ? null : `gate        ${r.layer || '—'} / ${r.reason || '—'}`,
     d.score != null ? `retrieval   score ${d.score}   floor 0.30 · decoy margin 0.08` : null,
     c.chunk_id ? `chunk       ${c.chunk_id}` : null,

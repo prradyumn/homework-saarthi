@@ -23,6 +23,7 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -113,8 +114,13 @@ DECOY_MARGIN = 0.08
 # received did not contain the answer, even though the right chapter was found.
 # Chapter-level retrieval accuracy of 97% was hiding a chunk-level miss rate of
 # about a third.
-CONTEXT_CHUNKS = 3
-CONTEXT_CHARS = 900  # per chunk, so three fit inside the token budget
+# Tunable from the environment so the window experiment is a flag rather than an
+# edit to a constant. 49% of in-syllabus chunks are longer than 900 chars (median
+# 1340, p90 1437, max 1548), so this cap withholds 20% of the book's prose from
+# the generator — see eval/coverage_diagnosis.json. Whether that costs conformance
+# is measured by eval_generation.py, not assumed.
+CONTEXT_CHUNKS = int(os.environ.get("SAATHI_CONTEXT_CHUNKS", "3"))
+CONTEXT_CHARS = int(os.environ.get("SAATHI_CONTEXT_CHARS", "900"))
 
 # Weight of the lexical (IDF term-overlap) signal alongside dense cosine
 # similarity. Dense retrieval alone missed chunks that contain the very word the
@@ -336,7 +342,45 @@ def call_ollama(system: str, user: str, timeout: int = 300) -> tuple[str, dict]:
     return data.get("response", ""), {"backend": OLLAMA_MODEL}
 
 
-BACKENDS = {"groq": call_groq, "ollama": call_ollama}
+def call_stub(system: str, user: str) -> tuple[str, dict]:
+    """A four-part answer built from the retrieved passage, spending no tokens.
+
+    The browser suite was calling the real model on every run. Four runs plus a
+    few manual checks consumed 197,907 of the free tier's 200,000 tokens per day,
+    which then aborted the conformance run at 1 of 30 questions. UI testing was
+    eating the budget the measurement needed.
+
+    This fakes ONLY the network call. Retrieval, the whole refusal gate and the
+    contract validator still run for real — they are local, free, and most of what
+    the interface renders. What is lost is exactly what costs money: whether the
+    model writes a conforming answer. That is eval_generation.py's job, and it
+    must never use this backend.
+
+    The numbers are lifted out of the passage rather than invented, because the
+    validator checks groundedness against the passage and rejects an example that
+    only repeats the question's own numbers. A canned answer with made-up digits
+    fails on `ungrounded_number` and renders as a refusal, which would make the
+    interface tests assert the wrong thing.
+
+    Selected by `--backend stub`, never by default; /api/status and the
+    HOW IT WORKS panel both report it, so stub text cannot pass for a real answer.
+    """
+    passage, _, tail = user.partition("माता-पिता का सवाल:")
+    q_nums = set(re.findall(r"\d+", tail))
+    # small integers only: a page number or a four-digit year makes a poor example
+    fresh = [n for n in re.findall(r"\d+", passage)
+             if n not in q_nums and 0 < len(n) <= 2 and n != "0"]
+    a1, a2 = (fresh + ["2", "4"])[:2]
+    raw = (
+        "1. इसका जवाब किताब के इसी पाठ में दिया गया है, जो ऊपर दिए अंश में है।\n"
+        "2. हर बार इकाई से शुरू करके एक-एक कदम आगे बढ़ते हैं।\n"
+        f"3. जैसे {a1} और {a2} जैसी संख्याओं के साथ यही तरीका आज़माकर देखिए।\n"
+        "4. \"बेटा, इसे इकाई से शुरू करके एक-एक कदम करके देखो।\""
+    )
+    return raw, {"stub": True, "prompt_chars": len(system) + len(user)}
+
+
+BACKENDS = {"groq": call_groq, "ollama": call_ollama, "stub": call_stub}
 
 
 # ------------------------------------------------------------------- retrieval
@@ -403,16 +447,20 @@ def retrieve(question: str) -> tuple[list[tuple[dict, float]], dict]:
                 best_c5, best_c5_hit = sc, by_id[cid]
         elif sc > best_decoy:
             best_decoy = sc
-    # the best Class 5 chunks in score order, for the generator's context
-    c5_scored = sorted(
+    # Every Class 5 chunk in score order. The context is the head of this list;
+    # the tail is kept because a diagnostic that ranks only within TOP_K *hits*
+    # cannot see a covering chunk that lost its top-K slot to a decoy, and will
+    # report a chunk as "not retrieved" when it was merely not displayed.
+    c5_ranked = sorted(
         ((float(sims[i]), by_id[cid]) for i, cid in enumerate(ids)
          if by_id[cid]["in_syllabus"]),
         key=lambda t: -t[0],
-    )[:CONTEXT_CHUNKS]
+    )
+    c5_scored = c5_ranked[:CONTEXT_CHUNKS]
     corpora = {"best_class5": best_c5 or 0.0, "best_class5_chunk": best_c5_hit,
                "best_decoy": best_decoy,
                "decoy_lead": (best_decoy - (best_c5 or 0.0)),
-               "class5_context": c5_scored}
+               "class5_context": c5_scored, "class5_ranked": c5_ranked}
     return hits, corpora
 
 
