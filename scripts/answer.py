@@ -244,6 +244,13 @@ def call_groq(system: str, user: str, timeout: int = 60) -> tuple[str, dict]:
         raise RuntimeError(f"groq: {msg}")
     if "choices" not in data:
         raise RuntimeError(f"groq: no choices in response: {str(data)[:300]}")
+    # Capture the provider's own token accounting. Without it the cost model had
+    # to infer volumes three different ways — the limiter's per-request figure
+    # (2,066-2,379), a local Qwen2.5 tokenizer on real retrievals (median 3,814),
+    # and implied consumption from exhausting the daily budget (~2,900) — which
+    # disagreed by up to 1.6x. `usage` settles it exactly, and it is free.
+    limits.update({f"usage_{k}": v for k, v in (data.get("usage") or {}).items()
+                   if isinstance(v, (int, float))})
     return data["choices"][0]["message"]["content"], limits
 
 

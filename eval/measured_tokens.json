@@ -1,0 +1,25 @@
+{
+  "source": "groq usage block",
+  "observations": [
+    {
+      "queue_time": 0.280226477,
+      "prompt_tokens": 2065,
+      "prompt_time": 0.146608125,
+      "completion_tokens": 117,
+      "completion_time": 0.231846026,
+      "total_tokens": 2182,
+      "total_time": 0.378454151
+    },
+    {
+      "queue_time": 0.157390065,
+      "prompt_tokens": 2094,
+      "prompt_time": 0.187695652,
+      "completion_tokens": 149,
+      "completion_time": 0.295850134,
+      "total_tokens": 2243,
+      "total_time": 0.483545786
+    }
+  ],
+  "mean_total": 2212.5,
+  "answers_per_day_free_tier": 90
+}

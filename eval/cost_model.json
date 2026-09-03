@@ -1,0 +1,56 @@
+{
+  "priced_on": "3 September 2026",
+  "usd_inr": 94.98,
+  "measured_volumes": {
+    "prompt_tokens": 2080,
+    "completion_tokens": 133,
+    "total_tokens": 2213,
+    "tts_chars": 348,
+    "asr_seconds_assumed": 20,
+    "chars_per_token_hindi": 1.75
+  },
+  "rates": {
+    "groq_qwen3_32b": {
+      "in_per_m_usd": 0.29,
+      "out_per_m_usd": 0.59,
+      "note": "closest PUBLISHED price to the model in use (qwen/qwen3.8-27b, whose price Groq does not publish separately)",
+      "source": "Groq via GroqCloud Qwen3-32B listing"
+    },
+    "groq_gpt_oss_120b": {
+      "in_per_m_usd": 0.15,
+      "out_per_m_usd": 0.6,
+      "note": "cheaper on input, but measured 0% contract conformance on Hindi (D2) — so not a usable substitute at any price",
+      "source": "Groq published pricing"
+    }
+  },
+  "whatsapp_inr": {
+    "service_in_24h_window_inr": 0.0,
+    "utility_inr": 0.115,
+    "marketing_inr": 0.8631,
+    "gst": 0.18,
+    "platform_subscription_inr": 0.0
+  },
+  "free_tiers": {
+    "groq_tokens_per_min": 8000,
+    "groq_tokens_per_day": 200000,
+    "groq_requests_per_day": 1000,
+    "supabase_db_mb": 500,
+    "supabase_egress_gb": 5,
+    "supabase_mau": 50000,
+    "posthog_events_per_month": 1000000,
+    "bhashini": "free for non-commercial use"
+  },
+  "cost_per_conversation_inr": {
+    "on_demand": 0.06475,
+    "prompt_cached": 0.05243,
+    "batched": 0.03237,
+    "cached_and_batched": 0.01619
+  },
+  "break_even_active_parents": {
+    "Groq tokens/day (200,000)": 158,
+    "Groq requests/day (1,000)": 1750,
+    "Groq tokens/minute (8,000)": null,
+    "PostHog events/month (1M)": 7267,
+    "Supabase 500 MB database": 2025
+  }
+}

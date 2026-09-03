@@ -858,3 +858,110 @@ run budget-free was accidental at first and is now deliberate.
 Current partial figure, honestly labelled: **57% contract conformance on 23 of 30
 questions** before the run aborted on the daily cap (1 contract failure, 9 gate
 refusals). The full number needs the next reset.
+
+---
+
+## D7 — Cost model: ₹0.065 per conversation, and §13.3's binding order was wrong
+
+**Cost per conversation: ₹0.065 on-demand, ₹0.016 with caching and batching.
+₹1.11 per active parent per month. The 25-parent pilot runs free with 6× headroom.**
+
+§13.2 deliberately left the rate column blank and made filling it from live
+pricing a build task; §13.3 said the interesting output is the break-even map, not
+a single number. Both are now done, with every volume measured from this system
+and every rate dated and sourced (`scripts/cost_model.py`, priced 3 Sep 2026).
+
+### Measured volumes, from the provider's own accounting
+
+| | value | how |
+|---|---|---|
+| prompt tokens | 2,080 | Groq `usage` block, observed 2,065 / 2,094 |
+| completion tokens | 133 | observed 117 / 149 |
+| **total per answer** | **2,213** | → exactly **90 answers per 200,000-token day** |
+| retrieved context | ~54% of prompt | the §13.3 prediction, confirmed |
+| TTS characters | 348 | median of 67 real generated answers |
+| ASR seconds | 20 | **assumption from §13.2, not measured** — no voice loop yet |
+
+**A correction worth recording.** Token counts were first inferred three ways that
+disagreed by 1.6×: Groq's rate-limiter messages (2,066–2,379), a local Qwen2.5
+tokenizer over real retrievals (3,814), and implied consumption from exhausting
+the daily budget (~2,900). The local tokenizer was wrong — it over-counted prompt
+tokens by 1.8×, because qwen3.8-27b tokenises Devanagari considerably better than
+Qwen2.5. The client now records the provider's `usage` block, which is free and
+settles it exactly. **The Devanagari tax is real but smaller than first claimed:
+1.75 chars/token against ~4 for English, so ~2.3× the tokens per character, not
+3.7×.**
+
+### The break-even map, and where §13.3 guessed wrong
+
+Assuming §7.2's target of 4 questions per active parent per week:
+
+| layer | binds at | headroom |
+|---|---|---|
+| **Groq tokens/day (200,000)** | **~158 active parents** | 90 answers/day |
+| Groq requests/day (1,000) | ~1,750 parents | 1,000 answers/day |
+| Supabase 500 MB database | ~2,025 parents | ~417k transcript rows |
+| PostHog events/month (1M) | ~7,267 parents | ~8 events/question |
+| Groq tokens/minute (8,000) | burst only | 3.6 concurrent answers/min |
+| **WhatsApp** | **never binds** | see below |
+
+§13.3 expected the order **LLM requests → WhatsApp fees → Supabase storage**.
+Measured, it is **LLM tokens → Supabase → PostHog**, and *requests* never bind
+before tokens do — the limit is the token budget, not the call count.
+
+### WhatsApp costs nothing, and that is a design consequence
+
+Service messages sent inside WhatsApp's 24-hour customer-service window are
+**free**, and this product is purely responsive: the parent asks, we answer, and
+even the §7.1 accept-prompt ("क्या आपने बच्चे को समझा दिया?") lands inside the
+same window. So `msg_fee` in §13.2's formula is **zero by design, not by luck** —
+the positioning in §4 (a coach who responds, not a service that broadcasts) is
+also the thing that removes the per-message line from the cost model.
+
+It only reappears if the product starts nudging: a re-engagement message is a
+*utility* template at ₹0.115 + 18% GST = ₹0.136. For 25 pilot parents, one weekly
+nudge each is ₹13.57/month. Marketing-category messages are ₹0.8631 — 7.5× utility
+— and should never be used here.
+
+### Scale, honestly (§6.1 goal 4)
+
+| scale | on-demand / month | with caching + batch |
+|---|---|---|
+| 25-parent pilot | ₹28 (in practice ₹0 — inside the free tier) | ₹7 |
+| one school, 300 children | ₹334 | ₹84 |
+| one district, ~50,000 children | ₹55,681 | ₹13,920 |
+| **10 million parents** | **₹1.11 crore** | **₹27.84 lakh** |
+
+At every scale WhatsApp stays ₹0 and the LLM is essentially the entire bill. That
+is why caching and context selection are **the strategy rather than an
+optimisation**: they are a 4× difference at 10M, which is the difference between a
+fundable per-user cost and an unfundable one.
+
+### The context/quality trade, priced
+
+| context | tokens/answer | free answers/day | paid ₹/answer |
+|---|---|---|---|
+| top-3 (in use) | 2,213 | 90 | ₹0.065 |
+| top-2 | 1,839 | 109 | ₹0.054 |
+| top-1 | 1,464 | 137 | ₹0.043 |
+
+Dropping to a single chunk buys ~45% more daily capacity and costs 7 points of
+chunk-level relevance (D3). The three-chunk choice is written down here as a cost,
+not assumed as free.
+
+### The honest gaps
+
+1. **Bhashini commercial rates are not published.** Free for non-commercial use;
+   the published individual plan is ₹250/month for 50,000 TTS characters/day
+   (~143 answers/day at our 348 characters), and beyond that it is "contact
+   Bhashini". This is the largest unknown in the model and the thing to resolve
+   before any scale claim. Note the shape of the risk: at district scale the
+   voice layer could plausibly exceed the LLM layer, and it is the one line that
+   cannot be modelled from public information.
+2. **ASR duration is assumed, not measured** — there is no voice loop yet.
+3. **qwen3.8-27b's own price is unpublished**, so Qwen3-32B ($0.29/$0.59 per M)
+   is used as the closest proxy. A smaller model is likely cheaper, so the model
+   probably **overstates** cost.
+4. §12.1's "eval runs on every change" cadence costs ~66k tokens per 30-question
+   run — a third of the daily budget. The retrieval, gate, audit and cost evals
+   need no LLM at all and carry that cadence instead.
