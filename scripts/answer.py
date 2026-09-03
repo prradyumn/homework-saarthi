@@ -155,6 +155,53 @@ REFUSAL_LINE_OFF_TOPIC = (
     "इससे मिलता-जुलता कोई सवाल किताब से पूछिए, या शिक्षक जी से पूछ लीजिए।"
 )
 
+# REFUSAL_LINE_OFF_TOPIC was being sent for EVERY query_pre_check code — but that
+# layer emits six codes and only one of them means "not in the Class 5 book".
+# Four mean "I could not understand the question" and two mean "I understood it
+# and am declining on purpose", so the line asserted a cause that was untrue in
+# six cases out of seven. §8.1 requires a refusal to be actionable; a wrong
+# diagnosis is not actionable, it just misdirects the parent.
+#
+# Four of these are pre_check's `clarify` outcome, not `refuse`. They are requests
+# to ask again, and the interface styles them accordingly rather than as warnings.
+REFUSAL_LINE_UNCLEAR = (
+    "मैं आपका सवाल ठीक से समझ नहीं पाया। किताब के जिस विषय की बात है वह बताकर फिर "
+    "पूछिए — जैसे 'भिन्न', 'भाग', या 'क्षेत्रफल'।"
+)
+PRE_CHECK_LINES = {
+    "too_short": REFUSAL_LINE_UNCLEAR,
+    "no_maths_topic": REFUSAL_LINE_UNCLEAR,
+    "two_questions": (
+        "इसमें दो सवाल एक साथ हैं। एक बार में एक सवाल पूछिए — तो मैं हर एक को ठीक से "
+        "समझा पाऊँगा।"
+    ),
+    # The code name says ASR, but the trigger is code-mixing, which a TYPED
+    # question has too — "x2+5x+6 का हल क्या है?" lands here. Telling a parent who
+    # typed to say it again is nonsense, and this layer does not know the input
+    # mode, so the line must work for both. (The refusal itself is correct for
+    # that example; only the label is off. Tightening the classifier is a gate
+    # change that has to be measured against eval/refusal_set.py, not guessed at.)
+    "asr_suspect_code_mixed": (
+        "आपका सवाल मुझे पूरी तरह समझ नहीं आया। इसे हिंदी में फिर से पूछिए — लिखकर या "
+        "बोलकर, जैसा आपको ठीक लगे।"
+    ),
+    # §2's positioning, stated to the parent rather than kept in the PRD: this is
+    # a coach for parents, not an answer service for children.
+    "answer_copying": (
+        "मैं तैयार जवाब लिखकर नहीं देता — उससे बच्चा सीखता नहीं। यह पूछिए कि बच्चे को "
+        "यह कैसे समझाएँ, और मैं समझाने का तरीका बता दूँगा।"
+    ),
+    "figure_value_lookup": (
+        "इसका जवाब किताब के चित्र में है, जो मैं पढ़ नहीं सकता। किताब में वह चित्र देख "
+        "लीजिए, या शिक्षक जी से पूछ लीजिए।"
+    ),
+}
+# Codes whose line above already names the cause, so the interface must not add a
+# second explanation underneath and say the same thing twice.
+CAUSE_EXPLAINED = set(PRE_CHECK_LINES)
+# pre_check's `clarify` outcome — an invitation to ask again, not a refusal.
+CLARIFY_CODES = {"too_short", "no_maths_topic", "two_questions", "asr_suspect_code_mixed"}
+
 # The jargon substitutions are generated FROM the validator's table, so the
 # instruction the model gets and the rule it is judged by cannot drift apart.
 _JARGON_LINE = "; ".join(
@@ -425,7 +472,11 @@ def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
         return {
             "answered": False,
             "refusal": {
-                "spoken": REFUSAL_LINE if not no_relevant_page else REFUSAL_LINE_OFF_TOPIC,
+                "spoken": PRE_CHECK_LINES.get(
+                    decision["reason"],
+                    REFUSAL_LINE if not no_relevant_page else REFUSAL_LINE_OFF_TOPIC),
+                "cause_explained": decision["reason"] in CAUSE_EXPLAINED,
+                "kind": "clarify" if decision["reason"] in CLARIFY_CODES else "refusal",
                 "page_image": None if no_relevant_page or not top.get("in_syllabus")
                 else f"ingest/pages/p{top['page']:03d}.png",
                 "reason": decision["reason"],

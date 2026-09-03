@@ -273,13 +273,30 @@ def main() -> int:
         check("FR-2 'no' re-enables the composer",
               not pg.locator("#send").is_disabled())
 
-        # a vague question must be met with a Hindi clarification, not a code
+        # A typed question the gate has already rejected must go STRAIGHT to the
+        # refusal. It used to ask the parent to confirm it first and then refuse
+        # with the same sentence, so the same message was rendered three times.
         pg.fill("#input", "इसका जवाब क्या है?")
         pg.click("#send")
-        pg.wait_for_selector(".clarify", timeout=30_000)
-        clar = pg.inner_text(".clarify")
-        check("vague question gets a Hindi clarification",
-              any("\u0900" <= ch <= "\u097f" for ch in clar) and "_" not in clar, clar[:60])
+        # .card.asking, not .card.refusal: "ask me again more clearly" is a clarify
+        # outcome, and painting it in warning red overstates what happened.
+        pg.wait_for_selector(".card.asking", timeout=30_000)
+        why = pg.inner_text(".card.asking")
+        check("a clarify outcome is not styled as a refusal",
+              pg.locator(".card.refusal").count() == 0,
+              f"refusal cards={pg.locator('.card.refusal').count()}")
+        check("typed vague question skips the pointless confirm turn",
+              pg.locator(".clarify").count() == 0
+              and pg.locator("[data-yes]").count() == 0,
+              f"clarify={pg.locator('.clarify').count()} confirm={pg.locator('[data-yes]').count()}")
+        # the server named the cause, so the interface must not add a second
+        # explanation saying the same thing underneath it
+        check("cause is explained exactly once",
+              pg.locator(".card.asking .refusal-why").count() == 0,
+              f"why lines={pg.locator('.card.asking .refusal-why').count()}")
+        check("vague question answered in Hindi, no reason code",
+              any("\u0900" <= ch <= "\u097f" for ch in why) and "_" not in why,
+              why.replace("\n", " ")[:60])
 
         # NO raw reason code may ever reach the parent's view
         visible = pg.inner_text("body")
@@ -289,11 +306,10 @@ def main() -> int:
                   if c in visible]
         check("no internal reason codes visible to the parent", not leaked, str(leaked))
 
-        # Confirm the vague question so a card with a .dev panel actually exists.
-        # Without this the "hidden by default" check passed spuriously: .dev is only
-        # rendered on answer and refusal cards, and is_visible() on a locator that
-        # matches nothing is False — a check that asserted nothing.
-        pg.locator("[data-yes]").last.click()
+        # The refusal card above already carries a .dev panel. This matters: .dev is
+        # only rendered on answer and refusal cards, and is_visible() on a locator
+        # matching nothing is False — so without a card present the "hidden by
+        # default" check below would pass while asserting nothing.
         # state="attached", not the default "visible": the panel is hidden BY DESIGN
         # until the toggle is pressed, so waiting for visibility waits forever.
         pg.wait_for_selector(".dev", state="attached", timeout=120_000)

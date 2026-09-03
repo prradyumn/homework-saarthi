@@ -152,6 +152,12 @@
     background: var(--rule-2);
   }
 
+  /* A pre_check `clarify` outcome is an invitation to ask again, not a refusal.
+     Painting "ask me again more clearly" in warning red overstates what happened,
+     so it gets the neutral amber the rest of the interface uses for guidance. */
+  .card.asking { border-color: var(--amber-line); }
+  .card.asking .who { color: var(--amber); }
+
   /* refusal — §8.1: never a bare no */
   .card.refusal { border-color: var(--warn-line); }
   .card.refusal .who { color: var(--warn); }
@@ -486,11 +492,12 @@ function renderAnswer(node, d) {
        relevant, and a way forward. Never a bare no, never a reason code. */
     const r = d.refusal || {}, page = r.page_image ? (d.citation || {}).page : null;
     node.outerHTML = `
-      <div class="card refusal">
+      <div class="card ${r.kind === 'clarify' ? 'asking' : 'refusal'}">
         <p class="who">साथी</p>
         <div class="refusal-body">
           <p>${esc(r.spoken || 'मुझे पक्का नहीं पता।')}</p>
-          <p class="refusal-why">${esc(whyText(r.reason))}</p>
+          ${r.cause_explained ? ''
+            : `<p class="refusal-why">${esc(whyText(r.reason))}</p>`}
         </div>
         ${page ? `<div class="cite">
           <span class="src">किताब का पेज ${esc(page)} देख लीजिए</span>
@@ -565,12 +572,22 @@ async function speak(btn, text) {
    §8.3 makes this mandatory: "एक बटा चार" (1/4) misheard as "एक बटा चालीस" (1/40)
    silently changes the question, and the parent cannot detect it — they asked
    because they did not know. One visible turn makes a wrong hearing correctable. */
-function askConfirm(q, clarify) {
+function askConfirm(q, clarify, viaVoice) {
+  /* The gate already rejected this question at /api/interpret. For a TYPED
+     question there is nothing to have misheard, so asking the parent to confirm
+     it and then refusing with the identical sentence showed them the same message
+     three times over. Go straight to the refusal: pre_check fails before any Groq
+     call, so this costs no tokens, and the refusal copy stays in one place
+     (the server) instead of being duplicated in the client.
+     For a SPOKEN question the confirmation still earns its keep — a mangled
+     transcript is a very likely reason the gate tripped, and §8.3's whole point
+     is that the parent cannot detect a mis-hearing on their own. */
+  if (clarify && !viaVoice) { getAnswer(q); return; }
   const node = el(`
     <div class="card">
       <p class="who">साथी</p>
       <div class="confirm">
-        ${clarify ? `<p class="clarify">${esc(whyText(clarify))}</p>` : ''}
+        ${clarify ? `<p class="clarify">इसमें मुझे गणित का सवाल नहीं मिला — क्या मैंने सही सुना? नीचे पढ़कर बताइए।</p>` : ''}
         <p class="lead">आपने पूछा:</p>
         <p class="q">“${esc(q)}”</p>
         <div class="row">
@@ -619,7 +636,7 @@ async function submit(text, viaVoice) {
     const d = await (await fetch('/api/interpret', { method: 'POST',
       headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: q }) })).json();
     if (d.error_hi) { say(d.error_hi); setBusy(false); return; }
-    askConfirm(d.interpreted, d.clarify);
+    askConfirm(d.interpreted, d.clarify, viaVoice);
   } catch (e) {
     renderAnswer(addThinking(), { error_hi: 'जुड़ने में दिक्कत हुई।' });
     setBusy(false);
@@ -733,7 +750,7 @@ async function afterTranscript(text) {
   try {
     const d = await (await fetch('/api/interpret', { method: 'POST',
       headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: text }) })).json();
-    askConfirm(d.interpreted, d.clarify);
+    askConfirm(d.interpreted, d.clarify, true);
   } catch (e) { setBusy(false); }
 }
 

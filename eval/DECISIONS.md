@@ -1286,3 +1286,54 @@ refused in Hindi · empty send creates no turn · composer disabled during and
 re-enabled after an answer · **sticky header covers no answer text**.
 
 **34 passed, 0 failed.**
+
+### The refusal was diagnosing the wrong cause in six of seven codes
+
+Fixing the reason codes made a worse bug visible. `query_pre_check` emits **seven**
+codes, and the whole layer was being given one framing sentence:
+
+> यह सवाल कक्षा 5 की गणित की किताब में नहीं है… *(this question is not in the
+> Class 5 Maths book)*
+
+That is true for exactly one of them. Four (`too_short`, `no_maths_topic`,
+`two_questions`, `asr_suspect_code_mixed`) mean *I could not understand the
+question*, and two (`answer_copying`, `figure_value_lookup`) mean *I understood it
+and am declining on purpose*. Ask "इसका जवाब क्या है?" — a vague question about
+something in the book — and the system blamed the syllabus. §8.1 requires a
+refusal to be actionable, and a wrong diagnosis is not actionable; it sends the
+parent to look for a problem that isn't there.
+
+Each code now gets a line that names its actual cause. Two are worth quoting
+because they are the product's positioning reaching the parent for the first time:
+
+- `answer_copying` → **मैं तैयार जवाब लिखकर नहीं देता — उससे बच्चा सीखता नहीं। यह
+  पूछिए कि बच्चे को यह कैसे समझाएँ।** §2 says this is a coach for parents, not an
+  answer service for children. It was in the PRD and in the gate, but never said
+  out loud to the person who needed to hear it.
+- `figure_value_lookup` → **इसका जवाब किताब के चित्र में है, जो मैं पढ़ नहीं सकता.**
+  An honest statement of a real limitation beats a false one about the syllabus.
+
+**A clarify is not a refusal.** Four of these are pre_check's `clarify` outcome —
+invitations to ask again. They were rendered in the warning palette, which
+overstates what happened. They now get a `.card.asking` in neutral amber, and a
+test asserts a clarify outcome produces no `.card.refusal`.
+
+**And the explanation is given once.** The server now returns `cause_explained`,
+and the interface suppresses its own `WHY` line for those codes rather than
+restating the same thing underneath. Asserted.
+
+### One bug found and deliberately not fixed
+
+`x2+5x+6 का हल क्या है?`, **typed**, classifies as `asr_suspect_code_mixed` and was
+told "एक बार फिर बोलिए" — say it again — when nothing was spoken. The copy is
+fixed to work for either input mode. The **classification** is still wrong: the
+trigger is code-mixing, which typed algebra has too, and this fires before the
+beyond-Class-5 vocabulary layer that should have caught it.
+
+I did not tighten the classifier. The refusal *outcome* is correct for that
+question, so the parent-visible harm was only the wording; changing the gate means
+re-measuring against `eval/refusal_set.py`, and the whole point of D3 is that gate
+thresholds get measured rather than guessed. Recorded here so it is a known issue
+rather than a surprise.
+
+**Suite now 37 assertions, all passing.**

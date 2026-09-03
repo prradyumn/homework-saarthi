@@ -68,7 +68,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
 | Wk 3 — refusal calibration + curve | **DONE** — **84% coverage at 1.2% wrong**, refusal on real traffic 16% (inside the 25% guardrail). Curve published and updated. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
-| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **34 Playwright assertions, all passing** at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
+| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **37 Playwright assertions, all passing** at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
 ## 4. Accounts and secrets
@@ -307,15 +307,25 @@ cd "/Users/pradyumnawasthi/homework saarthi"
    the `WHY` map in `web/index.html`; a test sweeps rendered text for
    `[a-z]+_[a-z_]+` and fails on a leak. Add the Hindi line whenever you add a code.
 
-9. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
+9. **`query_pre_check` emits 7 codes with 7 different causes.** Do not give the
+   layer one refusal sentence — that shipped "this isn't in the Class 5 book" for
+   vague questions and for deliberate declines. `PRE_CHECK_LINES` in `answer.py`
+   is the map; a `clarify` outcome must not be styled as a refusal.
+
+10. **Known open bug:** typed `x2+5x+6…` classifies as `asr_suspect_code_mixed`
+   (the trigger is code-mixing, not speech) and pre-empts the beyond-Class-5
+   layer. Outcome is right, label is wrong. Fixing it means re-measuring against
+   `eval/refusal_set.py` — do not hand-tune it.
+
+11. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
    it both invents overlaps that aren't there and hides ones that are. Measure
    `getBoundingClientRect()` intersections instead of looking (D12).
 
-10. **Wait on hidden elements with `state="attached"`.** Playwright's
+12. **Wait on hidden elements with `state="attached"`.** Playwright's
    `wait_for_selector` defaults to "visible"; the dev panel is hidden by design,
    so the default made a correct implementation fail.
 
-11. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+13. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports
