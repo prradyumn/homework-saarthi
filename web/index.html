@@ -150,6 +150,24 @@
   }
   .send { background: var(--ink); color: var(--ground); border-color: var(--ink); }
   .mic[disabled] { opacity: .5; cursor: not-allowed; }
+  .mic.rec {
+    background: var(--warn); color: #fff; border-color: var(--warn);
+    animation: pulse 1.1s infinite ease-in-out;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.09) } }
+  @media (prefers-reduced-motion: reduce) { .mic.rec { animation: none } }
+  .rec-timer {
+    position: absolute; left: 50%; transform: translateX(-50%); top: -26px;
+    font-family: var(--mono); font-size: 12px; color: var(--warn);
+    background: var(--ground); padding: 1px 8px; border-radius: 999px;
+  }
+  .composer-inner { position: relative; }
+  .listen {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans);
+    font-size: 12.5px; color: var(--amber); background: none; border: 0;
+    padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .listen:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
   .mic:focus-visible, .send:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
   .hint {
     max-width: 640px; margin: 8px auto 0; font-family: var(--sans);
@@ -203,6 +221,7 @@
 </div>
 
 <script>
+let VOICE = false;
 const SESSION = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 24);
 const thread = document.getElementById('thread');
 const input = document.getElementById('input');
@@ -220,7 +239,16 @@ async function poll() {
     if (s.error) { dot.className = 'dot'; statusText.textContent = 'शुरू नहीं हो सका'; return; }
     if (s.ready) {
       dot.className = 'dot ready';
-      statusText.textContent = 'तैयार — किताब: NCERT गणित मेला, कक्षा 5';
+      VOICE = !!(s.voice && s.voice.ok);
+      statusText.textContent = VOICE
+        ? 'तैयार — आवाज़ में पूछ सकते हैं (भाषिणी)'
+        : 'तैयार — किताब: NCERT गणित मेला, कक्षा 5';
+      const mic = document.getElementById('mic');
+      mic.disabled = !VOICE;
+      mic.title = VOICE ? 'बोलकर पूछिए' : 'आवाज़ की सुविधा भाषिणी जुड़ने पर';
+      document.getElementById('hint').textContent = VOICE
+        ? 'माइक दबाकर बोलिए — या नीचे लिख दीजिए'
+        : 'आवाज़ में पूछने की सुविधा भाषिणी (भारत सरकार) जुड़ने पर आएगी';
       return;
     }
   } catch (e) { /* server not up yet */ }
@@ -288,6 +316,7 @@ function renderAnswer(node, d) {
         <div class="cite">
           <span>किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
           <button data-page="${esc(c.page)}">पेज देखिए</button>
+          ${VOICE ? `<button class="listen" data-speak>🔊 सुनिए</button>` : ''}
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
@@ -327,6 +356,15 @@ function wire() {
         delete b.dataset.shown; b.textContent = 'पेज देखिए'; return; }
       const img = el(`<img class="page-img" src="/page/${n}" alt="किताब का पेज ${n}">`);
       b.parentElement.after(img); b.dataset.shown = '1'; b.textContent = 'पेज छिपाइए';
+    };
+  });
+  document.querySelectorAll('[data-speak]').forEach(b => {
+    if (b.dataset.wired) return; b.dataset.wired = '1';
+    b.onclick = () => {
+      /* read the four parts aloud in order, as one utterance */
+      const box = b.closest('.from-saathi');
+      const text = [...box.querySelectorAll('.part p')].map(p => p.textContent).join(' ');
+      speak(b, text);
     };
   });
   document.querySelectorAll('[data-exp]').forEach(b => {
@@ -369,6 +407,137 @@ async function send() {
   } catch (e) {
     busy = false;
   }
+}
+
+/* ---------------- FR-1: record in the browser, encode WAV in JS ----------------
+   MediaRecorder produces WebM/Opus, and Bhashini's ASR wants WAV or FLAC. Rather
+   than add ffmpeg to the server, raw PCM is captured through Web Audio and
+   encoded as 16-bit mono WAV here. No dependency, works in every browser that
+   can reach a microphone. */
+const TARGET_RATE = 16000;
+let rec = null;
+
+function encodeWav(samples, rate) {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); str(8, 'WAVE');
+  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, samples.length * 2, true);
+  let o = 44;
+  for (let i = 0; i < samples.length; i++, o += 2) {
+    const x = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(o, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+  }
+  return new Uint8Array(buf);
+}
+
+function downsample(input, from, to) {
+  if (to >= from) return input;
+  const ratio = from / to, out = new Float32Array(Math.round(input.length / ratio));
+  for (let i = 0; i < out.length; i++) {
+    const start = Math.round(i * ratio), end = Math.min(Math.round((i + 1) * ratio), input.length);
+    let sum = 0;
+    for (let j = start; j < end; j++) sum += input[j];
+    out[i] = sum / Math.max(end - start, 1);   // average, not nearest — less aliasing
+  }
+  return out;
+}
+
+async function startRec() {
+  const mic = document.getElementById('mic');
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+  } catch (e) {
+    document.getElementById('hint').textContent = 'माइक की अनुमति नहीं मिली — लिखकर पूछिए';
+    return;
+  }
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const src = ctx.createMediaStreamSource(stream);
+  const node = ctx.createScriptProcessor(4096, 1, 1);
+  const chunks = [];
+  node.onaudioprocess = (e) => chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  src.connect(node); node.connect(ctx.destination);
+
+  const timer = el('<span class="rec-timer">0:00 · दबाकर रोकिए</span>');
+  document.querySelector('.composer-inner').appendChild(timer);
+  const t0 = Date.now();
+  const tick = setInterval(() => {
+    const sec = Math.floor((Date.now() - t0) / 1000);
+    timer.textContent = `0:${String(sec).padStart(2, '0')} · दबाकर रोकिए`;
+    if (sec >= 60) stopRec();          /* FR-1 caps a voice note at 60s */
+  }, 250);
+
+  mic.classList.add('rec'); mic.textContent = '■';
+  rec = { stream, ctx, src, node, chunks, timer, tick };
+}
+
+async function stopRec() {
+  if (!rec) return;
+  const { stream, ctx, src, node, chunks, timer, tick } = rec;
+  rec = null;
+  clearInterval(tick); timer.remove();
+  const mic = document.getElementById('mic');
+  mic.classList.remove('rec'); mic.textContent = '🎤';
+  node.disconnect(); src.disconnect();
+  stream.getTracks().forEach(t => t.stop());
+  const rate = ctx.sampleRate;
+  await ctx.close();
+
+  let n = 0; chunks.forEach(c => n += c.length);
+  if (n < rate * 0.4) { document.getElementById('hint').textContent = 'बहुत छोटा — फिर बोलिए'; return; }
+  const flat = new Float32Array(n);
+  let o = 0; chunks.forEach(c => { flat.set(c, o); o += c.length; });
+  const wav = encodeWav(downsample(flat, rate, TARGET_RATE), TARGET_RATE);
+  let bin = ''; wav.forEach(b => bin += String.fromCharCode(b));
+
+  busy = true;
+  document.getElementById('examples').style.display = 'none';
+  const node2 = addThinking();
+  try {
+    const r = await fetch('/api/transcribe', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ audio_base64: btoa(bin), sample_rate: TARGET_RATE }) });
+    const d = await r.json();
+    node2.remove();
+    if (d.text) {
+      addParent('🎤 ' + d.text);
+      /* Straight into FR-2. This is the whole reason the confirmation turn exists:
+         a misheard number changes the question silently. */
+      const ir = await fetch('/api/interpret', { method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ question: d.text }) });
+      const id = await ir.json();
+      askConfirm(id.interpreted, id.clarify);
+    } else {
+      renderAnswer(addThinking(), { error_hi: d.error_hi || d.detail || 'आवाज़ समझ नहीं आई।' });
+      busy = false;
+    }
+  } catch (e) {
+    node2.remove(); busy = false;
+  }
+}
+
+document.getElementById('mic').onclick = () => { rec ? stopRec() : startRec(); };
+
+/* ---------------- FR-6: play the answer aloud ---------------- */
+let playing = null;
+async function speak(btn, text) {
+  if (playing) { playing.pause(); playing = null; }
+  const was = btn.textContent;
+  btn.textContent = '⏳ बन रहा है…';
+  try {
+    const r = await fetch('/api/speak', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text }) });
+    const d = await r.json();
+    if (!d.audio_base64) { btn.textContent = d.error_hi || 'आवाज़ उपलब्ध नहीं'; return; }
+    const a = new Audio('data:audio/wav;base64,' + d.audio_base64);
+    playing = a; btn.textContent = '⏸ रोकिए';
+    a.onended = () => { btn.textContent = was; playing = null; };
+    a.play();
+  } catch (e) { btn.textContent = was; }
 }
 
 document.getElementById('send').onclick = send;

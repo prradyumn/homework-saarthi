@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~50% of the project
+## 3. State: ~60% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -68,7 +68,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
 | Wk 3 — refusal calibration + curve | **DONE** — **84% coverage at 1.2% wrong**, refusal on real traffic 16% (inside the 25% guardrail). Curve published and updated. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
-| Wk 5 — Bhashini voice + WhatsApp + web chat | **0%.** Needs Bhashini + WhatsApp Cloud API signups. |
+| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
 ## 4. Accounts and secrets
@@ -77,7 +77,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 |---|---|
 | **Groq** | ✅ Key received from user, stored in `.env` (gitignored, chmod 600), loaded by `scripts/answer.py`. **The key was pasted into chat — remind the user to rotate it at console.groq.com/keys.** |
 | Supabase | ❌ Not yet. User said "later we will also set a postgres and supabase". Retrieval runs on a local numpy index (`ingest/index_combined.npz`) which is fine for now. |
-| Bhashini | ❌ Not yet. Needed for Wk 5. |
+| Bhashini | ❌ **This is the only thing blocking voice.** Code is written and wired (`scripts/bhashini.py`); register free for non-commercial use at bhashini.gov.in (ULCA portal) and put `BHASHINI_USER_ID` + `BHASHINI_API_KEY` in `.env`. Everything degrades cleanly without them. |
 | WhatsApp Cloud API | ❌ Not yet. Needed for Wk 5. |
 | PostHog | ❌ Not yet. |
 
@@ -105,6 +105,13 @@ scripts/
   eval_generation.py     contract-conformance eval per backend
   textlayer_bakeoff.py   the extraction comparison harness
   ocr_tuning.py          OCR config sweep (historical)
+  serve.py               THE DEMO: stdlib web chat (FR-8). `python scripts/serve.py`
+  bhashini.py            ASR + TTS via the ULCA two-step flow (FR-1, FR-6)
+  cost_model.py          cost per conversation + the break-even map (D7)
+  retrieval.py           lexical/IDF signal + parent->textbook vocabulary (D3, D6)
+  eval_retrieval.py      chunk-level relevance, needs NO LLM budget
+  audit_answerability.py are the labelled questions actually answerable?
+web/index.html           the chat interface, Hindi-first, browser WAV recording
 data/conjunct_repairs.json   75 hand-verified conjunct repairs (auditable content-ops)
 eval/
   DECISIONS.md           EVERY decision with evidence and reversals — read it
@@ -248,8 +255,12 @@ rather than local for resilience — but vet data policy (§14).
 - Tesseract + `hin`/`Devanagari` traineddata installed but NO LONGER USED by the pipeline.
 - OCR cache in `ingest/ocr_cache/` (190 TSVs) — only needed by the legacy hybrid.
 - Git: 10 commits on the default branch, author set via `-c user.email=pradyumn@convegenius.ai`.
-- Published artifact: https://claude.ai/code/artifact/892a72b8-4f10-42e4-bc33-8b0c834f8715
-  (the refusal curve). Source in `writeup/refusal-curve.html`. Redeploy with same path.
+- Published artifacts (source in `writeup/`, redeploy by republishing the same path):
+  - refusal curve: https://claude.ai/code/artifact/892a72b8-4f10-42e4-bc33-8b0c834f8715
+  - cost model:    https://claude.ai/code/artifact/7d339f21-4f6a-42a6-a83e-d07acdcbef74
+- **Scope, as the user set it: a PROTOTYPE on free tiers, not a scalable product.**
+  Do not add Supabase (the local numpy index is sufficient), do not do scale
+  engineering. The cost model exists because the PRD asks for the 10M figure.
 
 ## 9. How to run everything
 
@@ -288,7 +299,11 @@ cd "/Users/pradyumnawasthi/homework saarthi"
    table; no logic change.
 6. **Week 5**: Bhashini ASR/TTS + FR-2 confirmation turn + WhatsApp Cloud API test
    number + public web chat (FR-8, portfolio-critical). Needs user signups.
-7. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+7. **Voice**: the moment Bhashini credentials land, run `python scripts/bhashini.py`
+   (prints availability) then `--speak` to write a test WAV. The browser records
+   16 kHz mono WAV in JS — encoder maths verified against Python's `wave` module —
+   so there is no ffmpeg dependency. Measure the §7.3 20s p95 round trip once live.
+8. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports

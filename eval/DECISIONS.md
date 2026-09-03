@@ -1032,3 +1032,50 @@ is that almost none of the decision lives in the threshold.
 Operating point: **coverage 85%, wrong-answer rate 1.2%, refusal on legitimate
 traffic 15%** — decoy margin 0.08, chosen three steps back from the cliff at 0.12
 since 0.08 and 0.09 both reach 85%.
+
+---
+
+## D9 — Voice loop wired (FR-1, FR-6), pending credentials
+
+**Bhashini ASR and TTS are implemented and wired end to end.** The only thing
+missing is a free non-commercial registration: `BHASHINI_USER_ID` and
+`BHASHINI_API_KEY` in `.env`. Until they arrive, `/api/status` reports voice as
+unavailable, the microphone is disabled with an honest tooltip, and text works
+unchanged — nothing is faked.
+
+### Two implementation decisions worth recording
+
+**1. The inference endpoint and key are read, not hardcoded.** ULCA is a two-step
+flow: a config call to `meity-auth.ulcacontrib.org` returns the inference
+endpoint, an inference key and a `serviceId` per task; the compute call then goes
+to that endpoint. Every public example hardcodes the endpoint and the key. A
+hardcoded third-party credential is someone else's secret and will rotate without
+warning, so both are read from the config response — which is cached for 24 hours,
+because paying a second round trip per question would eat the §7.3 budget of 20s
+p95 for the whole voice round trip.
+
+**2. WAV is encoded in the browser, so there is no ffmpeg dependency.**
+`MediaRecorder` produces WebM/Opus; Bhashini's ASR wants WAV or FLAC. The options
+were a server-side transcode (a new binary dependency, on a machine where the
+demo has to just run) or capturing raw PCM through Web Audio and encoding
+16-bit mono WAV in JavaScript. The second keeps the prototype dependency-free.
+
+The encoder is the one piece that could be silently wrong — a bad header produces
+a file that looks fine and transcribes to nothing — so the same logic was ported
+to Python and parsed with the standard library's `wave` module: 1 channel,
+2-byte samples, 16 kHz, exact frame count, exact file length. The downsampler
+averages across each window rather than taking the nearest sample, which costs
+nothing and avoids aliasing on the 48 kHz → 16 kHz path most browsers will take.
+
+### Why the confirmation turn now earns its keep
+
+FR-2 was already built for text, where nothing can be misheard, and it looked
+like ceremony. With voice it becomes the load-bearing safety step §8.3 describes:
+"एक बटा चार" (1/4) misheard as "एक बटा चालीस" (1/40) silently changes the
+question, and the parent cannot detect the substitution because they asked in the
+first place. The transcript therefore goes into the confirmation turn, never
+straight to an answer — one visible turn converts a silent wrong answer into a
+correctable one.
+
+Open question 1 in the PRD asks whether parents tolerate that extra turn. It is
+now a thing the pilot can actually measure rather than speculate about.

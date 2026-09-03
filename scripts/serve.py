@@ -57,6 +57,18 @@ _sessions: dict[str, dict] = {}
 MAX_TURNS = 3
 
 
+def check_voice() -> None:
+    try:
+        import bhashini
+
+        _state["voice"] = bhashini.available()
+        v = _state["voice"]
+        print("  voice: " + ("Bhashini connected — " + str(v.get("services"))
+                             if v["ok"] else "not connected (text only)"), flush=True)
+    except Exception as exc:  # noqa: BLE001
+        _state["voice"] = {"ok": False, "reason": str(exc)[:200]}
+
+
 def warm() -> None:
     """Load the embedding model once at startup, not per request. BGE-M3 peaks
     around 3.3 GB on this machine, so a per-request load would be unusable."""
@@ -100,7 +112,8 @@ class Handler(BaseHTTPRequestHandler):
 
         if url.path == "/api/status":
             return self._json(200, {"ready": _state["ready"], "error": _state["error"],
-                                    "backend": _state["backend"]})
+                                    "backend": _state["backend"],
+                                    "voice": _state.get("voice", {"ok": False})})
 
         # FR-10: the textbook page image, by printed page number
         if url.path.startswith("/page/"):
@@ -130,6 +143,10 @@ class Handler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             return self._json(400, {"error": "bad json"})
 
+        if url.path == "/api/transcribe":
+            return self._transcribe(payload)
+        if url.path == "/api/speak":
+            return self._speak(payload)
         if url.path == "/api/interpret":
             return self._interpret(payload)
         if url.path == "/api/answer":
@@ -137,6 +154,53 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/api/feedback":
             return self._feedback(payload)
         self._json(404, {"error": "not found"})
+
+    # ---------------------------------------------------------------- FR-1
+    def _transcribe(self, payload: dict) -> None:
+        """Voice note -> text. The transcript then goes through FR-2's confirmation
+        turn before anything is answered, which is the whole point: §8.3 warns that
+        "एक बटा चार" (1/4) misheard as "एक बटा चालीस" (1/40) silently changes the
+        question, and the parent cannot detect it. One visible turn converts a
+        silent wrong answer into a correctable one."""
+        import bhashini
+
+        audio = payload.get("audio_base64") or ""
+        if not audio:
+            return self._json(400, {"error": "no audio"})
+        # ~1 MB of base64 is roughly 45s of 16 kHz mono PCM; FR-1 allows 60s
+        if len(audio) > 2_000_000:
+            return self._json(400, {"error_hi": "आवाज़ का संदेश बहुत लंबा है, "
+                                                "एक मिनट से कम रखिए।"})
+        try:
+            rate = int(payload.get("sample_rate") or bhashini.ASR_SAMPLE_RATE)
+            out = bhashini.transcribe(audio, sample_rate=rate)
+            print(f"  ASR {out['seconds']}s -> {out['text'][:60]!r}", flush=True)
+            return self._json(200, out)
+        except bhashini.NotConfigured as exc:
+            return self._json(200, {"unavailable": True, "detail": str(exc)})
+        except Exception as exc:  # noqa: BLE001
+            return self._json(200, {"error_hi": "आवाज़ समझ नहीं आई, फिर बोलिए "
+                                                "या लिख दीजिए।", "detail": str(exc)[:200]})
+
+    # ---------------------------------------------------------------- FR-6
+    def _speak(self, payload: dict) -> None:
+        """Answer text -> Hindi audio. §8.3: fluent Hindi speech does not imply
+        fluent Devanagari reading, so an answer the parent cannot read is an
+        answer they cannot use."""
+        import bhashini
+
+        text = (payload.get("text") or "").strip()
+        if not text:
+            return self._json(400, {"error": "no text"})
+        try:
+            out = bhashini.speak(text[:1200])
+            print(f"  TTS {out['seconds']}s for {out['chars']} chars", flush=True)
+            return self._json(200, out)
+        except bhashini.NotConfigured as exc:
+            return self._json(200, {"unavailable": True, "detail": str(exc)})
+        except Exception as exc:  # noqa: BLE001
+            return self._json(200, {"error_hi": "आवाज़ बनाने में दिक्कत हुई।",
+                                    "detail": str(exc)[:200]})
 
     # ---------------------------------------------------------------- FR-2
     def _interpret(self, payload: dict) -> None:
@@ -231,6 +295,7 @@ def main() -> int:
         return 1
 
     threading.Thread(target=warm, daemon=True).start()
+    threading.Thread(target=check_voice, daemon=True).start()
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"\n  Homework Saathi — http://{args.host}:{args.port}")
     print(f"  backend: {args.backend}   (loading models in the background…)\n")
