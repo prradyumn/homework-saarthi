@@ -266,16 +266,63 @@ def main() -> int:
             check("FR-7 records the answer", "शुक्रिया" in page.inner_text(".fb-done"))
 
         # ---- FR-4: a refusal must show the §8.1 package, not a bare no ----
+        # No confirmation turn is expected here any more. This question is caught
+        # by pre_check on its beyond-Class-5 vocabulary, so the outcome is known
+        # before retrieval runs, and asking the parent to confirm a question that
+        # is about to be refused with the same sentence just says it twice.
+        # A SPOKEN question still gets its confirmation — a mangled transcript is
+        # a real reason the gate trips.
+        before = page.locator(".confirm").count()
         page.fill("#input", "द्विघात समीकरण का सूत्र क्या है?")
         page.click("#send")
-        page.wait_for_selector(".confirm >> nth=1", timeout=30_000)
-        page.locator("[data-yes]").last.click()
         page.wait_for_selector(".refusal", timeout=120_000)
+        check("out-of-syllabus refusal needs no confirmation turn",
+              page.locator(".confirm").count() == before,
+              f"{page.locator('.confirm').count() - before} new confirm cards")
         ref = page.inner_text(".refusal")
         check("FR-4 refuses out-of-syllabus", "कक्षा 5" in ref or "नहीं" in ref, ref[:70])
         check("FR-4 refusal offers no irrelevant page",
               page.locator(".refusal [data-page]").count() == 0)
         page.screenshot(path=str(SHOTS / "05-refusal.png"), full_page=True)
+
+        # ---- bilingual input: English question, Hindi answer ----
+        # The gate was Devanagari-blind: _tokens() matched only Devanagari, so
+        # every English question yielded zero tokens and was refused as
+        # `too_short`, including good ones.
+        # Wait for NEW parts, not for ".part" to exist: an earlier answer in this
+        # same thread already satisfies that selector, so the wait returned at
+        # once and the assertion measured the confirmation card instead.
+        parts_before = page.locator(".part").count()
+        page.fill("#input", "how many grams are in one kilogram?")
+        page.click("#send")
+        page.wait_for_selector(".confirm >> nth=1", timeout=30_000)
+        page.locator("[data-yes]").last.click()
+        page.wait_for_function(
+            "n => document.querySelectorAll('.part').length > n",
+            arg=parts_before, timeout=120_000)
+        page.wait_for_timeout(400)
+        last = page.locator(".card").last.inner_text()
+        deva = sum(1 for ch in last if "\u0900" <= ch <= "\u097f")
+        check("English question is accepted, not refused as too short",
+              page.locator(".part").count() > parts_before,
+              f"parts {parts_before} -> {page.locator('.part').count()}")
+        check("English question is answered in Hindi",
+              deva > 40, f"{deva} Devanagari chars in the answer card")
+        page.screenshot(path=str(SHOTS / "08-english.png"), full_page=True)
+
+        # ---- the spoken-language selector ----
+        check("spoken-language selector offered", page.locator("[data-lang]").count() == 2)
+        page.locator('[data-lang="en"]').click()
+        page.wait_for_timeout(200)
+        check("selector switches to English",
+              page.locator('[data-lang="en"]').get_attribute("aria-pressed") == "true"
+              and page.get_attribute("#input", "placeholder") == "Type your question…",
+              page.get_attribute("#input", "placeholder"))
+        page.reload(wait_until="domcontentloaded")
+        page.wait_for_selector("#dot.ready", timeout=240_000)
+        check("selector choice survives a reload",
+              page.locator('[data-lang="en"]').get_attribute("aria-pressed") == "true")
+        page.locator('[data-lang="hi"]').click()
 
         # ---- dark mode must be legible, not inherited ----
         ctx2 = browser.new_context(viewport={"width": 430, "height": 900},

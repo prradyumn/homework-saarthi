@@ -166,6 +166,33 @@
   .refusal-why { font-size: 16.5px !important; color: var(--ink-2); }
   .next { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 14px; }
 
+  /* Spoken-language selector. The Web Speech API takes one language per
+     recognition pass and cannot detect it, so this is an explicit choice. The
+     note is there because the answer coming back in Hindi after an English
+     question would otherwise look like a bug. */
+  .langbar {
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    padding: 0 2px 8px;
+  }
+  .langbar-lab {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .lang {
+    font-family: var(--deva); font-size: 13.5px; padding: 4px 12px;
+    border-radius: 999px; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--ink-2); cursor: pointer;
+  }
+  .lang[aria-pressed="true"] {
+    background: var(--amber-soft); border-color: var(--amber-line);
+    color: var(--amber); font-weight: 500;
+  }
+  .lang:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .langbar-note {
+    font-family: var(--sans); font-size: 11.5px; color: var(--ink-3);
+    margin-left: auto;
+  }
+
   /* FR-2 confirmation */
   .confirm { padding: 13px 16px; }
   .confirm .lead { margin: 0; font-size: 14.5px; color: var(--ink-2); }
@@ -301,6 +328,12 @@
 </div>
 
 <div class="composer">
+  <div class="langbar" role="group" aria-label="सवाल की भाषा / question language">
+    <span class="langbar-lab">बोलिए / speak</span>
+    <button class="lang" data-lang="hi" aria-pressed="true">हिंदी</button>
+    <button class="lang" data-lang="en" aria-pressed="false">English</button>
+    <span class="langbar-note">जवाब हिंदी में ही आएगा</span>
+  </div>
   <div class="composer-inner">
     <button class="rnd" id="mic" disabled aria-label="बोलकर पूछिए">🎤</button>
     <textarea id="input" rows="1" placeholder="अपना सवाल लिखिए…" aria-label="सवाल"></textarea>
@@ -356,8 +389,39 @@ const whyText = (c) => WHY[c] || 'मैं इसका पक्का जव�
 /* ---- browser speech: the no-account fallback ----
    Bhashini stays the production path (§8.4 makes it a sovereignty and
    data-governance decision). This exists so the demo is never blocked on a portal.
-   Deliberately not Gemini: §14 flags provider training on submitted data, and the
-   data here is a child's homework and a parent's voice. */
+
+   Worth being honest about: Chrome implements the Web Speech API by sending the
+   audio to Google's servers. So the §14 objection that ruled Gemini out for
+   voice already applies to this fallback — it is not the private option it
+   looks like. Bhashini remains the answer for a real pilot; this is a
+   development convenience.
+
+   The API cannot auto-detect language, so bilingual listening is an explicit
+   choice rather than magic. FR-2 shows the parent what was heard either way. */
+/* Which language the parent is SPEAKING. The answer always comes back in Hindi
+   regardless — the child is in a Hindi-medium school and part 4 is a sentence
+   said aloud to that child. */
+const LANG = {
+  key: 'saathi.asrlang',
+  get() {
+    try { return localStorage.getItem(this.key) || 'hi'; } catch (e) { return 'hi'; }
+  },
+  set(v) {
+    try { localStorage.setItem(this.key, v); } catch (e) { /* private window */ }
+    this.paint();
+  },
+  asr() { return this.get() === 'en' ? 'en-IN' : 'hi-IN'; },
+  paint() {
+    const cur = this.get();
+    document.querySelectorAll('[data-lang]').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === cur));
+    });
+    const inp = document.getElementById('input');
+    if (inp) inp.placeholder = cur === 'en'
+      ? 'Type your question…' : 'अपना सवाल लिखिए…';
+  },
+};
+
 const Speech = {
   Rec: window.SpeechRecognition || window.webkitSpeechRecognition,
   canListen() { return !!this.Rec; },
@@ -368,7 +432,7 @@ const Speech = {
   },
   listen(onResult, onError) {
     const r = new this.Rec();
-    r.lang = 'hi-IN'; r.interimResults = false; r.maxAlternatives = 1;
+    r.lang = LANG.asr(); r.interimResults = false; r.maxAlternatives = 1;
     r.onresult = (e) => onResult(e.results[0][0].transcript);
     r.onerror = (e) => onError(e.error);
     r.start(); return r;
@@ -776,6 +840,11 @@ input.addEventListener('keydown', (e) => {
 document.querySelectorAll('.chips button').forEach(b => {
   b.onclick = () => submit(b.textContent, false);
 });
+
+document.querySelectorAll('[data-lang]').forEach(b => {
+  b.onclick = () => LANG.set(b.dataset.lang);
+});
+LANG.paint();
 
 let ticking = false;
 window.addEventListener('scroll', () => {

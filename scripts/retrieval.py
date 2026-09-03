@@ -97,15 +97,72 @@ PARENT_TO_BOOK: dict[str, list[str]] = {
 }
 
 
+# English -> the textbook's Hindi, for the same reason PARENT_TO_BOOK exists but
+# across scripts rather than registers. BGE-M3 is multilingual, so dense
+# retrieval already finds the right chapter from English (5/5 on a hand check),
+# but the hybrid's IDF term-overlap half contributes nothing when the query
+# shares no tokens with a Hindi corpus. That showed up as scores of 0.42-0.59
+# for English against 0.87-0.98 for the same question in Hindi — enough headroom
+# lost to matter against the 0.08 decoy margin.
+#
+# Only terms that appear in this book, verified against the corpus vocabulary.
+ENGLISH_TO_BOOK: dict[str, list[str]] = {
+    "fraction": ["भिन्न"], "fractions": ["भिन्न"],
+    "numerator": ["अंश"], "denominator": ["हर"],
+    "half": ["आधा"], "quarter": ["चौथाई"], "third": ["तिहाई"],
+    "number": ["संख्या"], "numbers": ["संख्या"], "digit": ["अंक"],
+    "place": ["स्थानीय", "मान"], "value": ["मान"],
+    "tens": ["दहाई"], "hundreds": ["सैकड़ा"], "thousand": ["हजार"],
+    "add": ["जोड़", "योग"], "addition": ["जोड़", "योग"], "adding": ["जोड़"],
+    "carry": ["हासिल"], "carrying": ["हासिल"],
+    "subtract": ["घटा", "व्यवकलन"], "subtraction": ["घटा", "व्यवकलन"],
+    "multiply": ["गुणा"], "multiplication": ["गुणा", "गुणन"],
+    "divide": ["भाग"], "division": ["भाग"], "quotient": ["भागफल"],
+    "divisor": ["भाजक"], "dividend": ["भाज्य"], "remainder": ["शेषफल"],
+    "multiple": ["गुणज"], "multiples": ["गुणज"], "factor": ["गुणनखंड"],
+    "even": ["सम"], "odd": ["विषम"], "estimate": ["आकलन"],
+    "angle": ["कोण"], "angles": ["कोण"], "turn": ["घुमाव"],
+    "triangle": ["त्रिभुज"], "square": ["वर्ग"], "rectangle": ["आयत"],
+    "pentagon": ["पंचभुज"], "hexagon": ["षट्भुज"], "side": ["भुजा"],
+    "shape": ["आकृति"], "shapes": ["आकृति"], "tile": ["टाइल"],
+    "tiling": ["टाइल"], "pattern": ["प्रतिरूप"], "symmetry": ["सममिति"],
+    "area": ["क्षेत्रफल"], "perimeter": ["परिमाप"], "length": ["लंबाई"],
+    "height": ["ऊँचाई"], "distance": ["दूरी"],
+    "metre": ["मीटर"], "meter": ["मीटर"], "centimetre": ["सेंटीमीटर"],
+    "centimeter": ["सेंटीमीटर"], "kilometre": ["किलोमीटर"],
+    "cm": ["सेंटीमीटर"], "km": ["किलोमीटर"],
+    "measure": ["माप"], "measurement": ["मापन", "माप"], "unit": ["इकाई"],
+    "weight": ["भार"], "weigh": ["तोल"], "balance": ["तराजू"],
+    "kilogram": ["किलोग्राम"], "kg": ["किलोग्राम"], "gram": ["ग्राम"],
+    "kilo": ["किलो"], "capacity": ["धारिता", "क्षमता"],
+    "litre": ["लीटर"], "liter": ["लीटर"], "millilitre": ["मिलीलीटर"],
+    "time": ["समय"], "hour": ["घंटा"], "minute": ["मिनट"],
+    "second": ["सेकंड"], "clock": ["घड़ी"],
+    "map": ["मानचित्र"], "direction": ["दिशा"], "north": ["उत्तर"],
+    "south": ["दक्षिण"], "east": ["पूरब"], "west": ["पश्चिम"],
+    "money": ["रुपये"], "rupee": ["रुपये"], "rupees": ["रुपये"],
+    "cost": ["मूल्य"], "price": ["मूल्य"],
+    "graph": ["आरेख"], "chart": ["आरेख"], "table": ["तालिका"],
+    "teach": ["सिखा"], "explain": ["समझा"], "child": ["बच्चे"],
+}
+_EN_TOKEN_RX = __import__("re").compile(r"[A-Za-z]+")
+
+
 def expand_query(question: str) -> str:
     """Append the textbook's words for any parent-vocabulary term used.
 
     The original question is kept intact — the expansion is additive, so a
-    question that already uses the book's register is unchanged.
+    question that already uses the book's register is unchanged. English terms
+    are mapped the same way, so an English question reaches the Hindi corpus
+    through the lexical half of the hybrid as well as the dense half.
     """
     extra: list[str] = []
     for term in tokens(question):
         for book_word in PARENT_TO_BOOK.get(term, ()):
+            if book_word not in extra:
+                extra.append(book_word)
+    for term in _EN_TOKEN_RX.findall(question or ""):
+        for book_word in ENGLISH_TO_BOOK.get(term.lower(), ()):
             if book_word not in extra:
                 extra.append(book_word)
     return f"{question} {' '.join(extra)}".strip() if extra else question

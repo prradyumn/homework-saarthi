@@ -70,6 +70,47 @@ _TOPIC_RX = re.compile(
     r"(?<![ऀ-ॿ])(?:" + "|".join(TOPIC_WORDS) + r")" + _STEM_END
 )
 
+# The same Class 5 topics in English, because a parent may type or say the
+# question in English even when the child's textbook is Hindi. Kept as a separate
+# list with its own word-boundary rule: splicing Latin into _TOPIC_RX would apply
+# the Devanagari stem-end guard to it, which is meaningless for English.
+TOPIC_WORDS_EN = [
+    "fraction", "fractions", "numerator", "denominator", "half", "quarter",
+    "third", "whole", "number", "numbers", "digit", "digits", "place value",
+    "ones", "tens", "hundreds", "thousand", "count", "counting", "comma",
+    "add", "adding", "addition", "plus", "subtract", "subtraction", "minus",
+    "multiply", "multiplication", "times table", "divide", "division",
+    "dividend", "divisor", "quotient", "remainder", "multiple", "multiples",
+    "factor", "factors", "sum", "carry", "carrying", "borrow", "borrowing",
+    "even", "odd", "estimate", "estimation", "rounding", "round off",
+    "angle", "angles", "right angle", "turn", "rotation", "triangle",
+    "square", "rectangle", "pentagon", "hexagon", "side", "sides", "shape",
+    "shapes", "tile", "tiles", "tiling", "pattern", "patterns", "symmetry",
+    "symmetric", "cube", "tangram",
+    "area", "perimeter", "length", "height", "distance", "metre", "meter",
+    "centimetre", "centimeter", "kilometre", "kilometer", "measure",
+    "measuring", "measurement", "unit", "units",
+    "weight", "weigh", "weighing", "balance", "kilogram", "gram", "kilo",
+    "capacity", "volume", "litre", "liter", "millilitre", "milliliter",
+    "time", "hour", "hours", "minute", "minutes", "second", "seconds",
+    "clock", "calendar", "routine",
+    "map", "direction", "directions", "north", "south", "east", "west",
+    "position", "grid",
+    "money", "rupee", "rupees", "paise", "cost", "price", "bill", "change",
+    "graph", "bar graph", "chart", "table", "data", "tally",
+    "maths", "math", "mathematics", "sum", "problem", "homework",
+    # Unit abbreviations, which is how people actually write them even mid-Hindi
+    # ("10 m में कितने cm होते हैं?"). Without these such a question read as
+    # "not a maths question". The single letters are safe here because the
+    # algebra-notation check keys on [xyzn] fused to a digit, not on these.
+    "cm", "mm", "km", "kg", "gm", "ml", "hr", "min", "sec",
+]
+_TOPIC_EN_RX = re.compile(
+    r"\b(?:" + "|".join(re.escape(w) for w in
+                        sorted(TOPIC_WORDS_EN, key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
+
 # Requests that ask the product to be an answer-vending machine. Refusing these
 # is a positioning decision (§4), not a confidence decision: answering them well
 # would make the product worse.
@@ -78,11 +119,23 @@ _COPYING_RX = re.compile(
     r"केवल\s*जवाब|बिना\s*समझाए|होमवर्क\s*कर(ा|\s*दी)|पूरा\s*होमवर्क"
 )
 
-# Any Latin letter alongside Devanagari is an ASR-garble signature. The first
-# version required a run of 2+ Latin characters and so missed "कोन कैसे नापt hai".
-# A Hindi maths question from this book has no reason to contain Latin at all —
-# the textbook writes units in Devanagari (सें.मी., कि.ग्रा.).
-_LATIN_IN_DEV = re.compile(r"(?=.*[ऀ-ॿ])(?=.*[A-Za-z])", re.DOTALL)
+# This used to refuse ANY Latin letter alongside Devanagari as an ASR-garble
+# signature. That is no longer tenable, for two reasons:
+#
+#   1. English input is now supported, and code-mixing is how people actually
+#      write — "1 kg में कितने ग्राम?" is a perfectly clear question.
+#   2. It mislabelled typed algebra: "x2+5x+6 का हल क्या है?" was told "say it
+#      again", when nothing had been said and the real issue was that the topic
+#      is beyond Class 5 (recorded in D12 as an open bug; this closes it).
+#
+# The genuine garble signature is a SHORT Latin fragment FUSED to Devanagari with
+# no space — "नापt", "hai" glued to a word — not Latin words standing alone. And
+# the designed defence against a mis-heard question is FR-2's confirmation turn,
+# which shows the parent what was heard; this rule was always a second guess at
+# the same problem.
+_LATIN_IN_DEV = re.compile(
+    r"[ऀ-ॿ][A-Za-z]{1,2}(?![A-Za-z])|(?<![A-Za-z])[A-Za-z]{1,2}[ऀ-ॿ]"
+)
 
 # Questions that POINT AT a figure. This is the right place to catch the
 # figure-only class: the signal is in the question ("चित्र में दिखाई गई…",
@@ -102,7 +155,13 @@ MIN_TOKENS = 4
 
 
 def _tokens(q: str) -> list[str]:
-    return re.findall(r"[ऀ-ॿ]+", q)
+    """Words in either script.
+
+    Devanagari-only tokenising made the gate blind to English: every English
+    question yielded zero tokens, fell under MIN_TOKENS, and was refused as
+    `too_short` — including good ones like "how many grams in one kilogram?".
+    """
+    return re.findall(r"[ऀ-ॿ]+|[A-Za-z][A-Za-z']*", q)
 
 
 # Topic groups. Two asks only count as two questions if they reach into DIFFERENT
@@ -169,10 +228,22 @@ def pre_check(question: str) -> dict:
     if _FIGURE_REF.search(q) and _VALUE_SEEKING.search(q) and not _METHOD_SEEKING.search(q):
         return {"outcome": "refuse", "reason": "figure_value_lookup"}
 
+    # A recognised higher-class maths term settles the question on its own, even
+    # when a Class 5 topic word also appears — "square root" contains "square",
+    # and प्रतिशत questions usually carry numbers. Gating this behind "no Class 5
+    # topic found" let "what is the square root of 49?" through.
+    #
+    # It also has to run BEFORE the topic test, not after: वर्गमूल and प्रतिशत were
+    # being answered with "this does not look like a maths question", which is
+    # false and corrodes the one thing §8.1 is trying to earn. Third instance of
+    # an early code pre-empting a more accurate later layer.
+    if has_beyond_class5_word(q):
+        return {"outcome": "refuse", "reason": "beyond_class5_topic_in_question"}
+
     # two or more numbers is itself a maths signal, for questions phrased entirely
     # in everyday words ("100 नारियल को 8 में बाँटना है")
     numeric = len(re.findall(r"\d+", q)) >= 2
-    has_topic = bool(_TOPIC_RX.search(q)) or numeric
+    has_topic = bool(_TOPIC_RX.search(q)) or bool(_TOPIC_EN_RX.search(q)) or numeric
     if len(toks) < MIN_TOKENS and not has_topic:
         return {"outcome": "clarify", "reason": "too_short"}
     if not has_topic:
@@ -212,7 +283,35 @@ BEYOND_CLASS5_WORDS = [
 ]
 _BEYOND_Q_RX = re.compile(r"(?<![ऀ-ॿ])(?:" + "|".join(BEYOND_CLASS5_WORDS) + r")")
 
+# The English equivalents, so "how do I solve a quadratic equation?" is refused
+# for the true reason rather than falling through to "not a maths question".
+BEYOND_CLASS5_WORDS_EN = [
+    "algebra", "algebraic", "equation", "equations", "expression", "identity",
+    "polynomial", "variable", "exponent", "exponents",
+    "square root", "cube root", "percent", "percentage", "ratio",
+    "proportion", "interest", "rational", "irrational", "decimal", "decimals",
+    "coordinate", "coordinates", "congruent", "theorem", "probability",
+    "median", "trigonometry", "sine", "cosine",
+    "negative number", "integer", "integers", "quadratic", "factorise",
+    "factorize", "pythagoras", "pythagorean", "calculus", "logarithm",
+]
+_BEYOND_EN_RX = re.compile(
+    r"\b(?:" + "|".join(re.escape(w) for w in
+                        sorted(BEYOND_CLASS5_WORDS_EN, key=len, reverse=True))
+    + r")\b", re.IGNORECASE)
+
+
+# Algebraic NOTATION, which carries no keyword at all: "x2+5x+6 का हल क्या है?"
+# names no topic, so word lists cannot see it. Class 5 maths has no variables, so
+# a lone letter fused to a digit is a reliable signal — restricted to the letters
+# actually used as variables and deliberately excluding unit letters, because
+# "10 m", "2 cm" and "5 kg" must not match. Requires no space, so "5 x 3" (a
+# multiplication a parent might type) is untouched.
+_ALGEBRA_NOTATION = re.compile(r"(?<![A-Za-z])[xyzn]\d|\d[xyzn](?![A-Za-z])")
+
 
 def has_beyond_class5_word(question: str) -> bool:
     """True if the question names a topic that is not in the Class 5 book at all."""
-    return bool(_BEYOND_Q_RX.search(question))
+    return bool(_BEYOND_Q_RX.search(question)
+                or _BEYOND_EN_RX.search(question)
+                or _ALGEBRA_NOTATION.search(question))
