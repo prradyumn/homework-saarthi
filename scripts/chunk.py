@@ -145,6 +145,13 @@ def main() -> int:
         pages.sort(key=lambda p: p["book_page"])
 
     chunks = []
+    # part_no restarts at 0 for every SECTION, but several sections can begin on
+    # the same page, so "ch02-p023-0" was issued three times. Everything
+    # downstream keys chunks by id, which silently dropped 74 of 248 Class 5
+    # chunks — 30% of the corpus was invisible to retrieval, and every metric
+    # computed over "174 in-syllabus chunks" was computed over a truncated book.
+    # The suffix is now a running sequence per (chapter, first page).
+    seq: dict[tuple[int, int], int] = {}
     for chapter in sorted(by_chapter):
         pages = by_chapter[chapter]
         title = pages[0]["chapter_title_hi"]
@@ -168,9 +175,11 @@ def main() -> int:
                     and m["stats"]["devanagari_tokens"] < FIGURE_PROSE_TOKENS
                 ]
 
+                key = (chapter, pgs[0])
+                n = seq[key] = seq.get(key, -1) + 1
                 chunks.append(
                     {
-                        "id": f"c5-maths-hi-ch{chapter:02d}-p{pgs[0]:03d}-{part_no}",
+                        "id": f"c5-maths-hi-ch{chapter:02d}-p{pgs[0]:03d}-{n}",
                         # --- metadata the §8.1 syllabus check depends on ---
                         "class": CLASS,
                         "subject": SUBJECT,
@@ -201,6 +210,18 @@ def main() -> int:
                         "chars": len(body),
                     }
                 )
+
+    # Fail loudly rather than let a downstream dict silently swallow a collision.
+    ids = [c["id"] for c in chunks]
+    if len(ids) != len(set(ids)):
+        import collections
+        dupes = {i: n for i, n in collections.Counter(ids).items() if n > 1}
+        raise SystemExit(
+            f"chunk id collision: {len(ids)} chunks, {len(set(ids))} distinct ids.\n"
+            f"  {dupes}\n"
+            f"  Every consumer keys chunks by id, so a collision drops chunks "
+            f"without any error."
+        )
 
     OUT.write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding="utf-8")
 

@@ -26,17 +26,17 @@
         "chars_extracted": 1765
       },
       "183": {
-        "cer": 0.012059369202226345,
+        "cer": 0.00927643784786642,
         "numeric_recall": 1.0,
         "numbers_total": 1,
         "fraction_recall": null,
         "fractions_total": 0,
-        "chars_extracted": 1345
+        "chars_extracted": 1348
       }
     },
-    "mean_cer": 0.0065270542028613675,
+    "mean_cer": 0.005831321364271386,
     "numeric_recall": 1.0,
     "fraction_recall": 1.0,
-    "sec_per_page": 0.4897053837776184
+    "sec_per_page": 0.5062580108642578
   }
 }

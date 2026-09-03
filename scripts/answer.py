@@ -398,11 +398,29 @@ def _embed(texts: list[str]) -> np.ndarray:
 
 
 def load_chunks() -> dict[str, dict]:
+    """Chunks keyed by id, Class 5 first then the decoy corpus.
+
+    The keying is asserted, not assumed. chunk.py once issued the same id to
+    every chunk that began on a given page, and this dict comprehension dropped
+    74 of 248 Class 5 chunks with no error at all — 30% of the book was invisible
+    to retrieval, and every figure measured against "174 in-syllabus chunks" was
+    measured against a truncated corpus.
+    """
     main = json.loads(CHUNKS.read_text(encoding="utf-8"))
     for c in main:
         c["in_syllabus"] = True
     decoys = json.loads(DECOYS.read_text(encoding="utf-8")) if DECOYS.exists() else []
-    return {c["id"]: c for c in main + decoys}
+    rows = main + decoys
+    by_id = {c["id"]: c for c in rows}
+    if len(by_id) != len(rows):
+        import collections
+        dupes = {i: n for i, n in
+                 collections.Counter(c["id"] for c in rows).items() if n > 1}
+        raise RuntimeError(
+            f"chunk id collision: {len(rows)} rows -> {len(by_id)} keys. "
+            f"{len(rows) - len(by_id)} chunks would be silently dropped. {dupes}"
+        )
+    return by_id
 
 
 _lex: LexicalIndex | None = None
@@ -491,7 +509,17 @@ def gate(question: str, hits: list[tuple[dict, float]], corpora: dict) -> dict:
     if top.get("needs_review"):
         return {"refuse": True, "reason": "chunk_below_extraction_gate",
                 "layer": "chunk_flag", "score": score}
-    if is_value_seeking(question) and top.get("has_chart_axis"):
+    # This refusal exists because the answer sits in a chart the extractor cannot
+    # read. It used to test only the TOP chunk, so a 0.001 ranking difference
+    # decided it: "1 किलोग्राम में कितने ग्राम होते हैं?" was refused because a
+    # chart chunk scored 0.983 against 0.982 for the passage literally titled
+    # "विभिन्न इकाइयाँ परंतु एक ही माप", which was sitting in the context anyway.
+    # Refuse only when EVERY passage the generator receives is chart-derived —
+    # otherwise let it answer from the prose, with the generator's own decline
+    # marker as the backstop if it cannot.
+    ctx = corpora.get("class5_context") or []
+    if (is_value_seeking(question) and top.get("has_chart_axis")
+            and all(c.get("has_chart_axis") for _s, c in ctx)):
         return {"refuse": True, "reason": "answer_is_in_a_chart",
                 "layer": "chart_axis", "score": score}
     if score < SIM_FLOOR:

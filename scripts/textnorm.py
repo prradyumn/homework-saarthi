@@ -43,12 +43,23 @@ _DROPPED = re.compile(r"्[ा-ौ]")
 
 
 _REPAIR_FILE = pathlib.Path(__file__).resolve().parent.parent / "data" / "conjunct_repairs.json"
+# The doubled-consonant class, which the conservative rules below deliberately
+# leave alone in body prose: a consonant emitted twice with no intervening halant
+# and ANOTHER consonant following (ययह, सहाययता, प्रययत्न). Collapsing those with a
+# regex would corrupt real words like ममता, so the safe form is a word-level map
+# that can only touch tokens listed in it. 299 occurrences across 32% of
+# in-syllabus chunks were going to the generator uncorrected.
+_DOUBLED_FILE = (pathlib.Path(__file__).resolve().parent.parent
+                 / "data" / "doubled_consonant_repairs.json")
 
 
-def _load_repairs() -> tuple[dict[str, str], re.Pattern | None]:
-    if not _REPAIR_FILE.exists():
+def _load_table(path: pathlib.Path,
+                key: str = "repairs") -> tuple[dict[str, str], re.Pattern | None]:
+    if not path.exists():
         return {}, None
-    table = json.loads(_REPAIR_FILE.read_text(encoding="utf-8"))["repairs"]
+    table = json.loads(path.read_text(encoding="utf-8")).get(key) or {}
+    if not table:
+        return {}, None
     # Longest first, so क्ाओं is repaired before क्ा can match its prefix.
     keys = sorted(table, key=len, reverse=True)
     rx = re.compile(
@@ -57,7 +68,36 @@ def _load_repairs() -> tuple[dict[str, str], re.Pattern | None]:
     return table, rx
 
 
-REPAIRS, _REPAIR_RX = _load_repairs()
+REPAIRS, _REPAIR_RX = _load_table(_REPAIR_FILE)
+DOUBLED, _DOUBLED_RX = _load_table(_DOUBLED_FILE)
+RESTORES, _RESTORE_RX = _load_table(_DOUBLED_FILE, key="restores")
+
+
+def repair_doubled(text: str) -> str:
+    """Collapse the hand-audited doubled-consonant tokens.
+
+    Whole tokens only, guarded on both sides against Devanagari, so a repair can
+    never fire inside a longer word that merely contains one of these as a
+    substring — the collision that cost this project three separate bugs
+    (विभिन्न/भिन्न, टैनग्राम/ग्राम, भारत/भार).
+    """
+    if not _DOUBLED_RX:
+        return text
+    return _DOUBLED_RX.sub(lambda m: DOUBLED[m.group(1)], text)
+
+
+def restore_overcollapsed(text: str) -> str:
+    """Undo the conservative rules where they break a real word.
+
+    _DUP_AFTER_HALANT collapses अध्ययन to अध्यन on the claim that a consonant
+    doubled after a halant is always an artifact. It usually is, but not when the
+    first of the pair belongs to the conjunct and the second starts a new
+    syllable. Narrowed by exact match, so the rule the CER measurement was tuned
+    against is left intact.
+    """
+    if not _RESTORE_RX:
+        return text
+    return _RESTORE_RX.sub(lambda m: RESTORES[m.group(1)], text)
 
 
 def repair_conjuncts(text: str) -> str:
@@ -82,6 +122,8 @@ def normalize(text: str, drop_zero_width: bool = True, repair: bool = True) -> s
     text = _DUP_CONS_FINAL.sub(r"\1", text)
     if repair:
         text = repair_conjuncts(text)
+        text = repair_doubled(text)
+        text = restore_overcollapsed(text)
     return re.sub(r"\s+", " ", text).strip()
 
 

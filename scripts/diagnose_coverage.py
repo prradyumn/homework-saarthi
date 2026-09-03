@@ -53,6 +53,40 @@ V6 = ROOT / "eval" / "generation_groq_v6_final.json"
 OUT = ROOT / "eval" / "coverage_diagnosis.json"
 
 
+# Needles authored by reading the chapter, one set per failing question: text
+# that a passage MUST contain to be capable of answering it. This is the weak
+# link in the measurement — it is my reading of the book, not ground truth — so
+# it is written down here to be argued with rather than buried in a number.
+# It predicts only whether answer-bearing text reaches the generator, never
+# whether the generator then writes a conforming answer.
+NEEDLES = {
+    "rs-in-017": ["समकोण", "एक-चौथाई"],          # what is a right angle (ch3)
+    "rs-in-023": ["व्यवकलन", "घटा"],              # subtracting large numbers (ch4)
+    "rs-in-024": ["हासिल", "योग"],                # carrying in addition (ch4)
+    "rs-in-037": ["शून्य", "गुणा"],               # multiplying by 10 and 100 (ch6)
+    "rs-in-045": ["पंचभुज", "टाइल"],              # why regular pentagons don't tile (ch7)
+    "rs-in-053": ["धारिता", "लीटर"],              # measuring capacity (ch8)
+    "rs-in-072": ["क्षेत्रफल", "टाइल"],           # arranging shapes in a quilt (ch11)
+    "rs-in-084": ["गुणज", "छलाँग"],               # multiples in the animal-jumps ch (ch13)
+}
+
+
+def needle_depth(label: str, ranked) -> tuple[int | None, int | None]:
+    """Rank at which a chunk containing any / all needles first appears."""
+    needles = NEEDLES.get(label)
+    if not needles:
+        return None, None
+    any_at = all_at = None
+    for rank, (_sc, c) in enumerate(ranked, 1):
+        text = c.get("text_hi") or ""
+        hits = [n for n in needles if n in text]
+        if hits and any_at is None:
+            any_at = rank
+        if len(hits) == len(needles) and all_at is None:
+            all_at = rank
+    return any_at, all_at
+
+
 def failing_ids() -> list[str]:
     """The questions v6 refused for a coverage or chart reason."""
     rows = json.loads(V6.read_text(encoding="utf-8"))["rows"]
@@ -123,6 +157,14 @@ def report(question: str, expected_chapter, label: str = "") -> dict:
                      "figure_dependent": bool(c.get("figure_dependent")),
                      "has_chart_axis": bool(c.get("has_chart_axis"))})
 
+    any_at, all_at = needle_depth(label, corpora["class5_ranked"])
+    if any_at is not None:
+        need = all_at or any_at
+        verdict_depth = ("already in context" if need <= CONTEXT_CHUNKS
+                         else f"needs CONTEXT_CHUNKS >= {need}")
+        print(f"  -> answer-bearing text: any needle @#{any_at}, "
+              f"all needles @{('#' + str(all_at)) if all_at else 'never'}"
+              f"   ({verdict_depth})")
     lost_any = sorted({t for r in rows if r["in_context"]
                        for t in r["terms_lost_to_truncation"]})
     ctx_from_expected = sum(
@@ -143,6 +185,7 @@ def report(question: str, expected_chapter, label: str = "") -> dict:
             "context_from_expected": ctx_from_expected,
             "truncated": sum(1 for r in rows if r["truncated_in_context"]),
             "terms_lost_to_truncation": lost_any,
+            "needle_any_rank": any_at, "needle_all_rank": all_at,
             "verdict": verdict, "ranked": rows}
 
 
@@ -170,6 +213,7 @@ def main() -> int:
     missing = [o for o in out if o["first_expected_rank"] is None]
     trunc = [o for o in out if o["truncated"]]
     lost = [o for o in out if o["terms_lost_to_truncation"]]
+    graded = [o for o in out if o["needle_any_rank"]]
     print(f"\n{'=' * 78}\nSUMMARY over {len(out)} question(s)")
     print(f"  expected chapter never retrieved   {len(missing)}")
     print(f"  H1 covering chunk ranked out       {len(h1)}"
@@ -178,6 +222,16 @@ def main() -> int:
     print(f"  H2 CONFIRMED: a query term fell past the window   {len(lost)}")
     for o in lost:
         print(f"       {o['label']}: {' '.join(o['terms_lost_to_truncation'])}")
+    if graded:
+        print(f"\n  Predicted gain from depth alone (needles, no LLM):")
+        for k in (3, 4, 5, 6, 8):
+            got = sum(1 for o in graded
+                      if (o["needle_all_rank"] or o["needle_any_rank"]) <= k)
+            print(f"    CONTEXT_CHUNKS={k}:  {got}/{len(graded)} failures would "
+                  f"receive answer-bearing text")
+        print("  This bounds what depth CAN fix. It does not promise conformance:\n"
+              "  receiving the passage and writing a conforming answer are different\n"
+              "  things, and only eval_generation.py measures the second.")
     deepest = max((o["first_expected_rank"] or 0) for o in out) if out else 0
     if deepest > CONTEXT_CHUNKS:
         print(f"\n  CONTEXT_CHUNKS would need to be {deepest} to include every "

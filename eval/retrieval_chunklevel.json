@@ -3,23 +3,23 @@
   "n": 30,
   "by_weight": {
     "lexical_0": {
-      "term_in_context": 0.8333333333333334,
-      "questions_whose_term_is_absent_from_corpus": 0
-    },
-    "lexical_0.2": {
       "term_in_context": 0.8666666666666667,
       "questions_whose_term_is_absent_from_corpus": 0
     },
-    "lexical_0.35": {
+    "lexical_0.2": {
       "term_in_context": 0.9,
+      "questions_whose_term_is_absent_from_corpus": 0
+    },
+    "lexical_0.35": {
+      "term_in_context": 0.9333333333333333,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.5": {
-      "term_in_context": 0.9,
+      "term_in_context": 0.9333333333333333,
       "questions_whose_term_is_absent_from_corpus": 0
     },
     "lexical_0.8": {
-      "term_in_context": 0.9,
+      "term_in_context": 0.9666666666666667,
       "questions_whose_term_is_absent_from_corpus": 0
     }
   },
@@ -109,8 +109,8 @@
       "term_in_corpus": true,
       "top_chapters": [
         6,
-        5,
-        2
+        6,
+        6
       ]
     },
     {
@@ -118,7 +118,7 @@
       "question_hi": "सम पंचभुज से टाइल क्यों नहीं बन पाती?",
       "key_terms": [
         "पाती",
-        "पंचभुज"
+        "टाइल"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
@@ -172,7 +172,7 @@
       "term_in_corpus": true,
       "top_chapters": [
         10,
-        4,
+        10,
         10
       ]
     },
@@ -180,15 +180,15 @@
       "id": "rs-in-072",
       "question_hi": "रजाई के डिजाइन में आकृतियाँ कैसे जमाते हैं?",
       "key_terms": [
-        "रजाई",
-        "जमाते"
+        "जमाते",
+        "रजाई"
       ],
-      "term_in_context": false,
+      "term_in_context": true,
       "term_in_corpus": true,
       "top_chapters": [
         11,
         11,
-        11
+        10
       ]
     },
     {
@@ -315,14 +315,14 @@
       "id": "rs-in-031",
       "question_hi": "मीटर और सेंटीमीटर में क्या संबंध है?",
       "key_terms": [
-        "संबंध",
-        "मीटर"
+        "मीटर",
+        "संबंध"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
       "top_chapters": [
-        7,
         5,
+        7,
         5
       ]
     },
@@ -368,7 +368,7 @@
       "top_chapters": [
         8,
         8,
-        7
+        8
       ]
     },
     {
@@ -408,7 +408,7 @@
       "question_hi": "चौकोर टुकड़ों से डिजाइन कैसे बनाएँ?",
       "key_terms": [
         "बनाएँ",
-        "डिजाइन"
+        "चौकोर"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
@@ -423,7 +423,7 @@
       "question_hi": "घंटों को मिनटों में कैसे बदलें?",
       "key_terms": [
         "बदलें",
-        "मिनटों"
+        "घंटों"
       ],
       "term_in_context": true,
       "term_in_corpus": true,
@@ -444,8 +444,8 @@
       "term_in_corpus": true,
       "top_chapters": [
         5,
-        13,
-        5
+        5,
+        13
       ]
     },
     {

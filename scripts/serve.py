@@ -59,6 +59,14 @@ MAX_TURNS = 3
 
 WEB_PAGE_WIDTH = 1000     # readable on a phone, and cheap on a metered connection
 WEB_PAGE_QUALITY = 78
+# §3.1: this parent's data is metered and intermittent, so the page image needs a
+# GUARANTEED ceiling, not a typical size. A single quality setting gives neither:
+# the same encoder produced 89 KB for p105 and 147 KB for p111, because weight
+# follows how much is drawn on the page. Step quality down, then width, until the
+# encoded bytes actually fit.
+WEB_PAGE_MAX_BYTES = 130 * 1024
+_QUALITY_STEPS = (78, 68, 58, 48)
+_WIDTH_STEPS = (1000, 850)
 _page_cache: dict[int, bytes] = {}
 
 
@@ -75,14 +83,26 @@ def _page_for_web(path: pathlib.Path, n: int) -> tuple[bytes, str]:
 
         from PIL import Image
 
-        img = Image.open(path).convert("RGB")
-        if img.width > WEB_PAGE_WIDTH:
-            h = round(img.height * WEB_PAGE_WIDTH / img.width)
-            img = img.resize((WEB_PAGE_WIDTH, h), Image.LANCZOS)
-        buf = io.BytesIO()
-        img.save(buf, "JPEG", quality=WEB_PAGE_QUALITY, optimize=True, progressive=True)
-        _page_cache[n] = buf.getvalue()
-        return _page_cache[n], "image/jpeg"
+        original = Image.open(path).convert("RGB")
+        best = None
+        for width in _WIDTH_STEPS:
+            img = original
+            if img.width > width:
+                h = round(img.height * width / img.width)
+                img = img.resize((width, h), Image.LANCZOS)
+            for quality in _QUALITY_STEPS:
+                buf = io.BytesIO()
+                img.save(buf, "JPEG", quality=quality, optimize=True,
+                         progressive=True)
+                data = buf.getvalue()
+                if best is None or len(data) < len(best):
+                    best = data
+                if len(data) <= WEB_PAGE_MAX_BYTES:
+                    _page_cache[n] = data
+                    return data, "image/jpeg"
+        # Nothing fit; serve the smallest we produced rather than the 300dpi PNG.
+        _page_cache[n] = best
+        return best, "image/jpeg"
     except Exception:  # noqa: BLE001
         return path.read_bytes(), "image/png"
 
