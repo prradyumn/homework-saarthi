@@ -1337,3 +1337,95 @@ thresholds get measured rather than guessed. Recorded here so it is a known issu
 rather than a surprise.
 
 **Suite now 37 assertions, all passing.**
+
+---
+
+## D13 — The free tier allows 90 answers a day, and that reframes everything
+
+**The binding constraint on this project is not money, it is 200,000 tokens per
+day.** A measured answer costs ~2,212 of them, so the whole system gets **about
+90 answers a day**, and a 30-question conformance run spends a third of that.
+
+I found this the hard way. `eval_generation.py --n 30` aborted at question 1 of 30
+with 197,907 of 200,000 already spent. My first reaction — recorded here because
+it was wrong — was that the Playwright suite was eating the budget. Priced
+properly it was **~17%**: ~3 answers per run at ~2,212 tokens, five runs, ~33k.
+The larger shares were the v6 conformance run itself (~57k, which is the
+legitimate use) and ~22k of manual `curl` checks.
+
+Fixed anyway, because 17% of a scarce resource for zero information is still
+waste: a `stub` backend fakes **only** the network call, while retrieval, the
+whole gate and the contract validator still run for real. `test_ui.py` now reads
+`/api/status` and refuses to run against a metered backend without `--live`.
+Verified against a fake status endpoint, since testing that guard the obvious way
+would risk the exact spend it exists to prevent.
+
+### Where the conformance loss actually is
+
+v6: 23 questions, **1** contract failure, **9** gate refusals — six of them
+`passage_does_not_cover_question`. Generation is not the bottleneck. And in five
+of those six the cited chapter was the *expected* chapter, so retrieval finds the
+right chapter and the wrong concept-unit inside it.
+
+Two hypotheses, both testable with no LLM call at all
+(`scripts/diagnose_coverage.py`):
+
+| | hypothesis | verdict |
+|---|---|---|
+| H1 | the covering chunk exists but ranks below `CONTEXT_CHUNKS`=3 | **live** |
+| H2 | the chunk is in context but `CONTEXT_CHARS`=900 truncates the answer away | **disconfirmed where tested** |
+
+**H2 looked strong and is wrong.** The structural case for it is real — 49% of
+in-syllabus chunks exceed 900 chars, median 1340, and the cap withholds 20% of all
+in-syllabus prose. But structure is not evidence. Searching ch11 for the actual
+answer content put every area and perimeter formula between chars 13 and 830 —
+**all inside the window**. Truncation hides nothing there.
+
+My first attempt to test H2 was itself broken and worth recording: it looked for
+the *question's* terms past the cap and found only `है?` and `हैं?` — stopwords
+whose question marks my tokenizer had not stripped. Fixed, it reported 0 of 8. But
+it is a weak instrument either way: query terms cluster in a chunk's opening
+sentence, which is *why* it was retrieved. What the parent needs is the
+explanation that follows. Only searching for answer content settles it.
+
+**H1 survives.** For `rs-in-072` the formula-bearing ch11 chunks ranked **#4 and
+#9** while only the top 3 reach the generator.
+
+### A signal that isn't one
+
+Chasing whether the book is mostly exercises: **37% of in-syllabus chunks carry an
+activity header** (आइए करके देखें and kin), 63% are expository. So no. But ch11
+reads 9 activity / 0 expository — and ch11 is one of the failures, which looked
+like a clean content-gap explanation.
+
+It isn't. The area formula `क्षेत्रफल = 6 से.मी. × 4 से.मी. = 24 वर्ग से.मी.` sits
+under the activity header `आइए करके े देखें`. **The section header does not tell
+you what kind of content a chunk holds** — the same lesson as D2, where font size
+carried no signal about section structure. Do not filter or re-weight on it.
+
+### Both knobs priced before either is spent
+
+Calibrated locally at 2.13 chars/token, derived from Groq's own usage block rather
+than from a general claim about Devanagari — it reproduces the measured 2,080
+prompt tokens.
+
+| change | tokens/answer | answers/day | cost |
+|---|---|---|---|
+| baseline (3 chunks, 900 chars) | 2,212 | 90 | — |
+| 900 → 1550 chars | 2,660 | 75 | −17% |
+| 3 → 5 chunks | 2,901 | 68 | −24% |
+| 3 → 6 chunks | 3,241 | 61 | −32% |
+
+Both are affordable. Neither is known to buy anything, and that stays true until
+measured. Queued for a fresh budget, **depth first** because that is where the
+evidence points:
+
+```
+SAATHI_CONTEXT_CHUNKS=5 python scripts/eval_generation.py groq --n 30 --tag k5
+SAATHI_CONTEXT_CHARS=1550 python scripts/eval_generation.py groq --n 30 --tag w1550
+```
+
+Compared against v6's 56.5%. If neither moves, the ceiling is the textbook rather
+than the window, and the honest response is to audit the question set: a question
+about a topic the book teaches only as an activity has no passage that states it,
+and counting it as a conformance failure measures the question, not the system.

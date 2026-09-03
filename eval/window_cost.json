@@ -37,5 +37,39 @@
       "tokens_per_30q_run": 79812,
       "runs_per_day": 2.5
     }
+  ],
+  "depths": [
+    {
+      "context_chunks": 3,
+      "prompt_chars": 4433,
+      "tokens_per_answer": 2212,
+      "answers_per_day": 90,
+      "tokens_per_30q_run": 66375,
+      "runs_per_day": 3.0
+    },
+    {
+      "context_chunks": 4,
+      "prompt_chars": 5193,
+      "tokens_per_answer": 2569,
+      "answers_per_day": 77,
+      "tokens_per_30q_run": 77069,
+      "runs_per_day": 2.6
+    },
+    {
+      "context_chunks": 5,
+      "prompt_chars": 5900,
+      "tokens_per_answer": 2901,
+      "answers_per_day": 68,
+      "tokens_per_30q_run": 87021,
+      "runs_per_day": 2.3
+    },
+    {
+      "context_chunks": 6,
+      "prompt_chars": 6625,
+      "tokens_per_answer": 3241,
+      "answers_per_day": 61,
+      "tokens_per_30q_run": 97227,
+      "runs_per_day": 2.1
+    }
   ]
 }
