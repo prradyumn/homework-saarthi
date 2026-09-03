@@ -46,7 +46,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 WEB = ROOT / "web"
 PAGES = ROOT / "ingest" / "pages"
 
-_state = {"backend": "groq", "ready": False, "error": None}
+_state = {"backend": "groq", "ready": False, "error": None,
+          "vision": {"ok": False, "reason": "not checked"}}
 _lock = threading.Lock()
 
 # Session memory, keyed by a browser-generated id. FR-9 keeps the last few turns;
@@ -107,6 +108,20 @@ def _page_for_web(path: pathlib.Path, n: int) -> tuple[bytes, str]:
         return path.read_bytes(), "image/png"
 
 
+def check_vision() -> None:
+    """Whether textbook figures can be read, so the interface can say so."""
+    try:
+        import vision
+
+        _state["vision"] = vision.available()
+        v = _state["vision"]
+        print("  figures: " + (f"readable via {v.get('model')}" if v["ok"]
+                               else "not connected (chart questions refused)"),
+              flush=True)
+    except Exception as exc:  # noqa: BLE001
+        _state["vision"] = {"ok": False, "reason": str(exc)[:200]}
+
+
 def check_voice() -> None:
     try:
         import bhashini
@@ -163,7 +178,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/api/status":
             return self._json(200, {"ready": _state["ready"], "error": _state["error"],
                                     "backend": _state["backend"],
-                                    "voice": _state.get("voice", {"ok": False})})
+                                    "voice": _state.get("voice", {"ok": False}),
+                                    "vision": _state.get("vision", {"ok": False})})
 
         # FR-10: the textbook page image, by printed page number.
         #
@@ -357,6 +373,7 @@ def main() -> int:
 
     threading.Thread(target=warm, daemon=True).start()
     threading.Thread(target=check_voice, daemon=True).start()
+    threading.Thread(target=check_vision, daemon=True).start()
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"\n  Homework Saathi — http://{args.host}:{args.port}")
     print(f"  backend: {args.backend}   (loading models in the background…)\n")

@@ -532,12 +532,52 @@ def gate(question: str, hits: list[tuple[dict, float]], corpora: dict) -> dict:
     return {"refuse": False, "score": score}
 
 
+# The only refusals a figure reading may overturn. Deliberately not the
+# out-of-syllabus or extraction-quality ones: a picture cannot make a question
+# in-syllabus, and a chunk that failed the extraction gate is a text problem.
+FIGURE_RESCUE_REASONS = ("answer_is_in_a_chart", "figure_value_lookup")
+
+
+def _try_figure_rescue(question: str, top: dict) -> dict | None:
+    """Read the cited page's figures. None on any failure — never raises.
+
+    A missing key, a network blip or a rate limit must leave the refusal exactly
+    as it was, because the refusal is the safe outcome. Nothing here is allowed
+    to turn an outage into a wrong answer.
+    """
+    page = top.get("page")
+    if not page:
+        return None
+    try:
+        import vision
+
+        return vision.read_figure(int(page), question)
+    except Exception as exc:  # noqa: BLE001 — any failure keeps the refusal
+        return {"text": None, "error": str(exc)[:160], "page": page}
+
+
 def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
     t0 = time.time()
     hits, corpora = retrieve(question)
     decision = gate(question, hits, corpora)
     top = corpora["best_class5_chunk"] or hits[0][0]
     score = corpora["best_class5"]
+
+    # Two of the gate's refusals exist only because the text extractor cannot read
+    # pictures: the value asked for is plotted or drawn rather than written. The
+    # page is already rendered at 300 dpi, so a vision model can read it, and the
+    # refusal becomes recoverable coverage rather than a dead end.
+    #
+    # This is a rescue, not a bypass. It runs for exactly those two reasons; the
+    # transcription is appended to the retrieved passage as more context, so the
+    # answer contract, the groundedness check and the four-part validator all
+    # still apply; and if the page holds nothing relevant the refusal stands.
+    figure_reading = None
+    if decision["refuse"] and decision["reason"] in FIGURE_RESCUE_REASONS:
+        figure_reading = _try_figure_rescue(question, top)
+        if figure_reading and figure_reading.get("text"):
+            decision = {"refuse": False, "score": score,
+                        "rescued_by": "figure_reading"}
 
     if decision["refuse"]:
         # §8.1 says a refusal ships "the textbook page image for the relevant
@@ -575,6 +615,15 @@ def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
         f"{c['text_hi'][:CONTEXT_CHARS]}"
         for _sc, c in passages
     )
+    # A figure reading joins the context as another passage, labelled as coming
+    # from the page's picture. It goes through the same groundedness check as the
+    # prose, which is the point: the numbers in it were read off the page, so an
+    # answer may use them, and anything the model invents on top still fails.
+    if figure_reading and figure_reading.get("text"):
+        context += (
+            f"\n\n---\n\n[अध्याय {top['chapter']}, पेज {top['page']} — "
+            f"चित्र/तालिका में जो छपा है]\n{figure_reading['text'][:CONTEXT_CHARS]}"
+        )
     user = USER_TEMPLATE.format(
         title=top["chapter_title_hi"], context=context, question=question,
     )
@@ -637,6 +686,15 @@ def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
             for sc, c in passages
         ],
         "page_image": f"ingest/pages/p{top['page']:03d}.png",
+        # Provenance: an answer that only exists because a picture was read must
+        # say so, in the payload and in the HOW IT WORKS panel. It is a different
+        # kind of evidence from the book's prose and a reviewer should see which.
+        "figure_reading": ({"page": figure_reading["page"],
+                            "seconds": figure_reading.get("seconds"),
+                            "tokens": figure_reading.get("tokens"),
+                            "model": figure_reading.get("model"),
+                            "text": figure_reading["text"]}
+                           if figure_reading and figure_reading.get("text") else None),
         "score": round(score, 4),
         "stats": result["stats"],
         "rate_limits": limits,

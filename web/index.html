@@ -518,6 +518,9 @@ function devPanel(d) {
     (d.context_chunks || []).length
       ? `context     ${d.context_chunks.map(x => `ch${x.chapter} p${x.page} @${x.score}`).join('  ')}` : null,
     d.stats ? `contract    ${d.stats.words} words · q${JSON.stringify(d.stats.question_numbers)} → ex${JSON.stringify(d.stats.example_numbers)}` : null,
+    d.figure_reading
+      ? `figure      READ p${d.figure_reading.page} via ${d.figure_reading.model} `
+        + `(${d.figure_reading.seconds}s) — chart/diagram, not prose` : null,
     d.retried ? 'retry       contract failed once, regenerated' : null,
     d.elapsed != null ? `latency     ${d.elapsed}s   guardrail 20s p95` : null,
     `voice       ${voiceProvider}`,

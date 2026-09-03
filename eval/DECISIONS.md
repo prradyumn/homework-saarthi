@@ -1528,3 +1528,138 @@ encoder now steps quality then width until the bytes fit a **130 KB** budget.
 Worst of seven cited pages: 126 KB.
 
 **Suite: 37 assertions, all passing. Contract selftest 7/7.**
+
+---
+
+## D15 — English in, Hindi out; and a vision model reads the pictures
+
+Two features, one reversal, and a data-governance decision that needs stating
+plainly rather than buried.
+
+### The Gemini reversal
+
+D10 rejected Gemini on §14 (the free tier trains on submitted data) and §8.4
+(sovereignty), and that reasoning was sound for what it covered. The user has
+supplied a key and overridden it. Recorded as their call, with the boundary
+drawn where it actually matters rather than nowhere:
+
+- **What is sent:** a page of the published NCERT textbook, plus the question.
+- **What is not:** a photograph of the child's homework, or the parent's voice.
+
+§14's objection is serious for a child's work and close to meaningless for a page
+of a public textbook Google has already crawled. Accepting a parent's photograph
+of their child's book is a *different* decision and must be taken deliberately,
+not arrived at by extension. Flagged in HANDOFF as a pilot blocker.
+
+One correction while here: `web/index.html` claimed the browser fallback avoided
+this concern. **It never did.** Chrome implements the Web Speech API by shipping
+the audio to Google's servers, so the parent's voice has been going there all
+along. Bhashini remains the answer for a pilot; the browser path is a development
+convenience and now says so.
+
+### English input: the gate was Devanagari-blind
+
+```python
+def _tokens(q):
+    return re.findall(r"[ऀ-ॿ]+", q)      # every English question -> 0 tokens
+```
+
+Zero tokens fell under `MIN_TOKENS`, so **every** English question was refused as
+`too_short` — "how many grams in one kilogram?" included. Now tokenises both
+scripts, with `TOPIC_WORDS_EN` and `BEYOND_CLASS5_WORDS_EN` carrying the same
+Class 5 and higher-class vocabulary, plus the unit abbreviations people actually
+type mid-Hindi ("10 m में कितने cm").
+
+**Output stays Hindi** whatever the question language. The child is in a
+Hindi-medium government school and part 4 is a sentence said *aloud to that
+child*. The system prompt already required Devanagari, so nothing changed there —
+verified end to end: English in, four-part Hindi answer out, cited to ch8 p105.
+
+**Retrieval needed help the dense half did not.** BGE-M3 finds the right chapter
+from English unaided (5/5 by hand). But the hybrid's IDF term-overlap half shares
+no tokens with a Hindi corpus, so English scored **0.42–0.59** against
+**0.87–0.98** for the same question in Hindi — headroom that matters against an
+0.08 decoy margin. `ENGLISH_TO_BOOK` maps English terms to the book's Hindi, and
+English now scores **0.65–0.98**, 6/6 on the right chapter, none wrongly refused.
+
+**Two open bugs closed on the way:**
+
+- The Latin-script rule refused *any* Latin beside Devanagari as ASR garble,
+  which blocks code-mixing ("1 kg में कितने ग्राम?" is perfectly clear) and
+  mislabelled typed algebra. Narrowed to the real signature — a short Latin
+  fragment **fused** to Devanagari with no space ("नापt"). FR-2's confirmation
+  turn was always the proper defence against a mis-heard question; this rule was
+  a second guess at the same problem.
+- `x2+5x+6 का हल क्या है?` carries no beyond-Class-5 keyword, so word lists could
+  not see it. `_ALGEBRA_NOTATION` catches a lone variable letter fused to a digit,
+  restricted to `[xyzn]` so "10 m", "2 cm", "5 kg" and "5 x 3" are untouched. The
+  beyond-Class-5 check also became decisive rather than a fallback, since "square
+  root" contains "square" and was passing.
+
+Dropped "mean", "mode" and "power of" from the English beyond-list — they are
+ordinary words, and "what does this sum mean?" is a Class 5 question.
+
+Voice: the Web Speech API takes one language per pass and cannot detect it, so
+the spoken language is an explicit hi/en choice remembered in `localStorage`,
+with a note that the answer returns in Hindi.
+
+**Refusal curve unchanged through every one of these gate changes: 87% coverage,
+1.1% wrong.**
+
+### Vision: image generation was tested and rejected
+
+Asked for "image solutions", both readings were tested before either was built.
+
+**Generation: 1 of 4 diagrams correct.** A circle asked for 4 quarters with 3
+shaded came back with 2 shaded and labelled 3/4. A rectangle asked for 6 strips
+with 5 shaded came back with 8 strips and 7 shaded. A right angle came back as a
+**cross**, labelled **समकांन** — misspelled. The one that worked needed "exactly"
+three times in the prompt.
+
+That is disqualifying, and not because of the hit rate. This project spent weeks
+getting Devanagari right — 0.6% CER, two hand-audited repair maps — and generated
+images put misspelled Hindi back in where **no validator can reach it**. Text is
+checked against the retrieved passage; a rendered picture cannot be. A wrong
+diagram would reach a child through a parent who trusts it, which is the precise
+failure the 1.1% discipline exists to prevent. Not built.
+
+**Reading: shipped.** The gate has two refusals that exist *only* because the
+extractor cannot read pictures — `answer_is_in_a_chart` and
+`figure_value_lookup`. The page is already rendered at 300 dpi, so
+`scripts/vision.py` reads it and the refusal becomes recoverable coverage.
+
+It is a rescue, not a bypass:
+
+| guard | why |
+|---|---|
+| fires for those two reasons only | a picture cannot make a question in-syllabus, and a chunk that failed the extraction gate is a text problem |
+| the prompt transcribes, never computes | the value of a figure reading is that it is ink on the page |
+| output joins the context as another passage | the contract, groundedness check and four-part validator all still apply |
+| nothing relevant on the page → refusal stands | coverage is never invented |
+| any error at all → refusal stands | an outage must not become a wrong answer |
+
+`rs-in-084` — `जानवरों की छलाँग वाले अध्याय में गुणज क्या सिखाया है?`, one of the
+eight documented coverage failures — now answers, reading page 165 in 4.1s and
+producing a conforming four-part answer with a fresh example.
+
+**Two bugs found building it:**
+
+1. **Thinking tokens ate the output budget.** Gemini 2.5 counts reasoning against
+   `maxOutputTokens`, so a 2048 cap returned a transcription **truncated
+   mid-word**. `thinkingBudget: 0` — there is nothing to reason about when the
+   task is to read what is printed — took it from 11.9s/2,482 tokens to
+   3.0s/467 and made the output complete.
+
+2. **The decline sentinel was Devanagari, and the model misspelled it.** Asked to
+   write `अपर्याप्त` when a page holds nothing relevant, it wrote
+   **`अपरिप्याप्त`**. The check missed it, so an irrelevant page returned that
+   string *as figure content* — noise entering generation as evidence, the exact
+   fabrication risk this module exists to avoid. Now an ASCII `NONE` sentinel with
+   the observed misspelling kept as a fallback. Asking a model to reproduce a
+   Devanagari word exactly is a weak instrument; four ASCII letters are not.
+
+Provenance is carried in the payload and shown in HOW IT WORKS, because an answer
+that exists only because a picture was read is a different kind of evidence and a
+reviewer should see which.
+
+**Browser suite 37 → 43 assertions, all passing.**
