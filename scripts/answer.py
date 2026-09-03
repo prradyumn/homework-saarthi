@@ -346,6 +346,65 @@ def call_ollama(system: str, user: str, timeout: int = 300) -> tuple[str, dict]:
     return data.get("response", ""), {"backend": OLLAMA_MODEL}
 
 
+GEMINI_MODEL = os.environ.get("SAATHI_GEMINI_MODEL", "gemini-2.5-flash")
+
+
+def call_gemini(system: str, user: str, timeout: int = 90) -> tuple[str, dict]:
+    """Generate through Gemini, as a second free backend.
+
+    Groq's free tier is 200,000 tokens per DAY per organisation — about 90
+    answers — and a single 30-question conformance run costs a third of it. That
+    ceiling had blocked the §12.1 conformance measurement for two days running.
+    Gemini's free tier is metered per minute and per day in requests rather than
+    tokens, so the two together give the project real headroom.
+
+    Same contract as call_groq: (raw_text, limits). The system prompt goes in
+    `systemInstruction` rather than being prepended, so the four-part rules keep
+    the standing they have on the Groq path.
+
+    thinkingBudget 0, for the reason recorded in D15: Gemini 2.5 charges
+    reasoning tokens against maxOutputTokens, and with thinking on a generous cap
+    still returned answers truncated mid-sentence.
+    """
+    import vision  # reuses the .env loader and the header-file POST discipline
+
+    vision._load_env()
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY is not set — get one at aistudio.google.com")
+
+    out = vision._post({
+        "systemInstruction": {"parts": [{"text": system}]},
+        "contents": [{"parts": [{"text": user}]}],
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 900,
+                             "thinkingConfig": {"thinkingBudget": 0}},
+    }, key)
+
+    if "error" in out:
+        msg = str(out["error"].get("message", ""))[:300]
+        code = out["error"].get("code")
+        if code == 429 or "quota" in msg.lower() or "RESOURCE_EXHAUSTED" in msg:
+            raise RateLimitExhausted(f"gemini free-tier quota: {msg}")
+        raise RuntimeError(f"gemini error {code}: {msg}")
+    try:
+        parts = out["candidates"][0]["content"]["parts"]
+        raw = " ".join(p["text"] for p in parts if "text" in p).strip()
+    except (KeyError, IndexError, TypeError):
+        finish = (out.get("candidates") or [{}])[0].get("finishReason")
+        raise RuntimeError(
+            f"gemini returned no text (finishReason={finish}): {str(out)[:200]}"
+        ) from None
+
+    u = out.get("usageMetadata") or {}
+    limits = {
+        "provider": "gemini", "model": GEMINI_MODEL,
+        "usage_prompt_tokens": u.get("promptTokenCount"),
+        "usage_completion_tokens": u.get("candidatesTokenCount"),
+        "usage_total_tokens": u.get("totalTokenCount"),
+    }
+    return raw, limits
+
+
 def call_stub(system: str, user: str) -> tuple[str, dict]:
     """A four-part answer built from the retrieved passage, spending no tokens.
 
@@ -384,7 +443,8 @@ def call_stub(system: str, user: str) -> tuple[str, dict]:
     return raw, {"stub": True, "prompt_chars": len(system) + len(user)}
 
 
-BACKENDS = {"groq": call_groq, "ollama": call_ollama, "stub": call_stub}
+BACKENDS = {"groq": call_groq, "gemini": call_gemini,
+            "ollama": call_ollama, "stub": call_stub}
 
 
 # ------------------------------------------------------------------- retrieval

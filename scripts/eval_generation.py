@@ -64,14 +64,14 @@ def stratified_questions(n: int) -> list[dict]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("backend", nargs="?", default="groq", choices=["groq", "ollama"])
+    ap.add_argument("backend", nargs="?", default="groq", choices=["groq", "gemini", "ollama"])
     ap.add_argument("--n", type=int, default=30)
     ap.add_argument("--tag", default="", help="label this run in the output filename")
     args = ap.parse_args()
 
     questions = stratified_questions(args.n)
     pace = GROQ_PACE_SECONDS if args.backend == "groq" else 0.0
-    rows, t0 = [], time.time()
+    rows, errors, t0 = [], [], time.time()
 
     for i, q in enumerate(questions):
         if i and pace:
@@ -91,7 +91,11 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             print(f"  ERR  ch{q['expected_chapter']:>2}  {q['question_hi'][:40]:42} {exc}",
                   flush=True)
-            rows.append({**q, "answered": False, "error": str(exc)})
+            # An infrastructure failure is NOT evidence about the model, and
+            # folding it into the denominator produces a number that looks like a
+            # conformance score and is not one. A DNS outage mid-run once
+            # reported "27%" when 18 of 30 questions never reached the API.
+            errors.append({**q, "error": str(exc)})
             continue
 
         answered = out.get("answered", False)
@@ -120,6 +124,22 @@ def main() -> int:
               f"{q['question_hi'][:38]:40} {'' if answered else codes}{hit}", flush=True)
 
     n = len(rows)
+    if errors:
+        print(f"\n  {len(errors)} question(s) never reached the API "
+              f"(network/transport, not the model):")
+        for e in errors[:4]:
+            print(f"     ch{e['expected_chapter']:>2}  {e['error'][:88]}")
+        if len(errors) > 4:
+            print(f"     ... and {len(errors) - 4} more")
+        print("  These are EXCLUDED from conformance — they are not evidence "
+              "about generation.")
+    if not n:
+        print("\n  No question completed. There is no conformance figure to report.")
+        return 1
+    share = len(errors) / (len(errors) + n)
+    if share > 0.2:
+        print(f"\n  WARNING: {share:.0%} of attempts failed in transport. Treat the "
+              f"figures below\n  as provisional and rerun on a stable connection.")
     ok = sum(r["answered"] for r in rows)
     gated = sum(1 for r in rows if any(c.startswith("gate:") for c in r.get("failures", [])))
     ret = sum(1 for r in rows if r.get("retried"))
@@ -148,6 +168,8 @@ def main() -> int:
     out_path = ROOT / "eval" / name
     out_path.write_text(json.dumps({
         "backend": args.backend, "n": n, "conformance": ok / n,
+        "transport_errors": len(errors),
+        "transport_error_share": round(share, 4),
         "gate_refusals": gated, "contract_failures": n - ok - gated,
         "retries": ret, "chapter_precision": (right_ch / ok) if ok else None,
         "latency_median": secs[len(secs) // 2] if secs else None,
