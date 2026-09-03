@@ -221,7 +221,49 @@
 </div>
 
 <script>
-let VOICE = false;
+let VOICE = false;          // server-side voice (Bhashini) available
+let VOICE_MODE = 'none';    // 'bhashini' | 'browser' | 'none'
+
+/* The browser's own speech engines: no account, no key, no cost, works today.
+   Bhashini stays the production path (§8.4 makes it a sovereignty and
+   data-governance decision, not just a cost one) — this is the prototype
+   fallback so the demo is never blocked on a portal.
+
+   Deliberately NOT Gemini's free tier, which would also work: §14 names
+   "prompts used for provider model training" as a risk, and its free tier trains
+   on submitted data. This is a child's homework and a parent's voice. */
+const BrowserSpeech = {
+  Rec: window.SpeechRecognition || window.webkitSpeechRecognition,
+  canListen() { return !!this.Rec; },
+  canSpeak() { return 'speechSynthesis' in window; },
+  hindiVoice() {
+    const vs = window.speechSynthesis.getVoices();
+    return vs.find(v => v.lang === 'hi-IN')
+        || vs.find(v => (v.lang || '').startsWith('hi'))
+        || null;
+  },
+  listen(onResult, onError) {
+    const r = new this.Rec();
+    r.lang = 'hi-IN';
+    r.interimResults = false;
+    r.maxAlternatives = 1;
+    r.onresult = (e) => onResult(e.results[0][0].transcript);
+    r.onerror = (e) => onError(e.error);
+    r.start();
+    return r;
+  },
+  speak(text, onEnd) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const v = this.hindiVoice();
+    if (v) u.voice = v;
+    u.lang = 'hi-IN';
+    u.rate = 0.92;            // slightly slow: this is an explanation to repeat aloud
+    u.onend = onEnd;
+    window.speechSynthesis.speak(u);
+    return u;
+  },
+};
 const SESSION = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 24);
 const thread = document.getElementById('thread');
 const input = document.getElementById('input');
@@ -240,21 +282,34 @@ async function poll() {
     if (s.ready) {
       dot.className = 'dot ready';
       VOICE = !!(s.voice && s.voice.ok);
-      statusText.textContent = VOICE
-        ? 'तैयार — आवाज़ में पूछ सकते हैं (भाषिणी)'
-        : 'तैयार — किताब: NCERT गणित मेला, कक्षा 5';
+      const browserOK = BrowserSpeech.canListen() || BrowserSpeech.canSpeak();
+      VOICE_MODE = VOICE ? 'bhashini' : (browserOK ? 'browser' : 'none');
+
       const mic = document.getElementById('mic');
-      mic.disabled = !VOICE;
-      mic.title = VOICE ? 'बोलकर पूछिए' : 'आवाज़ की सुविधा भाषिणी जुड़ने पर';
-      document.getElementById('hint').textContent = VOICE
-        ? 'माइक दबाकर बोलिए — या नीचे लिख दीजिए'
-        : 'आवाज़ में पूछने की सुविधा भाषिणी (भारत सरकार) जुड़ने पर आएगी';
+      mic.disabled = (VOICE_MODE === 'none') ||
+                     (VOICE_MODE === 'browser' && !BrowserSpeech.canListen());
+      const label = {
+        bhashini: 'तैयार — आवाज़ में पूछ सकते हैं (भाषिणी, भारत सरकार)',
+        browser:  'तैयार — आवाज़ इस ब्राउज़र से (भाषिणी जुड़ने पर बदल जाएगी)',
+        none:     'तैयार — किताब: NCERT गणित मेला, कक्षा 5',
+      }[VOICE_MODE];
+      statusText.textContent = label;
+      mic.title = mic.disabled ? 'इस ब्राउज़र में आवाज़ नहीं चलेगी' : 'बोलकर पूछिए';
+      document.getElementById('hint').textContent = mic.disabled
+        ? 'नीचे लिखकर पूछिए'
+        : 'माइक दबाकर बोलिए — या नीचे लिख दीजिए';
       return;
     }
   } catch (e) { /* server not up yet */ }
   setTimeout(poll, 1200);
 }
 poll();
+if ('speechSynthesis' in window) {
+  // Chrome populates getVoices() asynchronously; without this the Hindi voice
+  // is missed on the first call and the answer is read in an English accent.
+  window.speechSynthesis.onvoiceschanged = () => BrowserSpeech.hindiVoice();
+  BrowserSpeech.hindiVoice();
+}
 
 function addParent(text) {
   thread.appendChild(el(`<div class="msg from-parent">${esc(text)}</div>`));
@@ -316,7 +371,7 @@ function renderAnswer(node, d) {
         <div class="cite">
           <span>किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
           <button data-page="${esc(c.page)}">पेज देखिए</button>
-          ${VOICE ? `<button class="listen" data-speak>🔊 सुनिए</button>` : ''}
+          ${VOICE_MODE !== 'none' ? `<button class="listen" data-speak>🔊 सुनिए</button>` : ''}
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
@@ -520,13 +575,67 @@ async function stopRec() {
   }
 }
 
-document.getElementById('mic').onclick = () => { rec ? stopRec() : startRec(); };
+let browserRec = null;
+
+function startBrowserListen() {
+  const mic = document.getElementById('mic');
+  mic.classList.add('rec'); mic.textContent = '■';
+  const timer = el('<span class="rec-timer">सुन रहा हूँ… दबाकर रोकिए</span>');
+  document.querySelector('.composer-inner').appendChild(timer);
+  const cleanup = () => {
+    mic.classList.remove('rec'); mic.textContent = '🎤';
+    timer.remove(); browserRec = null;
+  };
+  try {
+    browserRec = BrowserSpeech.listen(
+      async (text) => {
+        cleanup();
+        if (!text || !text.trim()) {
+          document.getElementById('hint').textContent = 'कुछ सुनाई नहीं दिया — फिर बोलिए';
+          return;
+        }
+        busy = true;
+        document.getElementById('examples').style.display = 'none';
+        addParent('🎤 ' + text);
+        /* straight into FR-2 — a misheard number must be visible before it is used */
+        const ir = await fetch('/api/interpret', { method: 'POST',
+          headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question: text }) });
+        const id = await ir.json();
+        askConfirm(id.interpreted, id.clarify);
+      },
+      (err) => {
+        cleanup();
+        document.getElementById('hint').textContent = err === 'not-allowed'
+          ? 'माइक की अनुमति नहीं मिली — लिखकर पूछिए'
+          : 'आवाज़ समझ नहीं आई — फिर बोलिए या लिख दीजिए';
+      });
+  } catch (e) { cleanup(); }
+}
+
+function stopBrowserListen() { try { browserRec && browserRec.stop(); } catch (e) {} }
+
+document.getElementById('mic').onclick = () => {
+  if (VOICE_MODE === 'bhashini') { rec ? stopRec() : startRec(); return; }
+  if (VOICE_MODE === 'browser')  { browserRec ? stopBrowserListen() : startBrowserListen(); }
+};
 
 /* ---------------- FR-6: play the answer aloud ---------------- */
 let playing = null;
 async function speak(btn, text) {
-  if (playing) { playing.pause(); playing = null; }
   const was = btn.textContent;
+
+  /* Browser TTS: instant, offline, no key. Used until Bhashini is connected. */
+  if (VOICE_MODE === 'browser') {
+    if (!BrowserSpeech.canSpeak()) { btn.textContent = 'आवाज़ उपलब्ध नहीं'; return; }
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel(); btn.textContent = was; return;
+    }
+    btn.textContent = '⏸ रोकिए';
+    BrowserSpeech.speak(text, () => { btn.textContent = was; });
+    return;
+  }
+
+  if (playing) { playing.pause(); playing = null; }
   btn.textContent = '⏳ बन रहा है…';
   try {
     const r = await fetch('/api/speak', { method: 'POST', headers: {'Content-Type':'application/json'},

@@ -1079,3 +1079,59 @@ correctable one.
 
 Open question 1 in the PRD asks whether parents tolerate that extra turn. It is
 now a thing the pilot can actually measure rather than speculate about.
+
+---
+
+## D10 — Voice is provider-agnostic, and Gemini was rejected on §14 grounds
+
+**Decision: browser speech as the prototype fallback, Bhashini as the production
+path, Gemini rejected.** Voice works today with no account, and switches to
+Bhashini automatically the moment credentials appear — `/api/status` reports
+whether the server has them and the interface picks the provider.
+
+### Why not Gemini's free tier, which would have worked
+
+It genuinely would: Gemini handles audio input and has TTS models, on a free tier
+with no card. Two reasons it is the wrong default here.
+
+1. **§14 names this exact risk** — "Free-tier data governance — prompts used for
+   provider model training" — with the mitigation "prefer Groq or local for
+   anything containing user text". Google AI Studio's free tier trains on
+   submitted data. The submitted data here is a child's homework and a parent's
+   recorded voice.
+2. **It deletes the §8.4 argument.** The PRD's case for Bhashini is that it is "a
+   sovereignty and data-governance decision, not only a cost one" — that this is
+   the stack a real Indian edtech would evaluate. Replacing government language
+   infrastructure with a US frontier API because a portal was confusing removes
+   one of the strongest defensible positions in the project, and replaces a
+   reasoned choice with a convenience.
+
+"Bhashini is the production path, browser speech is the prototype fallback" is a
+defensible sentence. "We used Gemini because Bhashini's portal was confusing" is
+not.
+
+### The browser as a fallback, and its honest limits
+
+`SpeechRecognition` with `lang="hi-IN"` and `speechSynthesis` with a Hindi voice
+cost nothing, need no account, and work immediately. Limits, stated rather than
+discovered later: recognition is Chromium-only, Chrome's implementation sends
+audio to Google's servers (so it is a fallback, not a privacy improvement over
+Gemini — the improvement is that **Bhashini** is the default once connected), and
+`speechSynthesis` depends on a Hindi voice being installed locally.
+
+Two details that would otherwise bite:
+
+- **Voices load asynchronously.** `getVoices()` returns an empty list on the first
+  call in Chrome, so without an `onvoiceschanged` handler the Hindi voice is
+  missed and the answer is read aloud in an English accent — a subtle failure
+  that looks like a quality problem rather than a bug.
+- **The rate is set to 0.92.** This is an explanation the parent is meant to
+  repeat to a child, not a notification; default speed is too fast to follow and
+  copy.
+
+### The Bhashini path is untouched
+
+Nothing was removed. `scripts/bhashini.py` still holds the ULCA two-step flow, the
+browser still encodes 16 kHz mono WAV for it, and the mode selector prefers it
+whenever the server reports credentials. Getting the keys remains worth doing —
+it is the difference between the prototype's story and the product's.
