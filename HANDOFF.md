@@ -59,16 +59,16 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~68% of the project
+## 3. State: ~72% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
 | Wk 1 — parent interviews | **0%** — only the user can do these. The whole thesis is gated on Q11 (do parents accept "I don't know"?) and the Card A/B test (kill criterion: <5 of 8 pick Card B → re-scope to answer-verification). |
 | Wk 1 — golden set 100 Q + 150 refusal set | 30-Q seed golden set done; **150-Q refusal set done** (`eval/refusal_set.py`). Full 100-Q Track A golden set with *verified answers* not done. |
-| Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5 on seed). |
-| Wk 3 — refusal calibration + curve | **DONE** — **84% coverage at 1.2% wrong**, refusal on real traffic 16% (inside the 25% guardrail). Curve published and updated. |
+| Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5; chunk-level 93% after the D14 id-collision fix, up from 90%). |
+| Wk 3 — refusal calibration + curve | **DONE** — **87% coverage at 1.1% wrong** (was 84%/1.2% before D14), refusal on real traffic 13%. Curve needs republishing with the new numbers. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance 50%, gated by retrieval not generation. Track A accuracy (needs verified answers) not done. |
-| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **37 Playwright assertions, all passing** at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
+| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **37 Playwright assertions, all passing** (run the server with `--backend stub` — the suite refuses a metered backend without `--live`) at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
 ## 4. Accounts and secrets
@@ -280,6 +280,15 @@ cd "/Users/pradyumnawasthi/homework saarthi"
 
 ## 10. Next steps, in order
 
+0. **FIRST, on a fresh budget — the whole corpus changed under D14, so every
+   generation figure predates it.** Baseline, then the two queued experiments:
+   ```
+   ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag v8-postD14
+   SAATHI_CONTEXT_CHUNKS=5 ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag k5
+   SAATHI_CONTEXT_CHARS=1550 ./.venv/bin/python scripts/eval_generation.py groq --n 30 --tag w1550
+   ```
+   That is 3 runs and the day allows about 3. v6's 56.5% is no longer comparable.
+
 1. **Re-run `eval_generation.py groq --n 30 --tag v7` once the daily budget
    resets.** Two runs aborted on the 200k TPD cap. Last full figure: 50% (v4);
    last partial: **57% on 23 of 30** (v6, everything fixed) — partial, not a score.
@@ -307,25 +316,39 @@ cd "/Users/pradyumnawasthi/homework saarthi"
    the `WHY` map in `web/index.html`; a test sweeps rendered text for
    `[a-z]+_[a-z_]+` and fails on a leak. Add the Hindi line whenever you add a code.
 
-9. **`query_pre_check` emits 7 codes with 7 different causes.** Do not give the
+9. **Chunk ids must be unique and it is now asserted at both ends.** They were
+   not: 74 of 248 chunks were being dropped on load. If you touch `chunk.py`'s id
+   format, `chunk.py` will refuse to write a collision and `load_chunks()` will
+   raise — do not "fix" either assertion by relaxing it.
+
+10. **Never trust corpus frequency as a spelling oracle.** It approved
+   अध्ययन → अध्यन because the corruption is 6x commoner than the correct word.
+   Every entry in `data/doubled_consonant_repairs.json` is hand-audited; the
+   rejected one is documented in `_REJECTED`.
+
+11. **The free tier is ~90 answers/day** (200,000 tokens, ~2,212 each). A 30-Q
+   conformance run costs a third of it. `scripts/window_cost.py` prices any
+   context change before you spend on it.
+
+12. **`query_pre_check` emits 7 codes with 7 different causes.** Do not give the
    layer one refusal sentence — that shipped "this isn't in the Class 5 book" for
    vague questions and for deliberate declines. `PRE_CHECK_LINES` in `answer.py`
    is the map; a `clarify` outcome must not be styled as a refusal.
 
-10. **Known open bug:** typed `x2+5x+6…` classifies as `asr_suspect_code_mixed`
+13. **Known open bug:** typed `x2+5x+6…` classifies as `asr_suspect_code_mixed`
    (the trigger is code-mixing, not speech) and pre-empts the beyond-Class-5
    layer. Outcome is right, label is wrong. Fixing it means re-measuring against
    `eval/refusal_set.py` — do not hand-tune it.
 
-11. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
+14. **A full-page screenshot renders `position: sticky` at its scroll offset**, so
    it both invents overlaps that aren't there and hides ones that are. Measure
    `getBoundingClientRect()` intersections instead of looking (D12).
 
-12. **Wait on hidden elements with `state="attached"`.** Playwright's
+15. **Wait on hidden elements with `state="attached"`.** Playwright's
    `wait_for_selector` defaults to "visible"; the dev panel is hidden by design,
    so the default made a correct implementation fail.
 
-13. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
+16. **Write-up**: DECISIONS.md is the raw material. The refusal curve artifact exists;
    D0's extraction bake-off and D2's model comparison deserve the same treatment.
 
 ## 11. PRD amendments the evidence supports
