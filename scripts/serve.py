@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import os
 import pathlib
 import sys
 import threading
@@ -58,54 +59,7 @@ _sessions: dict[str, dict] = {}
 MAX_TURNS = 3
 
 
-WEB_PAGE_WIDTH = 1000     # readable on a phone, and cheap on a metered connection
-WEB_PAGE_QUALITY = 78
-# §3.1: this parent's data is metered and intermittent, so the page image needs a
-# GUARANTEED ceiling, not a typical size. A single quality setting gives neither:
-# the same encoder produced 89 KB for p105 and 147 KB for p111, because weight
-# follows how much is drawn on the page. Step quality down, then width, until the
-# encoded bytes actually fit.
-WEB_PAGE_MAX_BYTES = 130 * 1024
-_QUALITY_STEPS = (78, 68, 58, 48)
-_WIDTH_STEPS = (1000, 850)
-_page_cache: dict[int, bytes] = {}
-
-
-def _page_for_web(path: pathlib.Path, n: int) -> tuple[bytes, str]:
-    """Downscale a 300dpi page render to a phone-sized JPEG, cached in memory.
-
-    Falls back to the original PNG if Pillow is unavailable, so the demo degrades
-    rather than breaks.
-    """
-    if n in _page_cache:
-        return _page_cache[n], "image/jpeg"
-    try:
-        import io
-
-        from PIL import Image
-
-        original = Image.open(path).convert("RGB")
-        best = None
-        for width in _WIDTH_STEPS:
-            img = original
-            if img.width > width:
-                h = round(img.height * width / img.width)
-                img = img.resize((width, h), Image.LANCZOS)
-            for quality in _QUALITY_STEPS:
-                buf = io.BytesIO()
-                img.save(buf, "JPEG", quality=quality, optimize=True,
-                         progressive=True)
-                data = buf.getvalue()
-                if best is None or len(data) < len(best):
-                    best = data
-                if len(data) <= WEB_PAGE_MAX_BYTES:
-                    _page_cache[n] = data
-                    return data, "image/jpeg"
-        # Nothing fit; serve the smallest we produced rather than the 300dpi PNG.
-        _page_cache[n] = best
-        return best, "image/jpeg"
-    except Exception:  # noqa: BLE001
-        return path.read_bytes(), "image/png"
+PAGE_CACHE_SECONDS = 60 * 60 * 24 * 30   # a textbook page is immutable
 
 
 def check_vision() -> None:
@@ -156,11 +110,12 @@ class Handler(BaseHTTPRequestHandler):
             sys.stderr.write(f"  {args[0]}\n")
 
     # ----------------------------------------------------------------- helpers
-    def _send(self, code: int, body: bytes, ctype: str) -> None:
+    def _send(self, code: int, body: bytes, ctype: str,
+              cache: str = "no-store") -> None:
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache)
         self.end_headers()
         self.wfile.write(body)
 
@@ -175,6 +130,13 @@ class Handler(BaseHTTPRequestHandler):
             html = (WEB / "index.html").read_bytes()
             return self._send(200, html, "text/html; charset=utf-8")
 
+        # A container host needs a liveness probe that answers before BGE-M3 has
+        # finished loading — otherwise the platform kills the box during warm-up
+        # and the demo never starts. This says "the process is up"; /api/status
+        # says "the models are ready". They are different questions.
+        if url.path == "/api/health":
+            return self._json(200, {"ok": True, "ready": _state["ready"]})
+
         if url.path == "/api/status":
             return self._json(200, {"ready": _state["ready"], "error": _state["error"],
                                     "backend": _state["backend"],
@@ -183,21 +145,28 @@ class Handler(BaseHTTPRequestHandler):
 
         # FR-10: the textbook page image, by printed page number.
         #
-        # Served downscaled as JPEG, not as the 300dpi PNG. §3.1 says this parent's
-        # "data is metered and intermittent", and the source renders are ~670 KB
-        # each — a real cost to someone on a metered connection, for an image that
-        # only has to be readable on a phone. The 300dpi originals stay on disk for
-        # ingest; only the web path is downscaled.
+        # `pagesource` decides where the bytes come from — a local render here, or
+        # NCERT's own server on a deployed box, which is what keeps the deployed
+        # demo from republishing a book we are told not to republish. Either way
+        # the parent gets a phone-sized JPEG under a hard byte budget, because §3.1
+        # says their data is metered.
         if url.path.startswith("/page/"):
             try:
                 n = int(url.path.rsplit("/", 1)[1].split(".")[0])
             except ValueError:
                 return self._json(400, {"error": "bad page"})
-            f = PAGES / f"p{n:03d}.png"
-            if not f.exists():
-                return self._json(404, {"error": f"page {n} not rendered"})
-            data, ctype = _page_for_web(f, n)
-            return self._send(200, data, ctype)
+            import pagesource
+
+            try:
+                data, ctype = pagesource.for_web(n)
+            except pagesource.PageUnavailable as exc:
+                # The parent asked to see the page and we could not produce it.
+                # Say so in Hindi; never leave a broken image in the card.
+                return self._json(404, {
+                    "error_hi": "किताब का यह पेज अभी नहीं दिखा पा रहा हूँ।",
+                    "detail": str(exc)[:200]})
+            return self._send(200, data, ctype,
+                              cache=f"public, max-age={PAGE_CACHE_SECONDS}, immutable")
 
         if url.path.startswith("/static/"):
             f = WEB / url.path[len("/static/"):]
@@ -358,10 +327,12 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> int:
+    # A container is configured by environment, not by argv — the flags stay for
+    # this laptop and win when both are given. HF Spaces sets PORT to 7860.
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", type=int, default=8000)
-    ap.add_argument("--host", default="127.0.0.1")
-    ap.add_argument("--backend", default="groq",
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8000)))
+    ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    ap.add_argument("--backend", default=os.environ.get("SAATHI_BACKEND", "groq"),
                     choices=["groq", "gemini", "ollama", "stub"],
                     help="stub = canned generation, for UI tests; spends no tokens")
     args = ap.parse_args()
@@ -377,6 +348,7 @@ def main() -> int:
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"\n  Homework Saathi — http://{args.host}:{args.port}")
     print(f"  backend: {args.backend}   (loading models in the background…)\n")
+    sys.stdout.flush()
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

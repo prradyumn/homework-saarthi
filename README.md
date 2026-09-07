@@ -121,9 +121,24 @@ package already does the right thing, since it sends the parent the page image.
 
 ## Running it
 
+### The demo
+
 ```bash
 python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python scripts/serve.py              # then open http://localhost:8000
+./.venv/bin/python scripts/serve.py --backend stub   # canned answers, spends no tokens
 
+./.venv/bin/python scripts/preflight.py          # is this box able to serve? (17 checks)
+./.venv/bin/python scripts/test_ui.py            # 51 browser assertions (needs --backend stub)
+```
+
+Deploying it to a link a stranger can open is **[DEPLOY.md](DEPLOY.md)**. The
+short version: Hugging Face Spaces, because BGE-M3 peaks near 3.3 GB while
+encoding and every other free tier caps out around 512 MB.
+
+### Rebuilding the corpus from scratch
+
+```bash
 ./.venv/bin/python scripts/fetch_ncert.py        # official PDFs + page-map assertions
 ./.venv/bin/python scripts/render_pages.py       # 300dpi renders (refusal UX, FR-10)
 ./.venv/bin/python scripts/extract_corpus.py     # 190 pages -> corpus.json
@@ -135,6 +150,10 @@ python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 
 The textbook is **not** redistributed here — pages carry "© NCERT / not to be
 republished". The repo ships the fetch script and derived artifacts, never the book.
+The *deployed* app holds to the same line: when a parent asks to see a page,
+`scripts/pagesource.py` fetches that chapter's PDF from ncert.nic.in at request
+time and renders the single page asked for, so the bytes come from NCERT's own
+server and this app redistributes nothing.
 
 ### Layout
 

@@ -1,0 +1,20 @@
+# The book is not ours to ship (© NCERT, "not to be republished"). pagesource.py
+# fetches the one page a parent asks for from ncert.nic.in at request time.
+ingest/raw/
+ingest/pages/
+ingest/extracted/
+ingest/ocr_cache/
+ingest/pdf_cache/
+ingest/decoy_raw/          # ingest-time only; decoy_chunks.json is the artefact
+
+# secrets never enter an image layer — they arrive as environment variables
+.env
+
+.git/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+eval/
+writeup/
+/tmp/

@@ -1,0 +1,14 @@
+# Runtime only — what `serve.py` actually imports once the corpus is already built.
+#
+# The full requirements.txt is the INGEST and EVAL environment: pypdf, pdfminer,
+# rapidfuzz and playwright all belong to building the corpus and testing it, not
+# to answering a parent's question. Shipping them would add ~400 MB to the image
+# and widen the attack surface of a public box for no user-visible gain.
+#
+# Install torch from the CPU index (see Dockerfile): the default wheel carries the
+# CUDA runtime, which is ~2 GB of GPU libraries on a box that has no GPU.
+numpy==2.5.2
+sentence-transformers==6.0.1
+torch==2.14.0
+pymupdf==1.28.2
+pillow==12.3.0

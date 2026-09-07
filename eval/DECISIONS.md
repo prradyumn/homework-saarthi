@@ -1755,3 +1755,128 @@ use *different* numbers from the question. That is now the top failure mode and
 the next thing to work on. Two gate refusals remain, one of which is correct.
 
 **56.5% → 73% → 83%. The §12.1 bar is 100%.**
+
+---
+
+## D17 — Deployable, and an interface that explains itself to two different readers
+
+The ask was "complete this, make the UI professional, give me the first
+deployable prototype." Three things stood between the working laptop demo and
+that: a licence problem, a config problem, and an audience problem.
+
+### The licence problem was the real blocker, and it is not technical
+
+`ingest/pages/` is 162 MB of rendered textbook pages, and every one of them
+carries **"© NCERT / not to be republished."** That is why the directory is
+gitignored (HANDOFF §2). Baking those pages into a container image and pushing
+it to a public host is precisely the republishing that line forbids. FR-10 —
+show the parent the actual page — was therefore not deployable as built.
+
+Rejected: shipping the pages anyway; dropping FR-10 in production; and
+"linking to the PDF" (which sends a parent on a metered connection a 2 MB
+download to find one page).
+
+**`scripts/pagesource.py` resolves a page in three steps, cheapest first:**
+
+| Route | When | Measured |
+|---|---|---|
+| 1. `ingest/pages/pNNN.png` | this laptop | 93 KB, 0.18 s |
+| 2. `ingest/raw/<code>.pdf`, render one page | laptop, pages not rendered | 91 KB, 0.37 s |
+| 3. **fetch the chapter PDF from ncert.nic.in, cache, render one page** | **deployed** | **91 KB, 3.8 s cold · 80 KB, 0.17 s warm** |
+
+Route 3 is what makes the deployed demo both complete and legal: the bytes
+originate from NCERT's own server at request time, one cold fetch per chapter,
+and this app redistributes nothing. The page→chapter map comes from
+`ingest/manifest.json`, whose page arithmetic was already asserted against the
+printed table of contents in D0.2 — so the mapping is checked, not assumed.
+
+Rendering is at **150 dpi, not `render_pages.py`'s 300**. 300 dpi feeds
+extraction, where every glyph matters; this feeds a phone screen and is then
+downscaled to ~1000 px wide regardless, so rendering at 300 would be work done
+only to throw away.
+
+### The config problem
+
+The server took its port and backend from `argv` only, so a container had no way
+to configure it. `PORT`, `HOST`, `SAATHI_BACKEND` and `SAATHI_CACHE` are now read
+from the environment with the flags overriding, and `/api/health` was added
+alongside `/api/status` — they answer different questions. Health says *the
+process is up*; status says *the models are loaded*. An orchestrator that probes
+readiness kills the container during a legitimate 90-second warm-up.
+
+Verified by running the server exactly as the container does: env vars only, no
+flags. Page images now carry `Cache-Control: immutable` — a textbook page never
+changes, and §3.1's parent is on metered data.
+
+### The audience problem: two readers, one screen
+
+The interface was entirely in Hindi, which is correct for the product and wrong
+for the demo. A stranger opening this link is more likely to be **evaluating**
+the product than using it, and they were shown an inscrutable column of
+Devanagari with no way in. Serving both readers from one column served neither.
+
+The fix is not to dilute the Hindi. It is a second, clearly secondary surface:
+an English ABOUT panel behind a quiet monospaced control, stating the thesis, the
+measured numbers with their sample sizes, the pipeline, the constraints, and —
+at equal weight — what is **not** done. The parent's surface stays 100% Hindi.
+
+Also added: a brand mark, a light/dark control that defaults to *system* (a
+parent whose phone is already dark has told us), a first-run card explaining what
+the product does before asking for a question, and a deliberately dashed example
+question that is Class 10 algebra — so a reviewer can see the refusal, which is
+the whole thesis, without knowing what to type.
+
+### Two bugs worth recording
+
+**1. A body state class silently ate the entire document.** The drawer's element
+carried `class="about"`, and the open state was `body.about`. But
+`<body class="about">` *also matches the bare `.about` rule* — so the body itself
+became `position: fixed; transform: translateX(101%)` and slid off-screen. The
+page rendered blank white.
+
+What makes this worth writing down is how it hid: every DOM query reported the
+content present, visible, correctly coloured, at 4,295 characters. `innerText`
+was fine. Only a screenshot showed the truth, and only measuring
+`getBoundingClientRect().x` on `<header>` (16 → 451) located the cause. This is
+the same lesson as D12's sticky-header bug from the other direction: **the DOM is
+not the picture.** State classes on `<body>` now get names that cannot select a
+component (`about-open`).
+
+**2. `focus()` on an off-screen element scrolls the document.** The drawer parked
+at `translateX(101%)` was still layout the browser would scroll to. Fixed with
+`visibility: hidden` when closed — which also takes it out of the tab order and
+off the screen reader — plus `focus({ preventScroll: true })`.
+
+Both are now regression-tested by asserting the document's own geometry, not the
+element's.
+
+### Also fixed: a hard-coded number that was going to rot
+
+Card scroll offsets used `scroll-margin-top: 126px`, hand-matched to the header
+height. The redesign changed that height. It is now a `--headroom` custom
+property measured from the real header by a `ResizeObserver`.
+
+### Verification
+
+- `scripts/test_ui.py`: **51 assertions, 0 failures, 0 console errors** at 430 px.
+- `scripts/preflight.py` (new): **17 checks, 0 failures** — artefacts present, 764
+  chunks load with no id collision (248 Class 5 + 516 decoys, matching D14), the
+  deployed page route reaches ncert.nic.in, and the book is excluded from the image.
+- Live end-to-end on Groq: a correct four-part answer cited to ch2 p18, and a
+  correct refusal of Class 10 algebra.
+- **The Docker image has never been built** — Docker is not installed on this
+  machine. That is the one step in `DEPLOY.md` that is written from constraints
+  rather than tested.
+
+### Re-measured, because two figures in the handoff disagreed
+
+HANDOFF §12 said refusal on legitimate traffic ≈29% and chunk relevance 90%; its
+status table said 87%/1.1% and 93%. Both evals need no LLM budget, so rather than
+pick one, they were re-run on 7 Sep 2026:
+
+- **87.0% coverage of answerable questions at a 1.14% wrong-answer rate** (1 of 88),
+  decoy margin 0.08, threshold 0.30. Refusal on legitimate traffic is therefore
+  **13%**, inside §7.3's 25% guardrail. The status table was right; §12 was stale.
+- **93% chunk-level relevance** at lexical weight 0.35 (dense-only: 87%).
+
+These are the numbers now shown in the ABOUT panel, with their sample sizes.

@@ -5,6 +5,8 @@ __pycache__/
 ingest/raw/
 ingest/pages/
 ingest/extracted/
+# chapter PDFs pagesource.py fetches on demand — same book, same licence
+ingest/pdf_cache/
 
 # secrets — never commit
 .env

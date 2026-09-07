@@ -406,6 +406,55 @@ def main() -> int:
         pg.screenshot(path=str(SHOTS / "07-devmode.png"), full_page=True)
         pg.click("#devtoggle")
 
+        # ---- the ABOUT panel: the demo's only English surface ----
+        #
+        # A stranger opening this link is more likely to be evaluating the product
+        # than using it, and everything else on screen is Hindi. If this panel
+        # breaks, the demo silently stops explaining itself.
+        check("about panel closed by default",
+              not pg.locator("#about").is_visible())
+        pg.click("#aboutbtn")
+        pg.wait_for_timeout(400)
+        about = pg.locator("#about")
+        check("about panel opens", about.is_visible())
+
+        # This is a REGRESSION TEST for a real bug, not a formality. The body state
+        # class was `about`, which also matched the panel's own `.about` rule — so
+        # <body class="about"> itself became position:fixed and translateX(101%),
+        # sliding the entire document off-screen. Every DOM query still reported
+        # the content present, visible and correctly coloured; only a screenshot
+        # showed a blank white page. Assert the document's own geometry.
+        geom = pg.evaluate("""() => ({
+            overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            headerX: Math.round(document.querySelector('header').getBoundingClientRect().x),
+            panelX: Math.round(document.getElementById('about').getBoundingClientRect().x),
+        })""")
+        check("opening about does not move the document",
+              geom["overflow"] <= 1 and geom["headerX"] < 40 and geom["panelX"] < 40,
+              str(geom))
+
+        about_text = about.inner_text()
+        check("about panel states what was measured",
+              all(k in about_text for k in ("87%", "1.1%", "93%")),
+              about_text[:60].replace("\n", " "))
+        check("about panel is honest about what is not done",
+              "not done" in about_text.lower() and "untested" in about_text.lower())
+        pg.screenshot(path=str(SHOTS / "08-about.png"))
+        pg.keyboard.press("Escape")
+        pg.wait_for_timeout(400)
+        check("about panel closes on Escape", not about.is_visible())
+
+        # ---- theme control ----
+        # "system" must stay the default: a parent whose phone is already in dark
+        # mode has told us, and an explicit choice only exists once they overrule it.
+        check("theme follows the system until told otherwise",
+              pg.evaluate("() => document.documentElement.getAttribute('data-theme')") is None)
+        pg.click("#themebtn")
+        pg.wait_for_timeout(250)
+        check("theme toggle takes effect",
+              pg.evaluate("() => document.documentElement.getAttribute('data-theme')")
+              in ("dark", "light"))
+
         # an over-long question is refused in Hindi before any request is made
         pg.fill("#input", "क " * 300)
         pg.click("#send")

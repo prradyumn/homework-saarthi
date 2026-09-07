@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~80% of the project
+## 3. State: ~88% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -68,7 +68,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 | Wk 2 — ingest + retrieval | **DONE, exit criterion passed** (97% chapter hit @5; chunk-level 93% after the D14 id-collision fix, up from 90%). |
 | Wk 3 — refusal calibration + curve | **DONE** — **87% coverage at 1.1% wrong** (was 84%/1.2% before D14), refusal on real traffic 13%. Curve needs republishing with the new numbers. |
 | Wk 4 — answer contract + Hindi generation + Track A | **Contract + validator + live Groq path done; validator debugged (contract failures 8→1 of 30).** Conformance **83%** (25/30, D16) — up from 56.5%; the top remaining failure is the §10 different-numbers-in-the-example rule (3 of 30). Track A accuracy (needs verified answers) not done. |
-| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE and browser-tested** (`scripts/serve.py` + `web/index.html`, stdlib only, 3.8s end to end). `scripts/test_ui.py` = **37 Playwright assertions, all passing** (run the server with `--backend stub` — the suite refuses a metered backend without `--live`) at 430px; screenshots in `/tmp/ui/`. Interface rewritten in D12 — refusals now speak Hindi rather than emitting reason codes; `HOW IT WORKS` dev panel exposes the gate internals in-browser. **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
+| Wk 5 — Bhashini voice + WhatsApp + web chat | **Web chat DONE, redesigned and DEPLOYABLE** (`scripts/serve.py` + `web/index.html`, stdlib only). `scripts/test_ui.py` = **51 Playwright assertions, all passing** (run the server with `--backend stub` — the suite refuses a metered backend without `--live`) at 430px. D17 added a professional pass: brand mark, first-run card, light/dark, and an **English ABOUT panel** so a reviewer who cannot read Hindi has a way in. `Dockerfile` + `DEPLOY.md` + `scripts/preflight.py` (17 checks, 0 failures) make it deployable to HF Spaces — **the image has never been built; no Docker on this machine.** **Bhashini wired and untested** — needs only `BHASHINI_USER_ID` / `BHASHINI_API_KEY` in `.env`; falls back to the browser Web Speech API meanwhile. WhatsApp not started. |
 | Wk 6 — pilot, Track B panel, write-up | Decision log and curve write-up exist; pilot not started. |
 
 ## 4. Accounts and secrets
@@ -107,6 +107,9 @@ scripts/
   textlayer_bakeoff.py   the extraction comparison harness
   ocr_tuning.py          OCR config sweep (historical)
   serve.py               THE DEMO: stdlib web chat (FR-8). `python scripts/serve.py`
+  pagesource.py          FR-10 page images; on a deployed box fetches the chapter PDF
+                         from ncert.nic.in per request — the book is never redistributed (D17)
+  preflight.py           is this box deployable / is that URL working? `--url https://…`
   bhashini.py            ASR + TTS via the ULCA two-step flow (FR-1, FR-6)
   cost_model.py          cost per conversation + the break-even map (D7)
   retrieval.py           lexical/IDF signal + parent->textbook vocabulary (D3, D6)
@@ -125,7 +128,9 @@ eval/
 writeup/refusal-curve.html   published artifact source
 ingest/  manifest.json, corpus.json, chunks.json, decoy_chunks.json, index_*.npz,
          ocr_cache/ (gitignored raw/pages/extracted)
-README.md, requirements.txt, .env (gitignored), .venv/
+README.md, DEPLOY.md, Dockerfile, .dockerignore
+requirements.txt (ingest + eval), requirements-deploy.txt (runtime only)
+.env (gitignored), .venv/
 ```
 
 ## 6. Decisions made, with headline numbers
@@ -394,12 +399,14 @@ Tell the user these when relevant; several are already flagged to them:
 
 ## 12. Honest open problems
 
-- Refusal on legitimate traffic ≈ 29% (guardrail 25%).
+- ~~Refusal on legitimate traffic ≈ 29%~~ — **re-measured 7 Sep 2026: 13%**, inside §7.3's 25% guardrail. This line was stale; the §3 table was right. Reproduce with `calibrate_refusal.py` (no LLM budget).
 - One residual gate leak: "तीन भिन्नों को जोड़ना है जिनके हर अलग हैं" (unlike denominators).
 - Generation conformance 50% (v4 full) / 57% (v6 partial, 23 of 30). Gated by
   **retrieval**, not generation.
-- Chunk-level retrieval relevance 90%; the 3 remaining misses are artifacts of the
-  metric's key-term picker choosing conversational framing, not real misses.
+- ~~Chunk-level retrieval relevance 90%~~ — **re-measured 7 Sep 2026: 93%** at lexical
+  weight 0.35 (dense-only 87%). The 2 remaining misses are artifacts of the metric's
+  key-term picker choosing conversational framing, not real misses. Reproduce with
+  `eval_retrieval.py` (no LLM budget).
 - §12.1 says the eval runs on every prompt/chunking/threshold change. At ~66k
   tokens per 30-question run against a 200k/day org budget, that cadence is
   unaffordable. The retrieval, gate and audit evals need NO LLM and now carry it.
