@@ -119,6 +119,12 @@ package already does the right thing, since it sends the parent the page image.
 
 ---
 
+## The showcase
+
+**[Read the case study](https://claude.ai/code/artifact/f228f2e5-aef2-425b-8699-3dbdefc6681f)** — the problem, the five reversals that shaped the
+product, the measured numbers and, at equal weight, what is not done.
+Source: `writeup/showcase.html`.
+
 ## Running it
 
 ### The demo

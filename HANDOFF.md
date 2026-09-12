@@ -262,6 +262,9 @@ rather than local for resilience — but vet data policy (§14).
 - OCR cache in `ingest/ocr_cache/` (190 TSVs) — only needed by the legacy hybrid.
 - Git: 10 commits on the default branch, author set via `-c user.email=pradyumn@convegenius.ai`.
 - Published artifacts (source in `writeup/`, redeploy by republishing the same path):
+  - **SHOWCASE (v1, the portfolio piece): https://claude.ai/code/artifact/f228f2e5-aef2-425b-8699-3dbdefc6681f**
+    source `writeup/showcase.html` — the case study a recruiter reads. Republish
+    the same path to update it; do not publish a new one or the link changes.
   - refusal curve: https://claude.ai/code/artifact/892a72b8-4f10-42e4-bc33-8b0c834f8715
   - cost model:    https://claude.ai/code/artifact/7d339f21-4f6a-42a6-a83e-d07acdcbef74
 - **Scope, as the user set it: a PROTOTYPE on free tiers, not a scalable product.**

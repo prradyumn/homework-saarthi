@@ -1,0 +1,577 @@
+<title>Homework Saathi</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Devanagari:wght@400;500;600&display=swap">
+<style>
+  /* Palette lifted from the book this thing teaches from: the amber is Maths
+     Mela's section-header pill fill, deepened for contrast; the lavender is its
+     शिक्षण संकेत (teaching hint) callout fill. Neutrals are biased warm toward the
+     amber rather than sitting at a dead grey. */
+  :root {
+    --amber: #A96E0F;
+    --amber-ink: #7C4F08;
+    --amber-soft: #F7EBD6;
+    --amber-line: #E3CCA0;
+    --amber-wash: #FCF7EE;
+
+    --lavender: #6E5C8A;
+    --lavender-soft: #EFEBF5;
+    --lavender-line: #D8CFE8;
+
+    --refuse: #A63328;
+    --refuse-soft: #F8E7E3;
+    --refuse-line: #E4C0B8;
+    --ok: #2C6A58;
+
+    --ink:   #17171A;
+    --ink-2: #4B4A52;
+    --ink-3: #78767F;
+    --ink-4: #9B98A2;
+    --ground:  #F4F2EE;
+    --surface: #FFFFFF;
+    --sunk:    #EDEAE4;
+    --rule:    #DDD9D1;
+    --rule-2:  #EAE7E0;
+
+    --serif: "IBM Plex Serif", Georgia, serif;
+    --sans:  "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --mono:  "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --deva:  "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --amber: #DFA94D; --amber-ink: #EEC77E;
+      --amber-soft: #2E2614; --amber-line: #4C3D1E; --amber-wash: #201B11;
+      --lavender: #B2A2CD; --lavender-soft: #262232; --lavender-line: #3A3350;
+      --refuse: #E58474; --refuse-soft: #2F1D19; --refuse-line: #4D2822;
+      --ok: #6FC0A4;
+      --ink: #ECEAE6; --ink-2: #B6B3AE; --ink-3: #8A8790; --ink-4: #6C6974;
+      --ground: #121215; --surface: #1B1B20; --sunk: #17171C;
+      --rule: #33323A; --rule-2: #26262C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --amber: #DFA94D; --amber-ink: #EEC77E;
+    --amber-soft: #2E2614; --amber-line: #4C3D1E; --amber-wash: #201B11;
+    --lavender: #B2A2CD; --lavender-soft: #262232; --lavender-line: #3A3350;
+    --refuse: #E58474; --refuse-soft: #2F1D19; --refuse-line: #4D2822;
+    --ok: #6FC0A4;
+    --ink: #ECEAE6; --ink-2: #B6B3AE; --ink-3: #8A8790; --ink-4: #6C6974;
+    --ground: #121215; --surface: #1B1B20; --sunk: #17171C;
+    --rule: #33323A; --rule-2: #26262C;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); font-size: 16.5px; line-height: 1.68;
+    -webkit-font-smoothing: antialiased;
+    padding-block: 0; padding-left: 20px; padding-right: 20px;
+  }
+  .col { max-width: 660px; margin: 0 auto; }
+  .wide { max-width: 940px; margin: 0 auto; }
+  h1, h2, h3 { text-wrap: balance; }
+  a { color: var(--amber-ink); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 3px; }
+
+  /* ------------------------------------------------------------ masthead */
+  header { padding-block: 56px 0; }
+  .kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-4); margin: 0 0 20px;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(38px, 7vw, 58px);
+    line-height: 1.04; letter-spacing: -.022em; margin: 0;
+  }
+  h1 .hi { font-family: var(--deva); font-weight: 600; display: block; font-size: .82em; }
+  h1 .en { display: block; margin-top: .12em; }
+  .dek {
+    font-family: var(--serif); font-size: clamp(19px, 2.4vw, 22px); line-height: 1.56;
+    color: var(--ink-2); margin: 24px 0 0; max-width: 58ch;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  }
+  .tag {
+    border: 1px solid var(--rule); border-radius: 999px; padding: 4px 11px;
+    color: var(--ink-3); background: var(--surface);
+  }
+  .tag.on { color: var(--amber-ink); border-color: var(--amber-line); background: var(--amber-soft); }
+
+  hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 56px 0; }
+
+  /* --------------------------------------------------------------- prose */
+  section { padding-block: 4px; }
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(25px, 3.4vw, 31px);
+    line-height: 1.2; letter-spacing: -.015em; margin: 0 0 18px;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 600; font-size: 17px;
+    margin: 32px 0 8px; letter-spacing: -.005em;
+  }
+  p { margin: 0 0 18px; }
+  .lede { font-size: 18px; }
+  strong { font-weight: 600; color: var(--ink); }
+  .deva { font-family: var(--deva); }
+
+  .pull {
+    font-family: var(--serif); font-size: clamp(21px, 3vw, 26px); line-height: 1.4;
+    color: var(--ink); border-left: 3px solid var(--amber);
+    padding: 4px 0 4px 22px; margin: 32px 0;
+  }
+  .pull .gloss {
+    display: block; font-family: var(--sans); font-size: 15px; line-height: 1.5;
+    color: var(--ink-3); margin-top: 10px; font-style: normal;
+  }
+
+  /* ------------------------------------------------- the product, as built */
+  .specimen {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 18px; margin: 0;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(23,23,26,.04), 0 6px 22px rgba(23,23,26,.05);
+    display: flex; flex-direction: column;
+  }
+  .card-top {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px 0;
+  }
+  .who {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-4); margin: 0;
+  }
+  .badge {
+    margin-left: auto; font-size: 10.5px; font-weight: 600; letter-spacing: .02em;
+    padding: 2px 9px; border-radius: 999px; font-family: var(--deva);
+  }
+  .badge.yes { color: var(--ok); border: 1px solid var(--ok); }
+  .badge.no  { color: var(--refuse); border: 1px solid var(--refuse-line); background: var(--refuse-soft); }
+  .part { padding: 12px 16px; border-top: 1px solid var(--rule-2); }
+  .card-top + .part { border-top: 0; padding-top: 10px; }
+  .part-label {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 4px;
+    font-family: var(--sans); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4);
+  }
+  .n {
+    display: inline-grid; place-items: center; width: 17px; height: 17px;
+    border-radius: 50%; background: var(--sunk); border: 1px solid var(--rule);
+    color: var(--ink-2); font-size: 10px; font-weight: 600; flex: 0 0 auto;
+  }
+  .part p { font-family: var(--deva); font-size: 16px; line-height: 1.66; margin: 0; }
+  .part.say {
+    background: var(--amber-wash); border-top: 1px solid var(--amber-line);
+    box-shadow: inset 3px 0 0 var(--amber);
+  }
+  .part.say .part-label { color: var(--amber-ink); }
+  .part.say .n { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .part.say p { font-weight: 500; }
+  .cite {
+    margin-top: auto;
+    padding: 10px 16px; border-top: 1px solid var(--rule-2); background: var(--sunk);
+    font-family: var(--deva); font-size: 12.5px; color: var(--ink-3);
+  }
+  .refusal-body { padding: 12px 16px 14px; }
+  .refusal-body p { font-family: var(--deva); font-size: 16px; line-height: 1.66; margin: 0; }
+  .caption {
+    font-family: var(--mono); font-size: 11px; line-height: 1.65; color: var(--ink-3);
+    margin: 14px 0 0; letter-spacing: .01em;
+  }
+
+  /* ----------------------------------------------------------- stat strip */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--rule-2);
+    border: 1px solid var(--rule-2); border-radius: 12px; overflow: hidden;
+  }
+  .stat { background: var(--surface); padding: 16px 16px 17px; }
+  .stat .v {
+    font-family: var(--sans); font-weight: 600; font-size: 30px; letter-spacing: -.025em;
+    line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .stat .k { font-size: 13.5px; line-height: 1.44; color: var(--ink-2); margin-top: 6px; }
+  .stat .src {
+    font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-top: 7px;
+    letter-spacing: .02em;
+  }
+  .stat.hero .v { color: var(--refuse); }
+
+  /* ---------------------------------------------------- reversals (typed) */
+  .rev { border-top: 1px solid var(--rule); padding-block: 26px; }
+  .rev:last-of-type { border-bottom: 1px solid var(--rule); }
+  .rev-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .rev-id {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    color: var(--amber-ink); background: var(--amber-soft);
+    border: 1px solid var(--amber-line); border-radius: 4px; padding: 1px 7px;
+    flex: 0 0 auto;
+  }
+  .rev h3 { margin: 0; font-size: 18.5px; font-family: var(--serif); font-weight: 600; }
+  .rev p { margin: 10px 0 0; color: var(--ink-2); }
+  .swap {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 14px 0 0; font-family: var(--mono); font-size: 12.5px;
+  }
+  .was, .now { border-radius: 5px; padding: 3px 10px; border: 1px solid; }
+  .was { color: var(--refuse); border-color: var(--refuse-line); background: var(--refuse-soft);
+         text-decoration: line-through; text-decoration-thickness: 1px; }
+  .now { color: var(--ok); border-color: var(--ok); }
+  .arrow { color: var(--ink-4); }
+  .lesson {
+    margin: 14px 0 0; padding: 11px 14px; background: var(--lavender-soft);
+    border: 1px solid var(--lavender-line); border-radius: 9px;
+    font-size: 14.5px; line-height: 1.55; color: var(--ink-2);
+  }
+  .lesson b { color: var(--lavender); font-weight: 600; }
+
+  /* ------------------------------------------------------------- listings */
+  ul.plain { margin: 0 0 18px; padding-left: 19px; }
+  ul.plain li { margin-bottom: 9px; }
+  ul.plain li::marker { color: var(--ink-4); }
+
+  .pipe { list-style: none; margin: 0 0 18px; padding: 0; counter-reset: s; }
+  .pipe li {
+    counter-increment: s; position: relative; padding: 0 0 16px 32px;
+    border-left: 1px solid var(--rule); margin-left: 9px;
+  }
+  .pipe li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .pipe li::before {
+    content: counter(s); position: absolute; left: -10px; top: 0;
+    width: 19px; height: 19px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--rule); color: var(--ink-2);
+    font-family: var(--mono); font-size: 10.5px; display: grid; place-items: center;
+  }
+  .pipe b { display: block; color: var(--ink); font-weight: 600; }
+
+  .note {
+    background: var(--amber-wash); border: 1px solid var(--amber-line);
+    border-radius: 10px; padding: 14px 16px; font-size: 14.5px; line-height: 1.6;
+    color: var(--ink-2);
+  }
+  code {
+    font-family: var(--mono); font-size: .88em; background: var(--sunk);
+    border-radius: 4px; padding: 1.5px 5px; color: var(--ink-2);
+  }
+
+  footer {
+    border-top: 1px solid var(--rule); margin-top: 56px; padding-block: 26px 60px;
+    font-size: 13.5px; color: var(--ink-3);
+  }
+  footer p { margin: 0 0 8px; }
+
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 400px) { .stats { grid-template-columns: 1fr; } }
+
+  @media (max-width: 520px) {
+    body { padding-left: 16px; padding-right: 16px; }
+    header { padding-block: 36px 0; }
+    hr.rule { margin: 40px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wide">
+  <header>
+    <p class="kicker">Product case study · 2026</p>
+    <h1><span class="hi">होमवर्क साथी</span><span class="en">Homework Saathi</span></h1>
+    <p class="dek">A Hindi homework helpline for the <em>parents</em> of Class&nbsp;5
+    government-school children in India — built around the one thing it must never
+    do, which is guess.</p>
+    <div class="meta">
+      <span class="tag on">Class 5 · गणित</span>
+      <span class="tag">NCERT गणित मेला · 15 chapters · 190 pages</span>
+      <span class="tag">RAG · refusal-first</span>
+      <span class="tag">Zero paid APIs</span>
+    </div>
+  </header>
+
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <section>
+    <h2>The user is not the child</h2>
+    <p class="lede">A parent in a government-school district opens WhatsApp at night
+    because their Class&nbsp;5 child is stuck on a maths problem. Many of these
+    parents left school before the class their child is now in. They cannot check a
+    maths answer — which is precisely why they are asking.</p>
+    <p>That single fact settles almost every feature argument, so it is written down
+    as the product's first line:</p>
+    <p class="pull deva">हम बच्चों के ट्यूटर नहीं हैं — हम माता-पिता के कोच हैं।
+      <span class="gloss">We are not a tutor for children. We are a coach for parents.</span></p>
+    <p>So the output is not an answer. It is <strong>a sentence the parent can say out
+    loud to their child</strong>, plus the reasoning that earns it, plus the page of
+    the real textbook it came from.</p>
+  </section>
+</div>
+
+<div class="wide">
+  <section style="padding-block:14px 0">
+    <div class="specimen">
+      <article class="card">
+        <div class="card-top">
+          <p class="who">साथी</p>
+          <span class="badge yes deva">किताब से</span>
+        </div>
+        <div class="part">
+          <p class="part-label"><span class="n">1</span>जवाब</p>
+          <p>एक किलोग्राम में 1000 ग्राम होते हैं।</p>
+        </div>
+        <div class="part">
+          <p class="part-label"><span class="n">2</span>एक नियम</p>
+          <p>किलोग्राम को ग्राम में बदलने के लिए 1000 से गुणा कीजिए।</p>
+        </div>
+        <div class="part">
+          <p class="part-label"><span class="n">3</span>अलग संख्याओं से उदाहरण</p>
+          <p>2 किलोग्राम को ग्राम में बदलने पर 2000 ग्राम मिलते हैं।</p>
+        </div>
+        <div class="part say">
+          <p class="part-label"><span class="n">4</span>बच्चे से यह कहिए</p>
+          <p>“बेटा, एक किलो में हज़ार ग्राम होते हैं।”</p>
+        </div>
+        <p class="cite">किताब: अध्याय 8 — भार और धारिता, पेज 111</p>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <p class="who">साथी</p>
+          <span class="badge no deva">जवाब नहीं दूँगा</span>
+        </div>
+        <div class="refusal-body">
+          <p>यह सवाल कक्षा 5 की किताब से आगे का है — यह गणित तो है, पर इस किताब में
+          नहीं सिखाया गया। बड़ी कक्षा में यह आएगा, या शिक्षक जी से पूछ लीजिए।</p>
+        </div>
+        <p class="cite">पूछा गया: “द्विघात समीकरण का सूत्र क्या है?” — कक्षा 10 बीजगणित</p>
+      </article>
+    </div>
+    <p class="caption">Left: the four-part answer contract, enforced as code — an
+    answer that fails it is refused, not shipped. Right: the same system declining
+    Class&nbsp;10 algebra. Both are real output, captured from the running app.</p>
+  </section>
+
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <section>
+    <h2>The hard problem is not generating. It is refusing.</h2>
+    <p>A confidently wrong maths answer that a parent then teaches their child is far
+    worse than <em>“I don't know”</em> — because the parent has no way to detect the
+    error. Fluency is the failure mode, not the goal.</p>
+    <p>So the system is built back-to-front from that: a refusal gate calibrated on a
+    150-question labelled set, and a contract validator that turns a bad generation
+    into an honest decline rather than a plausible paragraph.</p>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="stats">
+      <div class="stat">
+        <div class="v">87%</div>
+        <div class="k">of answerable questions get answered</div>
+        <div class="src">n = 150 labelled</div>
+      </div>
+      <div class="stat hero">
+        <div class="v">1.1%</div>
+        <div class="k">wrong-answer rate — 1 of 88 answered</div>
+        <div class="src">the number that matters</div>
+      </div>
+      <div class="stat">
+        <div class="v">13%</div>
+        <div class="k">of legitimate questions refused</div>
+        <div class="src">guardrail: 25%</div>
+      </div>
+      <div class="stat">
+        <div class="v">93%</div>
+        <div class="k">retrieval returns the right passage</div>
+        <div class="src">chunk-level, top-3, n = 30</div>
+      </div>
+      <div class="stat">
+        <div class="v">0.7%</div>
+        <div class="k">character error rate reading the book</div>
+        <div class="src">100% numeric &amp; fraction recall</div>
+      </div>
+      <div class="stat">
+        <div class="v">83%</div>
+        <div class="k">answers meeting the four-part contract</div>
+        <div class="src">n = 30, median 6.0s</div>
+      </div>
+    </div>
+    <p class="caption">The gate and retrieval figures are reproducible with no LLM
+    budget at all — <code>calibrate_refusal.py</code> and <code>eval_retrieval.py</code>.
+    Every figure here was re-measured rather than carried forward from notes.</p>
+  </section>
+
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <section>
+    <h2>Five times the evidence overruled me</h2>
+    <p>The decision log records reversals as prominently as decisions, because the
+    reversals are where the product was actually made. These five changed it most.</p>
+  </section>
+
+  <section>
+    <div class="rev">
+      <div class="rev-head"><span class="rev-id">D0</span>
+        <h3>I chose OCR, and OCR was the wrong tool</h3></div>
+      <p>Scanning the pages seemed obviously right for a textbook full of diagrams.
+      It gave 7.9% character error — and Tesseract's Hindi model <em>deletes every
+      digit 1</em>, reading it as a Devanagari full stop. 150 became 50. In a maths
+      product that is not a quality issue, it is a disqualification.</p>
+      <div class="swap"><span class="was">OCR · 7.9% CER</span><span class="arrow">→</span>
+        <span class="now">PDF text layer + normaliser · 0.7% CER</span></div>
+      <div class="lesson"><b>What it changed:</b> I had blamed "the text layer"
+      generically for corruption that belonged to one specific library. Naming the
+      real culprit turned a rejected approach into the winning one.</div>
+    </div>
+
+    <div class="rev">
+      <div class="rev-head"><span class="rev-id">D6</span>
+        <h3>Parents do not use the textbook's words</h3></div>
+      <p>Of 51 everyday Hindi terms a parent would actually say, <strong>24 appear
+      nowhere in the book.</strong> <span class="deva">नक्शा</span> (map) occurs zero
+      times — even though an entire chapter teaches maps. The book says
+      <span class="deva">मानचित्र</span>. I was one step from labelling those chapters
+      "not answerable".</p>
+      <div class="swap"><span class="was">relabel 2 chapters unanswerable</span><span class="arrow">→</span>
+        <span class="now">22-entry audited vocabulary map</span></div>
+      <div class="lesson"><b>What it changed:</b> a retrieval miss that looks like
+      missing content is often a vocabulary gap between the user and the corpus.
+      The content was there the whole time.</div>
+    </div>
+
+    <div class="rev">
+      <div class="rev-head"><span class="rev-id">D1</span>
+        <h3>The obvious knob was the wrong knob</h3></div>
+      <p>The plan was to sweep a similarity threshold until refusals looked right.
+      Similarity alone yields <strong>1% coverage</strong> — useless. And across the
+      range 0.30–0.475 the curve is flat: the threshold barely matters. What does the
+      work is a stack of categorical layers, including 516 out-of-syllabus chunks
+      from Classes 6–9 that exist only to be matched against.</p>
+      <div class="swap"><span class="was">one tuned threshold</span><span class="arrow">→</span>
+        <span class="now">layered gate · 1% → 87% coverage</span></div>
+      <div class="lesson"><b>What it changed:</b> without decoys, "is this Class 5
+      content?" is a question the corpus cannot answer — every chunk in it <em>is</em>
+      Class 5. The decoys made the boundary real.</div>
+    </div>
+
+    <div class="rev">
+      <div class="rev-head"><span class="rev-id">D14</span>
+        <h3>30% of the textbook was invisible, silently</h3></div>
+      <p>Chunk IDs collided. A dictionary keyed by ID dropped <strong>74 of 248
+      chunks</strong> with no error, no warning, nothing. A third of the book was
+      missing from retrieval — and every metric measured before that discovery had
+      been measured over the remainder.</p>
+      <div class="swap"><span class="was">174 chunks, unknowingly</span><span class="arrow">→</span>
+        <span class="now">248 chunks, asserted at both ends</span></div>
+      <div class="lesson"><b>What it changed:</b> the fix was cheap; noticing was not.
+      Uniqueness is now asserted where IDs are written <em>and</em> where they are
+      loaded, and neither assertion may be relaxed.</div>
+    </div>
+
+    <div class="rev">
+      <div class="rev-head"><span class="rev-id">D2</span>
+        <h3>Blame your own instrument first</h3></div>
+      <p>Contract conformance sat at 56%, and the model looked like the problem.
+      Reading the actual failures found <strong>five defects in my validator</strong>
+      — including one where my prompt's word for "passage" (<span class="deva">अंश</span>)
+      also means "numerator", so the model was marked wrong for echoing my own term.</p>
+      <div class="swap"><span class="was">56.5% — "the model is weak"</span><span class="arrow">→</span>
+        <span class="now">83% — the ruler was bent</span></div>
+      <div class="lesson"><b>What it changed:</b> before tuning the thing being
+      measured, verify the thing doing the measuring. Reading raw output beat every
+      aggregate metric.</div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <h2>How it works</h2>
+    <ol class="pipe">
+      <li><b>Query pre-checks</b> Deterministic, before any retrieval or model call.
+      Catches 36 of 50 refusable questions for free — including requests to simply do
+      the homework, which are refused on purpose.</li>
+      <li><b>Hybrid retrieval</b> BGE-M3 dense cosine plus IDF term overlap across 248
+      concept-unit chunks. Dense alone scored 87%; the lexical signal took it to 93%.</li>
+      <li><b>A syllabus boundary made of decoys</b> 516 chunks from Classes 6–9. If a
+      question sits closer to a Class 7 page than a Class 5 one, it is out of syllabus.</li>
+      <li><b>Generation</b> Groq's free tier, in Hindi, against the top three passages.</li>
+      <li><b>Contract validation</b> Four parts — answer, rule, a worked example using
+      <em>different</em> numbers, and the sentence to say to the child — enforced as
+      code. Fail the contract, and the system refuses instead of shipping it.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Constraints, taken as product decisions</h2>
+    <ul class="plain">
+      <li><strong>Zero paid APIs.</strong> Free tiers only. That is a decision about
+      cost-per-conversation for users who cannot pay, and a sovereignty one —
+      Bhashini (Government of India) for voice rather than a US frontier API. The
+      ceiling it buys is roughly <strong>90 answers a day</strong>, and the cost model
+      says so out loud.</li>
+      <li><strong>An 8&nbsp;GB laptop.</strong> It killed the 7B local vision model at
+      980 seconds per page. Local models cap around 2B, and the architecture reflects
+      that rather than pretending otherwise.</li>
+      <li><strong>The textbook is © NCERT, “not to be republished.”</strong> So the
+      deployed app ships no page images. When a parent asks to see the page, it
+      fetches that chapter from NCERT's own server at request time and renders the
+      single page. Nothing is redistributed.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What is not done</h2>
+    <p>Listed at the same weight as the results, because a case study that only
+    reports wins is not evidence of judgement.</p>
+    <ul class="plain">
+      <li><strong>Parent discovery interviews.</strong> The riskiest assumption in the
+      entire thesis — that a parent accepts “I don't know” rather than leaving — is
+      <em>untested</em>. It is the next thing to do and it gates everything.</li>
+      <li><strong>Every test question is authored by me</strong>, not observed from a
+      real parent. The retrieval numbers are optimistic until that changes.</li>
+      <li><strong>Voice</strong> is wired to Bhashini but awaiting credentials; the
+      browser speech API stands in and is labelled honestly where it is used.</li>
+      <li><strong>Reading figures is built but switched off</strong> — a vision model
+      can read a bar chart off the page, but the deployment runs without that key, so
+      picture-only questions are refused with a reason instead.</li>
+      <li><strong>WhatsApp delivery</strong> is not built. The web chat exists because
+      the WhatsApp test number can only message pre-approved recipients — a link a
+      stranger can open is the only demo that actually demonstrates.</li>
+    </ul>
+    <p class="note">The refusal rate on legitimate traffic — 13% — is inside the 25%
+    guardrail, but it is still 13 parents in 100 told “not this time”. Whether that is
+    a tolerable experience or a fatal one is exactly what the interviews must answer,
+    and no amount of further tuning substitutes for asking them.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <h2>Build</h2>
+    <p>Python standard-library HTTP server, no framework — a demo that needs an
+    install step before it runs is a worse demo. BGE-M3 embeddings over a NumPy
+    index. Groq free tier for generation. 51 Playwright assertions covering the
+    interface, including that no internal reason code ever reaches the parent's
+    screen. Zero npm.</p>
+    <p>The decision log is the primary artefact: every decision with its evidence,
+    and every reversal with the number that forced it.</p>
+  </section>
+
+  <footer>
+    <p><strong>Pradyumn Awasthi</strong> — AI Design Associate, ConveGenius.
+    Built as a product portfolio project.</p>
+    <p>Textbook: NCERT <span class="deva">गणित मेला</span> (Maths Mela), Class 5,
+    NCF-2023 — fetched from ncert.nic.in and never redistributed.</p>
+  </footer>
+</div>
