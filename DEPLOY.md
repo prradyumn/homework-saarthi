@@ -41,28 +41,39 @@ container host with ~4 GB of RAM runs the same image.
 
 ## Steps
 
+### 0. Build the deployable folder
+
+```bash
+python scripts/make_deploy.py --git
+```
+
+This assembles `deploy/` — 18 files, 4.8 MB — containing only what serves a
+question: the 9 runtime modules, the 4 derived artefacts, the interface, a
+Dockerfile and a Space README. It carries **no textbook, no `.env`, and none of
+the ingest or eval toolchain**. `--git` initialises a git repo inside it so you
+can push it straight to a Space; rebuilding later keeps that history.
+
+`scripts/make_deploy.py` is the single source of truth for what a deployment
+contains — edit the project's own files, then regenerate. Never edit inside
+`deploy/`, because the next rebuild overwrites it.
+
+Verify it before pushing:
+
+```bash
+python scripts/make_deploy.py --check    # is the folder self-contained?
+cd deploy && python scripts/preflight.py # 18 checks, run from inside the folder
+```
+
 ### 1. Create the Space
 
 At <https://huggingface.co/new-space>: choose **Docker → Blank**, hardware
 **CPU basic (free)**, and set it **Public** so the link works for anyone.
 
-### 2. Add the Space's README
+### 2. The Space README is already written
 
 HF Spaces is configured by YAML frontmatter in the Space repo's `README.md`.
-This project's own README is not that file, so create one in the Space:
-
-```yaml
----
-title: Homework Saathi
-emoji: 📕
-colorFrom: yellow
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
-short_description: A Hindi homework helpline for parents, built to refuse rather than guess.
----
-```
+`make_deploy.py` writes that file, frontmatter and all, so there is nothing to do
+here — it is `deploy/README.md`.
 
 ### 3. Add secrets
 
@@ -80,6 +91,7 @@ In **Settings → Variables and secrets**, add them as *secrets*, not variables:
 ### 4. Push
 
 ```bash
+cd deploy
 git remote add space https://huggingface.co/spaces/<you>/homework-saathi
 git push space main
 ```

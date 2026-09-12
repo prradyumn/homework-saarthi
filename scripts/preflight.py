@@ -131,13 +131,23 @@ def local() -> None:
           bool(os.environ.get("BHASHINI_USER_ID") and os.environ.get("BHASHINI_API_KEY")),
           "voice falls back to the browser speech API", warn_only=True)
 
-    print("\n  the book is not in the image\n")
+    print("\n  the book is not in the image, and neither are the keys\n")
+    # Two ways to satisfy this, and absence is the stronger one. In the source
+    # repo these directories exist and .dockerignore keeps them out of the image;
+    # in a generated deploy/ folder they were never copied at all. An earlier
+    # version of this check only looked at .dockerignore, and so reported four
+    # failures against a folder that was in fact cleaner than the repo.
     ignore = (ROOT / ".dockerignore").read_text() if (ROOT / ".dockerignore").exists() else ""
-    for d in ("ingest/raw/", "ingest/pages/", "ingest/extracted/"):
-        check(f"{d} excluded from the image", d in ignore,
-              "© NCERT — must not be redistributed")
-    check(".env excluded from the image", "\n.env" in "\n" + ignore,
-          "secrets must arrive as environment variables")
+    for d in ("ingest/raw/", "ingest/pages/", "ingest/extracted/", "ingest/pdf_cache/"):
+        present = (ROOT / d).exists()
+        check(f"{d} stays out of the image",
+              not present or d in ignore,
+              "absent" if not present else "present but excluded by .dockerignore")
+    env = ROOT / ".env"
+    check(".env stays out of the image",
+          not env.exists() or "\n.env" in "\n" + ignore,
+          "absent — secrets arrive as environment variables" if not env.exists()
+          else "present but excluded by .dockerignore")
 
 
 # -------------------------------------------------------------------- remote
