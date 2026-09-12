@@ -1952,9 +1952,32 @@ but it should be written down rather than discovered.
   answered, and correctly teaches how to read the chart rather than inventing a
   value from it — the contract holding exactly where it should.
 
-### Still outstanding
+### Closed — `GROQ_API_KEY` was rotated properly (13 Sep 2026)
 
-`GROQ_API_KEY` has been pasted into a chat transcript more than once and is the
-one credential the product genuinely cannot run without. It should be rotated at
-console.groq.com/keys before the Space goes public. Deleting the old key is what
-revokes it; creating a new one leaves the old one live.
+Unlike the Gemini attempt, this one was real, and it was checked rather than
+assumed. Both keys were probed against `api.groq.com/openai/v1/models`:
+
+| | result |
+|---|---|
+| old key | **HTTP 401 — revoked** |
+| new key | **HTTP 200 — live** |
+
+The old key being 401 is the whole point: creating a new key does not revoke the
+old one, so "I rotated it" is only true if the previous credential now fails. That
+check is two curl calls and it is the difference between a rotation and a second
+live key.
+
+Method, for next time — the key goes in a header FILE, never in argv, because argv
+is readable by every process on the machine and lands in shell history:
+
+```bash
+printf 'Authorization: Bearer %s\n' "$KEY" > /tmp/h
+curl -s -o /dev/null -w '%{http_code}\n' -H @/tmp/h \
+  https://api.groq.com/openai/v1/models
+rm /tmp/h
+```
+
+**The replacement key was itself pasted into a chat transcript**, so it is fine for
+local development and should not be the key the public Space runs on. Create a
+separate one in the Groq console and paste it only into the Space's secrets UI —
+a credential that never enters a transcript needs no rotation later.
