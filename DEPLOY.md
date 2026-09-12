@@ -82,11 +82,16 @@ In **Settings → Variables and secrets**, add them as *secrets*, not variables:
 | Secret | Needed? | Without it |
 |---|---|---|
 | `GROQ_API_KEY` | **yes** | nothing can be generated |
-| `GEMINI_API_KEY` | optional | chart/figure questions are refused instead of read |
 | `BHASHINI_USER_ID`, `BHASHINI_API_KEY` | optional | voice falls back to the browser speech API |
+| `GEMINI_API_KEY` | **off by design** | picture-only questions are refused with a reason |
 
-**Rotate both keys first.** They were pasted into a chat transcript:
-<https://console.groq.com/keys> and <https://aistudio.google.com>.
+**One credential is all this needs.** Figure reading was deliberately switched off
+(D18) after its key was exposed; the capability stays in the code and can be
+re-enabled by setting the variable, but nothing depends on it.
+
+**Rotate `GROQ_API_KEY` before deploying** — it has been pasted into a chat
+transcript more than once: <https://console.groq.com/keys>. Deleting the old key
+is what revokes it; creating a new one leaves the old one live.
 
 ### 4. Push
 

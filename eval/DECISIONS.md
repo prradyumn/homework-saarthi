@@ -1880,3 +1880,81 @@ pick one, they were re-run on 7 Sep 2026:
 - **93% chunk-level relevance** at lexical weight 0.35 (dense-only: 87%).
 
 These are the numbers now shown in the ABOUT panel, with their sample sizes.
+
+---
+
+## D18 — Figure reading ships switched off, and the deployment needs one credential
+
+The Gemini key was exposed twice: pasted into a chat transcript on 3 Sep, and
+pasted again on 12 Sep in the belief that it had been rotated. It had not — the
+"new" key's last six characters matched the key already in `.env`, and a live call
+to `generativelanguage.googleapis.com` returned **HTTP 200**, proving it was the
+same working credential.
+
+The key could not be deleted because its Cloud project could not be found. That
+turned out to be findable, and the method is worth keeping:
+
+```bash
+curl -s "https://texttospeech.googleapis.com/v1/voices?key=KEY" \
+  | grep -o '"consumer": "[^"]*"'
+# -> "consumer": "projects/10979730014"
+```
+
+Call an API the key is **not** permitted to use. The permission error names the
+project that owns it. A key that works everywhere tells you nothing; a blocked key
+tells you exactly where it came from. (AI Studio's "Create API key" silently
+creates a new auto-named Cloud project, which is why it was not among the
+projects being searched.)
+
+### The decision
+
+Rather than rotate, **figure reading is switched off**. It costs one feature and
+removes a credential from the deployment entirely. The box now needs exactly one
+secret, `GROQ_API_KEY`.
+
+This is cheap because of what the capability was for. Vision reads a value off a
+bar chart; without it, those questions hit the existing `figure_value_lookup` /
+`answer_is_in_a_chart` refusal classes (D0.1) and get an honest Hindi sentence.
+Refusing is what this product does when it cannot ground an answer in text — so
+the degraded path is not a broken path, it is the designed one.
+
+`scripts/vision.py` stays in the tree. It works, it is measured (D15), and setting
+the variable re-enables it. "Built and switched off" is a different claim from
+"not built", and the ABOUT panel now says which one is true.
+
+### Switching it off exposed a bug that would have shipped
+
+`vision._page_jpeg()` read `ingest/pages/pNNN.png` directly. Those renders are
+© NCERT and excluded from every image (D17), so **figure reading could never have
+worked on a deployed box even with a valid key** — it would have failed with
+"page render missing" while `DEPLOY.md` and the Space README both promised that
+setting `GEMINI_API_KEY` would enable it. A false claim in shipped documentation,
+found only because turning the feature off meant reading the code that used it.
+
+Fixed by routing it through `pagesource.render()` — the same three-step resolver
+FR-10 uses, which falls back to fetching the chapter from ncert.nic.in. Verified
+with both local sources removed: page 183 obtained at 109 KB, and an out-of-range
+page raising a clean `VisionError` rather than a traceback.
+
+`vision.available()` now also documents that it checks the key is *present*, not
+that it *works* — a live call on every status poll would be slow and waste quota.
+A revoked-but-set key therefore reports available and fails at the point of use,
+where the contract validator turns it into a refusal. That is the right failure,
+but it should be written down rather than discovered.
+
+### Verification
+
+- `test_ui.py`: **51 assertions, 0 failures** with no Gemini key configured.
+- The server reports `figures: not connected (chart questions refused)`.
+- A picture-only question (`चित्र में कितने त्रिभुज हैं?`) is refused by
+  `query_pre_check / figure_value_lookup` in Hindi, before any model call.
+- A chart *method* question (`दंड आरेख में सबसे ज़्यादा किसका है?`) is still
+  answered, and correctly teaches how to read the chart rather than inventing a
+  value from it — the contract holding exactly where it should.
+
+### Still outstanding
+
+`GROQ_API_KEY` has been pasted into a chat transcript more than once and is the
+one credential the product genuinely cannot run without. It should be rotated at
+console.groq.com/keys before the Space goes public. Deleting the old key is what
+revokes it; creating a new one leaves the old one live.

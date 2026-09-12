@@ -123,13 +123,23 @@ def local() -> None:
     from answer import _load_env
 
     _load_env()
-    check("GROQ_API_KEY set", bool(os.environ.get("GROQ_API_KEY")),
-          "without it the app cannot generate at all", warn_only=False)
-    check("GEMINI_API_KEY set", bool(os.environ.get("GEMINI_API_KEY")),
-          "figure reading falls back to refusing chart questions", warn_only=True)
-    check("Bhashini credentials set",
-          bool(os.environ.get("BHASHINI_USER_ID") and os.environ.get("BHASHINI_API_KEY")),
-          "voice falls back to the browser speech API", warn_only=True)
+    # Phrased as the capability, not the variable: a line reading
+    # "GEMINI_API_KEY set — warn" against a box where it is deliberately unset
+    # states the opposite of the truth.
+    check("generation (GROQ_API_KEY)", bool(os.environ.get("GROQ_API_KEY")),
+          "REQUIRED — without it nothing can be answered at all")
+
+    gemini = bool(os.environ.get("GEMINI_API_KEY"))
+    check("figure reading (GEMINI_API_KEY)", gemini,
+          "on" if gemini else
+          "off by design (D18) — picture-only questions are refused with a reason",
+          warn_only=True)
+
+    voice = bool(os.environ.get("BHASHINI_USER_ID")
+                 and os.environ.get("BHASHINI_API_KEY"))
+    check("voice (Bhashini)", voice,
+          "on" if voice else "not configured — falls back to the browser speech API",
+          warn_only=True)
 
     print("\n  the book is not in the image, and neither are the keys\n")
     # Two ways to satisfy this, and absence is the stronger one. In the source

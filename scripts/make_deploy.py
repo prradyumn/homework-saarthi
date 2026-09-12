@@ -111,10 +111,14 @@ Press **ABOUT** in the app for the full picture, including what is *not* done.
 | Secret | Needed? | Without it |
 |---|---|---|
 | `GROQ_API_KEY` | **yes** | nothing can be generated |
-| `GEMINI_API_KEY` | optional | chart/figure questions are refused instead of read |
 | `BHASHINI_USER_ID` + `BHASHINI_API_KEY` | optional | voice falls back to the browser speech API |
+| `GEMINI_API_KEY` | **off by design** | questions answerable only from a picture are refused with a reason, rather than read |
 
 Set these as **Space secrets**, never in a file.
+
+Only `GROQ_API_KEY` is required. The default deployment runs with generation only:
+figure reading is built and tested (`scripts/vision.py`) but ships switched off, so
+the box needs exactly one credential and chart questions get an honest refusal.
 
 ## The textbook is not in this image
 

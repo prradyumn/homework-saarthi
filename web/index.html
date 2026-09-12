@@ -698,6 +698,11 @@
         real parent. The retrieval numbers are optimistic until that changes.</li>
       <li><strong>Voice</strong> is wired to Bhashini but needs credentials; the browser
         speech API stands in meanwhile, and is honestly labelled where it is used.</li>
+      <li><strong>Reading figures is built but switched off.</strong> A vision model can
+        read a bar chart off the page (and does, in the source), but this deployment runs
+        without that key. Questions whose answer lives only in a picture are refused with
+        a reason instead — which is the same thing the system does for anything else it
+        cannot ground in text.</li>
       <li><strong>WhatsApp delivery</strong> is not built. This web chat exists because
         the WhatsApp test number can only message pre-approved recipients — a link a
         stranger can open is the only demo that actually demos.</li>
@@ -705,8 +710,8 @@
 
     <h3>Stack</h3>
     <p>Python standard library HTTP server (no framework — a demo that needs an install
-    step before it runs is a worse demo) · BGE-M3 embeddings · NumPy index · Groq and
-    Gemini free tiers · Playwright for the interface tests · zero npm.</p>
+    step before it runs is a worse demo) · BGE-M3 embeddings · NumPy index · Groq free
+    tier for generation · Playwright for the interface tests · zero npm.</p>
 
     <p class="about-foot">Built by Pradyumn Awasthi as a product portfolio project.
     The textbook is NCERT गणित मेला (Maths Mela), Class 5, NCF-2023 — 15 chapters,

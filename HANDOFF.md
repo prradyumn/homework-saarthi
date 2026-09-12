@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~88% of the project
+## 3. State: ~90% of the project
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -75,8 +75,8 @@ Google Doc link in the original brief needs auth — use the PDF.
 
 | Service | Status |
 |---|---|
-| **Gemini** | ✅ Key in `.env`. Powers figure reading only (`scripts/vision.py`). **The key was pasted into chat — rotate it at aistudio.google.com.** §14 was overridden by the user for the prototype; only public NCERT pages are sent. **Accepting a parent's photo of their child's homework is a separate decision and a pilot blocker — do not extend to it silently.** |
-| **Groq** | ✅ Key received from user, stored in `.env` (gitignored, chmod 600), loaded by `scripts/answer.py`. **The key was pasted into chat — remind the user to rotate it at console.groq.com/keys.** |
+| **Gemini** | ⛔ **Deliberately unset (D18).** Powered figure reading only (`scripts/vision.py`). The key was exposed twice and could not be found to delete — it lives in auto-created Cloud project **10979730014** (find any key's project by calling an API it is *blocked* from: the error names the consumer). Figure reading now ships OFF; picture-only questions get an honest refusal. The code stays and re-enables by setting the variable. §14 was overridden by the user for the prototype; only public NCERT pages were ever sent. **Accepting a parent's photo of their child's homework remains a separate decision and a pilot blocker.** |
+| **Groq** | ✅ Key in `.env` (gitignored, chmod 600), loaded by `scripts/answer.py`. **THE ONLY CREDENTIAL THE PRODUCT REQUIRES.** It has been pasted into chat more than once — **rotate at console.groq.com/keys before the Space goes public.** Deleting the old key is what revokes it; creating a new one leaves the old one live. |
 | Supabase | ❌ Not yet. User said "later we will also set a postgres and supabase". Retrieval runs on a local numpy index (`ingest/index_combined.npz`) which is fine for now. |
 | Bhashini | ❌ **This is the only thing blocking voice.** Code is written and wired (`scripts/bhashini.py`); register free for non-commercial use at bhashini.gov.in (ULCA portal) and put `BHASHINI_USER_ID` + `BHASHINI_API_KEY` in `.env`. Everything degrades cleanly without them. |
 | WhatsApp Cloud API | ❌ Not yet. Needed for Wk 5. |

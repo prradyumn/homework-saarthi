@@ -123,13 +123,26 @@ def _key() -> str:
 
 
 def _page_jpeg(page: int) -> bytes:
-    """The rendered page, downscaled. Raises if the page was never rendered."""
-    src = ROOT / "ingest" / "pages" / f"p{page:03d}.png"
-    if not src.exists():
-        raise VisionError(f"page render missing: {src}")
+    """The page as a downscaled JPEG, from wherever this box can get it.
+
+    This used to read `ingest/pages/pNNN.png` directly, which quietly made figure
+    reading a laptop-only feature: a deployed container has no page renders (they
+    are © NCERT and excluded from the image), so every figure question would have
+    failed with "page render missing" even when a key was configured — while the
+    docs promised the opposite. `pagesource` already solves exactly this problem
+    for FR-10, falling back to fetching the chapter from ncert.nic.in, so figure
+    reading now uses the same route the parent's "पेज देखिए" button does.
+    """
+    import pagesource
+
     from PIL import Image
 
-    img = Image.open(src).convert("RGB")
+    try:
+        raw = pagesource.render(page)
+    except pagesource.PageUnavailable as exc:
+        raise VisionError(f"could not obtain page {page}: {exc}") from None
+
+    img = Image.open(io.BytesIO(raw)).convert("RGB")
     if img.width > PAGE_WIDTH:
         h = round(img.height * PAGE_WIDTH / img.width)
         img = img.resize((PAGE_WIDTH, h), Image.LANCZOS)
@@ -220,7 +233,13 @@ def read_figure(page: int, question: str) -> dict:
 
 
 def available() -> dict:
-    """Whether figure reading can be offered, for the interface to branch on."""
+    """Whether figure reading can be offered, for the interface to branch on.
+
+    Checks the key is PRESENT, not that it works — a live network call on every
+    status poll would be both slow and a waste of quota. A key that is set but
+    revoked therefore still reports ok here, and fails at the point of use, where
+    the contract validator turns it into an honest refusal rather than a guess.
+    """
     try:
         _key()
     except NotConfigured as exc:
