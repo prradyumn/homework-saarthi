@@ -451,17 +451,17 @@ BACKENDS = {"groq": call_groq, "gemini": call_gemini,
 
 
 # ------------------------------------------------------------------- retrieval
-_model = None
-
-
 def _embed(texts: list[str]) -> np.ndarray:
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
+    """Query vectors, from whichever embedder this box is configured for.
 
-        _model = SentenceTransformer(EMBED_MODEL, device="cpu")
-    return _model.encode(texts, batch_size=4, normalize_embeddings=True,
-                         convert_to_numpy=True)
+    Local BGE-M3 by default, so every eval stays offline and reproducible; a
+    deployed container sets SAATHI_EMBED=cloudflare and calls the same model over
+    the network instead of carrying 1.9 GB of weights. `embedder.py` documents
+    why, and `--compare` asserts the two agree before either is trusted.
+    """
+    import embedder
+
+    return embedder.embed(texts)
 
 
 def load_chunks() -> dict[str, dict]:

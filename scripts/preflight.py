@@ -79,15 +79,31 @@ def local() -> None:
     except Exception as exc:  # noqa: BLE001
         check("chunks load", False, str(exc)[:150])
 
-    print("\n  the embedding model is present locally, not fetched on first question\n")
+    print("\n  query embedding — the one thing that is not precomputed\n")
+    import embedder
+
+    info = embedder.available()
+    check(f"embedder configured ({info['backend']})", info["ok"],
+          info.get("reason", info.get("model", ""))[:150])
+    try:
+        t0 = time.time()
+        v = embedder.embed(["तैयारी"])
+        import numpy as _np
+
+        check("a query embeds to a unit 1024-vector",
+              v.shape == (1, 1024) and abs(float(_np.linalg.norm(v[0])) - 1) < 1e-3,
+              f"{v.shape} in {time.time() - t0:.1f}s")
+    except Exception as exc:  # noqa: BLE001
+        check("a query embeds", False, str(exc)[:150])
+
     try:
         t0 = time.time()
         from answer import retrieve
 
-        hits = retrieve("तैयारी")
-        check("BGE-M3 loads and retrieves", bool(hits), f"{time.time() - t0:.1f}s cold")
+        hits, _ = retrieve("तैयारी")
+        check("retrieval returns hits", bool(hits), f"{time.time() - t0:.1f}s")
     except Exception as exc:  # noqa: BLE001
-        check("BGE-M3 loads and retrieves", False, str(exc)[:150])
+        check("retrieval returns hits", False, str(exc)[:150])
 
     print("\n  FR-10 page images — including the route a deployed box actually uses\n")
     import pagesource
@@ -128,6 +144,11 @@ def local() -> None:
     # states the opposite of the truth.
     check("generation (GROQ_API_KEY)", bool(os.environ.get("GROQ_API_KEY")),
           "REQUIRED — without it nothing can be answered at all")
+
+    if embedder.backend() == "cloudflare":
+        check("query embedding (CF_ACCOUNT_ID + CF_API_TOKEN)",
+              bool(os.environ.get("CF_ACCOUNT_ID") and os.environ.get("CF_API_TOKEN")),
+              "REQUIRED on a box with no local model — nothing can be retrieved")
 
     gemini = bool(os.environ.get("GEMINI_API_KEY"))
     check("figure reading (GEMINI_API_KEY)", gemini,

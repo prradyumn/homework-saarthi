@@ -1,14 +1,14 @@
-# Runtime only — what `serve.py` actually imports once the corpus is already built.
+# Runtime only — what `serve.py` imports once the corpus is already built.
 #
-# The full requirements.txt is the INGEST and EVAL environment: pypdf, pdfminer,
-# rapidfuzz and playwright all belong to building the corpus and testing it, not
-# to answering a parent's question. Shipping them would add ~400 MB to the image
-# and widen the attack surface of a public box for no user-visible gain.
+# NO torch and NO sentence-transformers. The corpus index ships precomputed; the
+# only thing that needs embedding at request time is the query, and that now goes
+# to Cloudflare Workers AI (`@cf/baai/bge-m3` — the same model the index was built
+# with, so the shipped vectors stay valid). Carrying BGE-M3 locally cost ~1.9 GB
+# of RAM and forced a 4 GB host; Hugging Face put the last free tier that size
+# behind PRO in July 2026. See scripts/embedder.py and DECISIONS D19.
 #
-# Install torch from the CPU index (see Dockerfile): the default wheel carries the
-# CUDA runtime, which is ~2 GB of GPU libraries on a box that has no GPU.
+# The full requirements.txt is still the INGEST and EVAL environment, and it keeps
+# torch: every eval runs the model locally, offline and reproducibly.
 numpy==2.5.2
-sentence-transformers==6.0.1
-torch==2.14.0
 pymupdf==1.28.2
 pillow==12.3.0

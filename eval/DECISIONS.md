@@ -1981,3 +1981,77 @@ rm /tmp/h
 local development and should not be the key the public Space runs on. Create a
 separate one in the Groq console and paste it only into the Space's secrets UI —
 a credential that never enters a transcript needs no rotation later.
+
+---
+
+## D19 — The model came out of the container, and the numbers survived
+
+Hugging Face moved the **Docker and Gradio SDKs behind PRO for personal accounts
+in July 2026**. Only Static Spaces remain free, and a static Space cannot run
+Python. D17's deployment target evaporated, and the recommendation in `DEPLOY.md`
+was wrong the moment it was written down — I had asserted the free tier from
+memory instead of checking it.
+
+### Why that one change broke the whole plan
+
+BGE-M3 loads at ~1.9 GB and peaks near 3.3 GB while encoding. That single number
+picked the host: HF Spaces free was the only free tier with 16 GB. Every other
+free tier gives 256 MB – 1 GB, so losing HF did not mean "find another host", it
+meant there was no free host at all for the architecture as built.
+
+### The reframe
+
+The corpus index was **always precomputed**. The model was in the container to
+embed exactly one thing per request: the parent's question, about 30 tokens. Four
+gigabytes of container to vectorise thirty tokens.
+
+So the query embedding moved off the box, to **Cloudflare Workers AI running
+`@cf/baai/bge-m3`** — deliberately the *same model* the index was built with,
+because a different embedder would silently invalidate `index_combined.npz` and
+every figure measured against it.
+
+| | before | after |
+|---|---|---|
+| image | ~4 GB | **~300 MB** |
+| RAM | ~4 GB | **under 512 MB** |
+| free hosts that fit | HF Spaces (now PRO) | Render, Koyeb, Fly, any VM — no card |
+| build | 10–15 min | **~2 min** |
+
+### The ceiling moved somewhere harmless
+
+| | free allowance | in practice |
+|---|---|---|
+| Workers AI | 10,000 neurons/day | bge-m3 is 1,075 neurons per M input tokens; a ~30-token query → **~300,000 queries/day** |
+| Groq | 200,000 tokens/day | **~90 answers/day** |
+
+Groq still binds, by roughly 3,000×. Embedding will never be the limit, and the
+cost model's conclusions are untouched.
+
+### Local stays local, on purpose
+
+`SAATHI_EMBED` selects the backend and **defaults to local**. Every eval —
+`calibrate_refusal.py`, `eval_retrieval.py`, the audits — runs BGE-M3 on the
+machine, offline, with no credential and no network variance. A reproducible
+number that silently depends on a third party's uptime is not reproducible.
+`eval_retrieval.py` re-run after the refactor: **93%, unchanged**.
+
+### What must be proven before this ships
+
+Two services running "the same model" can still differ in pooling or
+normalisation, and **a subtly wrong query vector does not throw** — it returns the
+wrong passage while every test still passes. So `embedder.py --compare` embeds the
+same five queries both ways, reports per-query cosine agreement, and checks that
+both rank the real corpus identically in the top 5. Below 0.999 is treated as a
+different model and blocks the deployment.
+
+**That check has not run yet** — it needs a Cloudflare account. Until it passes,
+this is a refactor that is verified locally and unverified remotely, and
+`DEPLOY.md` says exactly that.
+
+### The wider lesson, which has now happened twice
+
+A free tier is a dependency with no contract. Gemini's key vanished into a project
+I could not find (D18); Hugging Face withdrew a tier the architecture was shaped
+around (here). Both times the fix was the same: **stop depending on the thing.**
+The gain is not just resilience — a 300 MB container that runs anywhere is a
+better artefact than a 4 GB one that runs in exactly one place.

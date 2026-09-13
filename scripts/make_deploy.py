@@ -36,8 +36,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "deploy"
 
 # Exactly what `serve.py` reaches at runtime, traced through the import graph:
-#   serve -> pagesource, answer, query_gate, bhashini, vision
-#   answer -> retrieval, query_gate, answer_contract, vision
+#   serve  -> pagesource, answer, query_gate, bhashini, vision
+#   answer -> retrieval, query_gate, answer_contract, vision, embedder
 # Everything else under scripts/ builds or measures the corpus and has no place
 # on a public box.
 RUNTIME_SCRIPTS = [
@@ -46,6 +46,7 @@ RUNTIME_SCRIPTS = [
     "answer_contract.py",  # the §10 four-part validator
     "query_gate.py",     # deterministic pre-checks, before any model call
     "retrieval.py",      # hybrid dense + lexical, parent->textbook vocabulary
+    "embedder.py",       # query vectors: local BGE-M3, or the same model on Workers AI
     "pagesource.py",     # FR-10 page images, incl. the fetch-from-NCERT route
     "vision.py",         # reads figures (optional; degrades to refusing)
     "bhashini.py",       # ASR/TTS (optional; degrades to browser speech)
@@ -111,14 +112,17 @@ Press **ABOUT** in the app for the full picture, including what is *not* done.
 | Secret | Needed? | Without it |
 |---|---|---|
 | `GROQ_API_KEY` | **yes** | nothing can be generated |
+| `CF_ACCOUNT_ID` + `CF_API_TOKEN` | **yes** | no query can be embedded, so nothing can be retrieved |
 | `BHASHINI_USER_ID` + `BHASHINI_API_KEY` | optional | voice falls back to the browser speech API |
 | `GEMINI_API_KEY` | **off by design** | questions answerable only from a picture are refused with a reason, rather than read |
 
 Set these as **Space secrets**, never in a file.
 
-Only `GROQ_API_KEY` is required. The default deployment runs with generation only:
-figure reading is built and tested (`scripts/vision.py`) but ships switched off, so
-the box needs exactly one credential and chart questions get an honest refusal.
+Two credentials, both free and neither needing a card. Groq generates; Cloudflare
+Workers AI embeds the query with `@cf/baai/bge-m3` — the same model the shipped
+index was built with, which is why this image carries no model weights and runs in
+under 512 MB. Figure reading is built and tested (`scripts/vision.py`) but ships
+switched off, so chart questions get an honest refusal.
 
 ## The textbook is not in this image
 

@@ -15,29 +15,50 @@ demonstrated to anyone.**
 | `/api/health` and `/api/status` | **Yes** |
 | Page images fetched from ncert.nic.in with no local book | **Yes** — 80 KB in 1.8 s cold, then cached |
 | `preflight.py` | **Yes** — 17 checks, 0 failures on this laptop |
-| **The Docker image building** | **No.** Docker is not installed on this machine. The Dockerfile is written from the constraints below but has never been built. Expect to fix one or two lines on the first build. |
+| Slim runtime with no torch | **Yes** — retrieval re-measured at 93%, unchanged by the refactor |
+| Clean failure when the embedder has no credentials | **Yes** — raises `NotConfigured` with the signup steps, rather than crashing |
+| **Cloudflare returning vectors compatible with the shipped index** | **Not yet.** Needs an account. `python scripts/embedder.py --compare` settles it in one command and MUST pass before this ships — see below. |
+| **The Docker image building** | **No.** Docker is not installed on this machine. The Dockerfile has never been built. Expect to fix a line or two on the first build. |
 
 Everything except the image build is tested. The image build is the one step
 you should expect to iterate on.
 
 ---
 
-## Why Hugging Face Spaces
+## Why not Hugging Face, and what changed
 
-BGE-M3 needs about **1.9 GB to load and peaks near 3.3 GB while encoding**. That
-single number eliminates almost every free tier:
+The original plan was a Docker Space, because BGE-M3 needs ~1.9 GB to load and
+peaks near 3.3 GB while encoding — and HF Spaces free was the only free tier with
+that much memory. **In July 2026 Hugging Face moved both the Docker and Gradio
+SDKs behind PRO for personal accounts.** Only Static Spaces remain free, and a
+static Space cannot run Python.
 
-| Host | Free memory | Verdict |
+Rather than pay, the model came out of the container (D19). The corpus index was
+always precomputed; the only thing needing a model at request time is the *query*
+vector, and that now goes to **Cloudflare Workers AI running `@cf/baai/bge-m3` —
+the same model the index was built with**, which is what keeps the shipped vectors
+and every measured number valid.
+
+| | before | after |
 |---|---|---|
-| **HF Spaces (Docker)** | **2 vCPU / 16 GB** | **works** |
-| Render free | 512 MB | cannot load the model |
-| Fly.io free | 256 MB – 1 GB | cannot load the model |
-| Vercel / Netlify | serverless, no persistent RAM | wrong shape entirely |
+| image | ~4 GB (torch + BGE-M3) | **~300 MB** |
+| RAM needed | ~4 GB | **under 512 MB** |
+| free hosts that fit | HF Spaces (now PRO) | Render, Koyeb, Fly, a VM — no card |
+| build time | 10–15 min | **~2 min** |
 
-Nothing in the Dockerfile is HF-specific except the default port, so any
-container host with ~4 GB of RAM runs the same image.
+Local development and **every eval still run BGE-M3 on the machine**, offline and
+with no credential. `SAATHI_EMBED` picks the backend and defaults to local, so the
+reproducible numbers stay reproducible.
 
----
+### The free ceilings, and which one binds
+
+| | free allowance | what that is |
+|---|---|---|
+| Cloudflare Workers AI | 10,000 neurons/day | bge-m3 costs 1,075 neurons per M input tokens; a query is ~30 tokens → **~300,000 queries/day** |
+| Groq | 200,000 tokens/day | ~2,200 per answer → **~90 answers/day** |
+| Render free | 750 instance-hours/month | one service running continuously fits |
+
+**Groq binds, by a factor of about 3,000.** Embedding will never be the limit.
 
 ## Steps
 
@@ -64,16 +85,21 @@ python scripts/make_deploy.py --check    # is the folder self-contained?
 cd deploy && python scripts/preflight.py # 18 checks, run from inside the folder
 ```
 
-### 1. Create the Space
+### 1. Create the service
 
-At <https://huggingface.co/new-space>: choose **Docker → Blank**, hardware
-**CPU basic (free)**, and set it **Public** so the link works for anyone.
+At <https://render.com> → **New → Web Service** → connect the `deploy/` repo (or
+push it to GitHub first). Choose **Docker** as the runtime and the **Free** plan.
 
-### 2. The Space README is already written
+Free instances spin down after 15 minutes idle and take about a minute to wake, so
+the first click on a cold link waits. That is the price of not paying; if it
+matters for a specific demo, open the link yourself a minute beforehand.
 
-HF Spaces is configured by YAML frontmatter in the Space repo's `README.md`.
-`make_deploy.py` writes that file, frontmatter and all, so there is nothing to do
-here — it is `deploy/README.md`.
+### 2. Nothing to configure
+
+The `Dockerfile` sets `PORT`, `HOST=0.0.0.0` and `SAATHI_EMBED=cloudflare`, and
+Render reads the port from the environment. `deploy/README.md` carries HF Spaces
+frontmatter too, which is harmless elsewhere and keeps that door open if you ever
+take a PRO plan.
 
 ### 3. Add secrets
 
@@ -82,12 +108,19 @@ In **Settings → Variables and secrets**, add them as *secrets*, not variables:
 | Secret | Needed? | Without it |
 |---|---|---|
 | `GROQ_API_KEY` | **yes** | nothing can be generated |
+| `CF_ACCOUNT_ID`, `CF_API_TOKEN` | **yes** | no query can be embedded, so nothing can be retrieved |
 | `BHASHINI_USER_ID`, `BHASHINI_API_KEY` | optional | voice falls back to the browser speech API |
 | `GEMINI_API_KEY` | **off by design** | picture-only questions are refused with a reason |
 
-**One credential is all this needs.** Figure reading was deliberately switched off
-(D18) after its key was exposed; the capability stays in the code and can be
-re-enabled by setting the variable, but nothing depends on it.
+**Two credentials, both free, neither needing a card.**
+
+Cloudflare: sign in at <https://dash.cloudflare.com>, take the **Account ID** from
+the right-hand sidebar, then **My Profile → API Tokens → Create Token → Custom**,
+with the single permission **Account · Workers AI · Read**. Nothing else.
+
+Figure reading was deliberately switched off (D18) after its key was exposed; the
+capability stays in the code and can be re-enabled by setting the variable, but
+nothing depends on it.
 
 **Rotate `GROQ_API_KEY` before deploying** — it has been pasted into a chat
 transcript more than once: <https://console.groq.com/keys>. Deleting the old key
@@ -97,19 +130,17 @@ is what revokes it; creating a new one leaves the old one live.
 
 ```bash
 cd deploy
-git remote add space https://huggingface.co/spaces/<you>/homework-saathi
-git push space main
+git remote add origin https://github.com/<you>/homework-saathi.git
+git push -u origin main
 ```
 
-The first build takes roughly 10–15 minutes, most of it downloading torch and
-baking BGE-M3 into the image. Baking it is deliberate: pulling 2.1 GB on boot
-means the app is up but every question 503s for several minutes, which is the
-worst state for a demo link to be in.
+Then point Render at that repo. The build is ~2 minutes now that there is no model
+to download.
 
 ### 5. Verify the deployment rather than trusting it
 
 ```bash
-python scripts/preflight.py --url https://<you>-homework-saathi.hf.space
+python scripts/preflight.py --url https://<your-service>.onrender.com
 ```
 
 This checks health, that models finished loading, that the backend is not the
@@ -136,6 +167,22 @@ building and testing the corpus, not to answering a question.
 about 2 GB of GPU libraries on a box with no GPU.
 
 ---
+
+## Before shipping: prove the embedder is the same model
+
+Two services running "the same model" can still differ in pooling or
+normalisation. A query vector that is subtly wrong **does not throw** — it quietly
+returns the wrong passage, and every number in the case study stops being true
+without anything failing.
+
+```bash
+CF_ACCOUNT_ID=... CF_API_TOKEN=... python scripts/embedder.py --compare
+```
+
+It embeds the same five queries locally and on Workers AI, reports cosine
+agreement per query, and checks that both rank the real corpus identically in the
+top 5. **Below 0.999 means a different model — do not ship it**; re-embed the
+corpus against whatever is actually being served, and re-run the evals.
 
 ## The free tier is the capacity limit
 
