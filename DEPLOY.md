@@ -167,16 +167,41 @@ about 2 GB of GPU libraries on a box with no GPU.
 
 ---
 
-## Turning on voice (Bhashini)
+## Voice — already on, and it needs no new account
 
-Free for non-commercial use, and the reason it is Bhashini rather than a US API
-is §8.4: a child's homework passing through a speech service is a sovereignty and
-data-governance decision, not only a cost one.
+Voice works today with the credentials you already have. `scripts/speech.py`
+picks a provider per capability:
+
+| | provider | cost | measured |
+|---|---|---|---|
+| **Speech in** (ASR) | Groq `whisper-large-v3` | free, existing key | **0.4s**, near-perfect Hindi |
+| **Speech out** (TTS) | the browser's own `speechSynthesis` | free, **on-device** | already shipped |
+
+Recognition has to be server-side: it is where Devanagari typists are lost, and a
+WhatsApp voice note never touches a browser. Synthesis stays on the device on
+purpose — `speechSynthesis` is local on Android, iOS and macOS, so nothing leaves
+the phone. That is a *better* privacy position than any cloud voice, and the exact
+opposite of `speechRecognition`, which Chrome implements by shipping audio to
+Google and which is now only a fallback.
+
+Rejected, with reasons, so this is not relitigated: Cloudflare
+`@cf/deepgram/aura-*` is English/Spanish and renders "होते हैं" as "होटेइन" —
+a retroflex ट where a dental त belongs; `@cf/myshell-ai/melotts` returns a 3043
+internal error for every input including English; Sarvam Bulbul is genuinely good
+Hindi from an Indian provider but ships ₹100 of *expiring trial credit*, which
+HANDOFF §2 rules out.
+
+### Bhashini remains the preferred path if approval ever lands
+
+§8.4's reasoning still stands — a child's homework passing through a speech
+service is a sovereignty decision, not only a cost one — and `speech.py` switches
+to it automatically the moment credentials exist, for both directions.
 
 1. Register at <https://bhashini.gov.in> — the ULCA portal. Create a user and
    generate an API key.
 2. Put them in the host's environment (not a file):
-   `BHASHINI_USER_ID`, `BHASHINI_API_KEY`
+   `BHASHINI_USER_ID`, `BHASHINI_API_KEY` — nothing else changes; `speech.py`
+   prefers them over Groq automatically.
 3. Prove the whole loop in one command:
 
 ```bash

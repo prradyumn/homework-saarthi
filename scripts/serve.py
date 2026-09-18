@@ -88,15 +88,24 @@ def check_whatsapp() -> None:
 
 
 def check_voice() -> None:
-    try:
-        import bhashini
+    """Recognition and synthesis are configured independently and reported apart.
 
-        _state["voice"] = bhashini.available()
+    One combined "voice: ok" hid that they come from different places — the
+    server now recognises via Groq Whisper while the browser synthesises
+    on-device, and the interface has to branch on each separately.
+    """
+    try:
+        import speech
+
+        _state["voice"] = speech.available()
         v = _state["voice"]
-        print("  voice: " + ("Bhashini connected — " + str(v.get("services"))
-                             if v["ok"] else "not connected (text only)"), flush=True)
+        print(f"  speech in : {v['asr']['provider'] or 'none'}", flush=True)
+        print(f"  speech out: {v['tts']['provider'] or 'none'}"
+              + (" (on-device)" if v["tts"]["provider"] == "browser" else ""),
+              flush=True)
     except Exception as exc:  # noqa: BLE001
-        _state["voice"] = {"ok": False, "reason": str(exc)[:200]}
+        _state["voice"] = {"ok": False, "asr": {"ok": False}, "tts": {"ok": False},
+                           "reason": str(exc)[:200]}
 
 
 def warm() -> None:
@@ -237,7 +246,7 @@ class Handler(BaseHTTPRequestHandler):
         "एक बटा चार" (1/4) misheard as "एक बटा चालीस" (1/40) silently changes the
         question, and the parent cannot detect it. One visible turn converts a
         silent wrong answer into a correctable one."""
-        import bhashini
+        import speech
 
         audio = payload.get("audio_base64") or ""
         if not audio:
@@ -247,11 +256,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(400, {"error_hi": "आवाज़ का संदेश बहुत लंबा है, "
                                                 "एक मिनट से कम रखिए।"})
         try:
-            rate = int(payload.get("sample_rate") or bhashini.ASR_SAMPLE_RATE)
-            out = bhashini.transcribe(audio, sample_rate=rate)
-            print(f"  ASR {out['seconds']}s -> {out['text'][:60]!r}", flush=True)
+            rate = int(payload.get("sample_rate") or speech.ASR_SAMPLE_RATE)
+            out = speech.transcribe(audio, sample_rate=rate)
+            print(f"  ASR [{out.get('provider')}] {out['seconds']}s "
+                  f"-> {out['text'][:60]!r}", flush=True)
             return self._json(200, out)
-        except bhashini.NotConfigured as exc:
+        except speech.NotConfigured as exc:
             return self._json(200, {"unavailable": True, "detail": str(exc)})
         except Exception as exc:  # noqa: BLE001
             return self._json(200, {"error_hi": "आवाज़ समझ नहीं आई, फिर बोलिए "
@@ -262,16 +272,17 @@ class Handler(BaseHTTPRequestHandler):
         """Answer text -> Hindi audio. §8.3: fluent Hindi speech does not imply
         fluent Devanagari reading, so an answer the parent cannot read is an
         answer they cannot use."""
-        import bhashini
+        import speech
 
         text = (payload.get("text") or "").strip()
         if not text:
             return self._json(400, {"error_hi": "सुनाने के लिए कुछ नहीं मिला।"})
         try:
-            out = bhashini.speak(text[:1200])
-            print(f"  TTS {out['seconds']}s for {out['chars']} chars", flush=True)
+            out = speech.speak(text[:1200])
+            print(f"  TTS {out['seconds']}s for {out.get('chars', len(text))} chars",
+                  flush=True)
             return self._json(200, out)
-        except bhashini.NotConfigured as exc:
+        except speech.NotConfigured as exc:
             return self._json(200, {"unavailable": True, "detail": str(exc)})
         except Exception as exc:  # noqa: BLE001
             return self._json(200, {"error_hi": "आवाज़ बनाने में दिक्कत हुई।",

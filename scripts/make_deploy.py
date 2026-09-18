@@ -36,7 +36,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "deploy"
 
 # Exactly what `serve.py` reaches at runtime, traced through the import graph:
-#   serve  -> pagesource, answer, query_gate, bhashini, vision, whatsapp
+#   serve  -> pagesource, answer, query_gate, speech, vision, whatsapp
+#   speech -> bhashini (only when ULCA credentials exist)
 #   answer -> retrieval, query_gate, answer_contract, vision, embedder
 # Everything else under scripts/ builds or measures the corpus and has no place
 # on a public box.
@@ -49,7 +50,8 @@ RUNTIME_SCRIPTS = [
     "embedder.py",       # query vectors: local BGE-M3, or the same model on Workers AI
     "pagesource.py",     # FR-10 page images, incl. the fetch-from-NCERT route
     "vision.py",         # reads figures (optional; degrades to refusing)
-    "bhashini.py",       # ASR/TTS (optional; degrades to browser speech)
+    "speech.py",         # ASR via Groq Whisper (default) or Bhashini; TTS on-device
+    "bhashini.py",       # the preferred ULCA path, when credentials exist
     "whatsapp.py",       # Cloud API webhook (optional; degrades to web chat only)
     "preflight.py",      # so a deployed box can check itself
 ]
@@ -114,7 +116,7 @@ Press **ABOUT** in the app for the full picture, including what is *not* done.
 |---|---|---|
 | `GROQ_API_KEY` | **yes** | nothing can be generated |
 | `CF_ACCOUNT_ID` + `CF_API_TOKEN` | **yes** | no query can be embedded, so nothing can be retrieved |
-| `BHASHINI_USER_ID` + `BHASHINI_API_KEY` | optional | voice falls back to the browser speech API |
+| `BHASHINI_USER_ID` + `BHASHINI_API_KEY` | optional | recognition uses Groq Whisper instead; synthesis stays on-device |
 | `GEMINI_API_KEY` | **off by design** | questions answerable only from a picture are refused with a reason, rather than read |
 
 Set these as **Space secrets**, never in a file.

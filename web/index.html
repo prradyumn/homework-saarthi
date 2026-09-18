@@ -727,7 +727,16 @@ const statusText = $('#statusText'), hint = $('#hint');
 const micBtn = $('#mic'), sendBtn = $('#send');
 
 let busy = false;
-let VOICE_MODE = 'none';        // 'bhashini' | 'browser' | 'none'
+/* Recognition and synthesis are chosen INDEPENDENTLY. The server recognises
+   (Groq Whisper, or Bhashini when configured) because a phone keyboard is where
+   Devanagari typists are lost — and because a WhatsApp voice note never touches
+   a browser. Synthesis stays on the device: speechSynthesis is local on Android,
+   iOS and macOS, so nothing leaves the phone, which beats any cloud voice.
+   (speechRecognition is the opposite — Chrome ships that audio to Google — so it
+   is only a fallback when the server cannot recognise.) */
+let ASR_MODE = 'none';          // 'server' | 'browser' | 'none'
+let TTS_MODE = 'none';          // 'server' | 'browser' | 'none'
+let VOICE_MODE = 'none';        // kept for the dev panel: whatever handles input
 let voiceProvider = 'none';
 
 /* Inline SVG rather than emoji: emoji render as a different glyph on every
@@ -849,18 +858,24 @@ async function poll() {
       return;
     }
     if (s.ready) {
-      const server = !!(s.voice && s.voice.ok);
-      const browser = Speech.canListen() || Speech.canSpeak();
-      VOICE_MODE = server ? 'bhashini' : (browser ? 'browser' : 'none');
-      voiceProvider = server ? 'Bhashini (भारत सरकार)' : (browser ? 'browser speech' : 'none');
+      const v = s.voice || {};
+      const serverASR = !!(v.asr && v.asr.ok);
+      const serverTTS = !!(v.tts && v.tts.ok);
+      ASR_MODE = serverASR ? 'server' : (Speech.canListen() ? 'browser' : 'none');
+      TTS_MODE = serverTTS ? 'server' : (Speech.canSpeak() ? 'browser' : 'none');
+      VOICE_MODE = ASR_MODE === 'none' ? (TTS_MODE === 'none' ? 'none' : 'browser')
+                                       : ASR_MODE;
+      voiceProvider = `in: ${serverASR ? (v.asr.provider || 'server')
+                                       : (ASR_MODE === 'browser' ? 'browser (Google)' : 'none')}`
+                    + `  ·  out: ${serverTTS ? (v.tts.provider || 'server')
+                                             : (TTS_MODE === 'browser' ? 'browser (on-device)' : 'none')}`;
       dot.className = 'dot ready';
       /* Parent-facing. Which speech provider is wired is our problem, not theirs —
          that detail lives in the HOW IT WORKS panel. */
-      statusText.textContent = VOICE_MODE === 'none'
+      statusText.textContent = ASR_MODE === 'none'
         ? 'तैयार — किताब: NCERT गणित मेला, कक्षा 5'
         : 'तैयार — बोलकर या लिखकर पूछिए';
-      const canMic = VOICE_MODE === 'bhashini' ||
-                     (VOICE_MODE === 'browser' && Speech.canListen());
+      const canMic = ASR_MODE !== 'none';
       micBtn.disabled = !canMic;
       micBtn.title = canMic ? 'बोलकर पूछिए' : 'इस ब्राउज़र में आवाज़ नहीं चलेगी';
       return;
@@ -931,7 +946,7 @@ function renderAnswer(node, d) {
         <div class="cite">
           <span class="src">किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
           <button class="link" data-page="${esc(c.page)}">${ICON.book}<span class="lb">पेज देखिए</span></button>
-          ${VOICE_MODE !== 'none' ? `<button class="link" data-speak>${ICON.sound}<span class="lb">सुनकर देखिए</span></button>` : ''}
+          ${TTS_MODE !== 'none' ? `<button class="link" data-speak>${ICON.sound}<span class="lb">सुनकर देखिए</span></button>` : ''}
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
@@ -1023,7 +1038,7 @@ let audio = null;
 async function speak(btn, text) {
   const lab = btn.querySelector('.lb') || btn;
   const was = lab.textContent;
-  if (VOICE_MODE === 'browser') {
+  if (TTS_MODE === 'browser') {
     if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); lab.textContent = was; return; }
     lab.textContent = 'रोकिए';
     Speech.speak(text, () => { lab.textContent = was; });
@@ -1230,8 +1245,11 @@ async function afterTranscript(text) {
 
 micBtn.onclick = () => {
   if (busy) return;
-  if (VOICE_MODE === 'bhashini') { pcm ? stopPcm() : startPcm(); return; }
-  if (VOICE_MODE === 'browser') { listening ? listening.stop() : startListen(); }
+  /* Server recognition records real PCM and uploads it. The browser path is the
+     fallback and is honestly worse: it sends audio to Google, and it cannot hear
+     a WhatsApp voice note at all. */
+  if (ASR_MODE === 'server') { pcm ? stopPcm() : startPcm(); return; }
+  if (ASR_MODE === 'browser') { listening ? listening.stop() : startListen(); }
 };
 
 /* ------------------------------ composer ------------------------------ */

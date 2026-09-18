@@ -129,7 +129,13 @@ def main() -> int:
         check("status reports ready", "तैयार" in status and "हो रहा" not in status, status)
 
         mode = page.evaluate("() => VOICE_MODE")
-        check("a voice provider was selected", mode in ("bhashini", "browser"), f"mode={mode}")
+        # Recognition and synthesis are picked independently now: the server
+        # recognises (Groq Whisper) while the browser synthesises on-device.
+        modes = page.evaluate("() => ({asr: ASR_MODE, tts: TTS_MODE})")
+        check("a recognition provider was selected",
+              modes["asr"] in ("server", "browser"), f"asr={modes['asr']}")
+        check("a synthesis provider was selected",
+              modes["tts"] in ("server", "browser"), f"tts={modes['tts']}")
         page.screenshot(path=str(SHOTS / "01-idle.png"), full_page=True)
 
         # ---- example chips should exist and be clickable ----

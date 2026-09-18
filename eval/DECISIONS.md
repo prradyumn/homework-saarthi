@@ -2235,3 +2235,70 @@ projective, revealed), with **both decision rules pre-registered** so a
 disappointing result cannot be reasoned away afterwards. The study is designed;
 only the fieldwork is outstanding, and it is still the thing the whole thesis
 rests on.
+
+---
+
+## D23 — Voice, without waiting for an approval that has no date
+
+Bhashini access is an application to a government body with no committed
+timeline. §8.4's reasoning for preferring it is unchanged and it remains the
+production path — but a product cannot be blocked on an approval queue, and the
+capability was sitting written-but-dark.
+
+Recognition and synthesis turn out to have completely different answers, which is
+why they are now configured independently. Reporting one combined `voice.ok` hid
+exactly that.
+
+### Speech in — Groq Whisper, on the key that was already there
+
+`whisper-large-v3` is on Groq's free tier. Tested on real Hindi audio rather than
+assumed (macOS `Lekha` generating the reference):
+
+```
+said : एक किलोग्राम में एक हज़ार ग्राम होते हैं
+heard: एक किलो ग्राम में एक हजार ग्राम होते हैं.     0.39s
+```
+
+One inserted word-space and one dropped nukta. Semantically identical, trivially
+normalised, and **zero new accounts**. `language=hi` is passed explicitly, because
+Hindi and Urdu are close enough acoustically that Whisper otherwise sometimes
+returns Nastaliq for ordinary Hindi speech.
+
+The whole parent path was then walked end to end: audio → `/api/transcribe`
+(0.65s) → FR-2 read-back → answered with a citation.
+
+### Speech out — the browser, and this is an upgrade not a compromise
+
+`speechSynthesis` is synthesised **on the device** on Android, iOS and macOS, all
+of which ship hi-IN voices. No audio and no text leaves the phone. For a product
+whose §14 argument is about not exporting families' private data, that is a
+better position than any cloud voice — including Bhashini's.
+
+It is also the exact opposite of `speechRecognition`, which Chrome implements by
+shipping audio to Google. That was previously used for *both* directions; now
+that a server ASR exists it is demoted to a fallback, which is a real privacy
+improvement that arrived as a side effect.
+
+### What was rejected, and why, so it is not relitigated
+
+- **`@cf/deepgram/aura-1`** — returns audio for Hindi input, which is the trap.
+  Round-tripping it back through Whisper gives *"एक किलो ग्राम मैने एक हजी आर
+  ग्राम होटेइन"*: an English phonetic engine approximating Devanagari, with a
+  retroflex ट where a dental त belongs. A parent reads this aloud to a child, so
+  wrong pronunciation is worse than silence. **Producing plausible output is not
+  the same as working** — the round trip is what exposed it.
+- **`@cf/myshell-ai/melotts`** — 3043 internal error for every input tried,
+  English included.
+- **Sarvam AI (Bulbul)** — genuinely good Hindi, Indian provider, and the right
+  first call if server-side TTS is ever needed. But ₹100 of *expiring trial
+  credit* is not a free tier, and HANDOFF §2 rules those out.
+
+### Where this leaves things
+
+Voice is on, cost nothing, and needed no new account. Server TTS is only actually
+required for spoken replies on WhatsApp; the web channel is complete without it.
+`speech.py` switches to Bhashini automatically for both directions the moment
+credentials appear, so the approval, if it lands, is a configuration change rather
+than a rewrite.
+
+53/53 browser assertions, with `asr=server` and `tts=browser` asserted separately.
