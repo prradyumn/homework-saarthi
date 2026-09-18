@@ -1,0 +1,46 @@
+# Render Blueprint — deploys this repo as-is.
+#
+# The Dockerfile at the repo root is the whole deployment; `deploy/` is a
+# minimal proof that the runtime is self-contained, not a requirement. Building
+# from root means nothing extra to push: the image carries ~7.6 MB of context,
+# and .dockerignore keeps the NCERT pages, the raw PDFs and .env out of it.
+#
+# The four secrets are marked `sync: false`, so Render prompts for each value and
+# stores it in the service rather than in this file. A credential in a repo is a
+# credential you cannot rotate.
+
+services:
+  - type: web
+    name: homework-saathi
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: singapore          # closest to the users this is built for
+    branch: main
+
+    # /api/health answers as soon as the process is up. /api/status reports
+    # whether the index and the embedder are ready — a different question, and
+    # the wrong one to gate a restart on during a legitimate warm-up.
+    healthCheckPath: /api/health
+
+    envVars:
+      # No local model on this box: the query is embedded by Cloudflare Workers
+      # AI using @cf/baai/bge-m3, the same model the shipped index was built
+      # with. See scripts/embedder.py and DECISIONS D19.
+      - key: SAATHI_EMBED
+        value: cloudflare
+
+      # Chapter PDFs are fetched from ncert.nic.in at request time and cached
+      # here. Must be writable and outside the image; Render's disk is ephemeral,
+      # and the boot-time warmer refills it (D20).
+      - key: SAATHI_CACHE
+        value: /tmp/saathi-pdf-cache
+
+      # Prompted on first deploy, never stored in this repo.
+      - key: GROQ_API_KEY      # required — nothing generates without it
+        sync: false
+      - key: CF_ACCOUNT_ID     # required — nothing retrieves without it
+        sync: false
+      - key: CF_API_TOKEN      # required
+        sync: false

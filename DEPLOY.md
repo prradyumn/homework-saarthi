@@ -128,14 +128,13 @@ is what revokes it; creating a new one leaves the old one live.
 
 ### 4. Push
 
-```bash
-cd deploy
-git remote add origin https://github.com/<you>/homework-saathi.git
-git push -u origin main
-```
+Nothing to push — the project is already on GitHub at
+`prradyumn/homework-saarthi`, and `render.yaml` at the repo root tells Render how
+to build it. Point a **Blueprint Instance** at the repo and it configures itself,
+prompting only for the three secrets.
 
-Then point Render at that repo. The build is ~2 minutes now that there is no model
-to download.
+`deploy/` is a minimal proof that the runtime is self-contained; Render does not
+need it. The build is ~2 minutes now that there is no model to download.
 
 ### 5. Verify the deployment rather than trusting it
 

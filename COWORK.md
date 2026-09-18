@@ -186,42 +186,42 @@ git -c user.email=pradyumn@convegenius.ai -c user.name="Pradyumn Awasthi" \
 
 ---
 
-## Step 4 — Push `deploy/` to GitHub
+## Step 4 — Push to GitHub ✅ ALREADY DONE
 
-Render deploys from a git repo. `deploy/` already **is** one, with its own history
-that survives rebuilds.
+The project is already on GitHub and **fully up to date**, today's commits
+included:
 
-The human must create the GitHub repo (it needs their account). Ask for the URL,
-then:
-
-```bash
-cd "/Users/pradyumnawasthi/homework saarthi/deploy"
-git remote add origin https://github.com/<them>/homework-saathi.git
-git push -u origin main
+```
+https://github.com/prradyumn/homework-saarthi        origin/main == local HEAD
 ```
 
-Before pushing, confirm nothing forbidden is tracked:
+**Render builds from this repo directly.** The `Dockerfile` is at the repo root
+and `.dockerignore` keeps the NCERT pages, the raw PDFs and `.env` out — a 7.6 MB
+build context with no book and no secrets in it, verified.
 
-```bash
-git ls-files | grep -Ei '\.(pdf|png|jpg)$|\.env$'   # must print NOTHING
-```
+`deploy/` is therefore **optional**. It is a minimal proof that the runtime is
+genuinely self-contained (19 files, no torch, no model); it is not a second thing
+to push, and a Render service pointed at the repo root does not use it.
 
----
+Anything committed from here just needs a normal `git push`.
 
 ## Step 5 — Create the Render service
 
 **You cannot do this step** — it needs their login. Give them these instructions
 verbatim and wait.
 
-> 1. <https://render.com> → **New → Web Service**
-> 2. Connect the `homework-saathi` repo
-> 3. Runtime **Docker**, plan **Free**
-> 4. **Environment → Add Environment Variable**, four of them:
->    - `GROQ_API_KEY` — required, nothing generates without it
->    - `CF_ACCOUNT_ID` — required
->    - `CF_API_TOKEN` — required, nothing retrieves without it
->    - `SAATHI_EMBED` = `cloudflare`
-> 5. Create. The build is ~2 minutes (no model to download).
+> 1. <https://dashboard.render.com/blueprints> → **New Blueprint Instance**
+> 2. Connect **`prradyumn/homework-saarthi`**
+> 3. Render reads `render.yaml` and configures everything — Docker runtime, free
+>    plan, health check, region — then prompts for exactly three secrets:
+>    - `GROQ_API_KEY`
+>    - `CF_ACCOUNT_ID`
+>    - `CF_API_TOKEN`
+> 4. Apply. The build is ~2 minutes; there is no model to download.
+>
+> (Without the blueprint: **New → Web Service**, pick the repo, runtime
+> **Docker**, plan **Free**, and add those three plus `SAATHI_EMBED=cloudflare`
+> and `SAATHI_CACHE=/tmp/saathi-pdf-cache` by hand.)
 
 Tell them plainly: **free instances spin down after 15 minutes idle and take about
 a minute to wake.** The first click on a cold link waits. If they are demoing to
