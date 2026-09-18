@@ -51,6 +51,10 @@ BASE = "https://ncert.nic.in/textbook/pdf"
 # wide anyway, so rendering at 300 would be work done only to throw away.
 WEB_DPI = 150
 
+# Seconds to wait on ncert.nic.in from inside a web request. Overridable so the
+# ingest path, which legitimately can wait, is not bound by the web budget.
+FETCH_TIMEOUT = int(__import__("os").environ.get("SAATHI_FETCH_TIMEOUT", "20"))
+
 _lock = threading.Lock()
 _map: dict[int, tuple[str, int]] | None = None
 
@@ -93,7 +97,16 @@ def _chapter_pdf(code: str) -> pathlib.Path:
     try:
         # curl for the same reason fetch_ncert.py uses it: ncert.nic.in stalls
         # often enough that a single urllib call is not a fetch strategy.
-        subprocess.run(["curl", "-sSL", "--max-time", "120", "--retry", "2",
+        #
+        # The timeout is 20s, not the 120s the ingest scripts use, because this
+        # one runs inside a web request. A parent who taps "पेज देखिए" must not
+        # wait two minutes to find out the page is unavailable — and the fetch
+        # holds `_lock`, so a stalled chapter blocks every other reader too.
+        # ncert.nic.in was observed fully unreachable on 19 Sep 2026 (SSL connect
+        # failure), which is exactly the case this bounds. The interface already
+        # degrades: the page <img> has an onerror that swaps in a Hindi line.
+        subprocess.run(["curl", "-sSL", "--max-time", str(FETCH_TIMEOUT),
+                        "--connect-timeout", "8", "--retry", "1",
                         "-o", str(tmp), url], check=True, capture_output=True)
     except Exception as exc:  # noqa: BLE001
         tmp.unlink(missing_ok=True)

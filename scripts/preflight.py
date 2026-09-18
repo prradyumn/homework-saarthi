@@ -168,7 +168,13 @@ def local() -> None:
     # in a generated deploy/ folder they were never copied at all. An earlier
     # version of this check only looked at .dockerignore, and so reported four
     # failures against a folder that was in fact cleaner than the repo.
-    ignore = (ROOT / ".dockerignore").read_text() if (ROOT / ".dockerignore").exists() else ""
+    # Both files count. The source repo keeps the book out of an image with
+    # .dockerignore; a generated deploy/ folder has no .dockerignore and relies on
+    # .gitignore instead. Reading only one reported a failure against a folder
+    # that was in fact protected.
+    ignore = "\n".join((ROOT / f).read_text()
+                       for f in (".dockerignore", ".gitignore")
+                       if (ROOT / f).exists())
     for d in ("ingest/raw/", "ingest/pages/", "ingest/extracted/", "ingest/pdf_cache/"):
         present = (ROOT / d).exists()
         check(f"{d} stays out of the image",
