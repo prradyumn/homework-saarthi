@@ -102,6 +102,27 @@
 
   hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 56px 0; }
 
+  /* The live demo. One accent-filled element on the page, because it is the one
+     thing a reader should click before reading anything else. */
+  .demo { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 30px 0 0; }
+  .demo-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--amber); color: #fff; text-decoration: none;
+    font-family: var(--sans); font-size: 15.5px; font-weight: 600;
+    padding: 12px 22px; border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(23,23,26,.08), 0 6px 18px rgba(169,110,15,.22);
+    transition: transform .12s, box-shadow .12s;
+  }
+  .demo-cta:hover { transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(23,23,26,.10), 0 10px 26px rgba(169,110,15,.28); }
+  :root[data-theme="dark"] .demo-cta, 
+  .demo-cta { color: #fff; }
+  .demo-cta svg { width: 15px; height: 15px; }
+  .demo-note {
+    font-family: var(--sans); font-size: 12.5px; line-height: 1.5;
+    color: var(--ink-3); max-width: 30ch;
+  }
+
   /* --------------------------------------------------------------- prose */
   section { padding-block: 4px; }
   h2 {
@@ -288,6 +309,17 @@
       <span class="tag">NCERT गणित मेला · 15 chapters · 190 pages</span>
       <span class="tag">RAG · refusal-first</span>
       <span class="tag">Zero paid APIs</span>
+    </div>
+
+    <div class="demo">
+      <a class="demo-cta" href="https://homework-saathi.onrender.com" target="_blank" rel="noopener">
+        Try it — ask it something
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3.5 8h9M9 4.5 12.5 8 9 11.5"/></svg>
+      </a>
+      <p class="demo-note">Runs on a free instance that sleeps when idle — the
+      first load can take about a minute to wake.</p>
     </div>
   </header>
 

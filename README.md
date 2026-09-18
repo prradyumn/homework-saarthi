@@ -119,6 +119,12 @@ package already does the right thing, since it sends the parent the page image.
 
 ---
 
+## Live demo
+
+**https://homework-saathi.onrender.com**
+
+Free instance — it sleeps when idle, so the first load takes about a minute.
+
 ## The showcase
 
 **[Read the case study](https://claude.ai/code/artifact/f228f2e5-aef2-425b-8699-3dbdefc6681f)** — the problem, the five reversals that shaped the

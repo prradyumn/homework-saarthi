@@ -28,12 +28,14 @@ Python is `./.venv/bin/python`. There is no `timeout` command on this machine.
 | Query embedding | Cloudflare Workers AI. **Gate PASSED** — worst cosine 0.999999, identical top-5 on 5/5. |
 | Credentials | `GROQ_API_KEY` ✅ · `CF_API_TOKEN` ✅ · `CF_ACCOUNT_ID` ✅ |
 | Page images | Warmed into the container cache at boot; survives NCERT outages (D20). |
-| Host | Render free tier. **Not yet created — needs the human's login.** |
-| Showcase | Published, live, has no demo link yet. |
+| Host | **LIVE at https://homework-saathi.onrender.com** — Render free, Docker, from `render.yaml`. |
+| Showcase | Published, **now carries the demo link** (Version 2). |
 
-**Steps 1–3 are DONE.** Everything that can be done from this terminal is done.
-What remains — Steps 4 to 7 — starts with two account actions only the human can
-take: create a GitHub repo, and create the Render service.
+**ALL STEPS ARE DONE. The product is deployed and verified.** This runbook is kept
+as the record of how it was done, and as the procedure to follow if it has to be
+rebuilt or moved. If you are picking this up now, there is no deployment work
+outstanding — see HANDOFF.md §10 for what actually remains (parent interviews,
+Track A golden set, Bhashini, WhatsApp).
 
 ---
 
@@ -205,7 +207,7 @@ to push, and a Render service pointed at the repo root does not use it.
 
 Anything committed from here just needs a normal `git push`.
 
-## Step 5 — Create the Render service
+## Step 5 — Create the Render service ✅ DONE
 
 **You cannot do this step** — it needs their login. Give them these instructions
 verbatim and wait.
@@ -232,7 +234,7 @@ delete the one currently in `.env`. That token is in a chat transcript.
 
 ---
 
-## Step 6 — Verify the live box, do not trust it
+## Step 6 — Verify the live box, do not trust it ✅ DONE
 
 ```bash
 cd "/Users/pradyumnawasthi/homework saarthi"
@@ -263,7 +265,7 @@ licence, which is the whole reason this route exists.
 
 ---
 
-## Step 7 — Put the link in the showcase
+## Step 7 — Put the link in the showcase ✅ DONE
 
 The showcase is a published artifact. **Republish the same file path** so the URL
 stays the same — publishing a new one breaks every link already shared.

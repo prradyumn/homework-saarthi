@@ -59,7 +59,7 @@ Google Doc link in the original brief needs auth — use the PDF.
 - **Never redistribute the textbook** — pages carry "© NCERT / not to be
   republished". `ingest/raw`, `ingest/pages`, `ingest/extracted` are gitignored.
 
-## 3. State: ~90% of the project
+## 3. State: ~92% of the project — **IT IS LIVE**
 
 | Milestone (PRD §15) | Status |
 |---|---|
@@ -261,6 +261,10 @@ rather than local for resilience — but vet data policy (§14).
 - Tesseract + `hin`/`Devanagari` traineddata installed but NO LONGER USED by the pipeline.
 - OCR cache in `ingest/ocr_cache/` (190 TSVs) — only needed by the legacy hybrid.
 - Git: 10 commits on the default branch, author set via `-c user.email=pradyumn@convegenius.ai`.
+- **LIVE DEMO: https://homework-saathi.onrender.com** — Render free tier, Docker, built from this repo via
+  `render.yaml`. Sleeps after 15 min idle, ~1 min to wake. Verified end to end:
+  preflight 6 ok / 0 failures, four-part answer cited to ch2 p18, correct refusal
+  of Class 10 algebra, real NCERT page at 91 KB, no reason-code leaks, no JS errors.
 - Published artifacts (source in `writeup/`, redeploy by republishing the same path):
   - **SHOWCASE (v1, the portfolio piece): https://claude.ai/code/artifact/f228f2e5-aef2-425b-8699-3dbdefc6681f**
     source `writeup/showcase.html` — the case study a recruiter reads. Republish

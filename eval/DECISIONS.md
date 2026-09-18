@@ -2121,3 +2121,50 @@ The fix is not a longer sleep. The test's own comment said what it was for —
 two clicks produce exactly one turn, plus a `is_disabled()` sample taken with no
 sleep at all. Timing-independent, and testing the requirement rather than the
 mechanism. **Assert what must be true, not how long it takes.**
+
+
+---
+
+## D21 — Deployed, and the Docker image built first time
+
+**https://homework-saathi.onrender.com** — Render free tier, Docker runtime, built straight from this repo via
+`render.yaml`. No second repo: the project was already on GitHub and the
+Dockerfile already sat at the root, so `deploy/` turned out to be a proof that the
+runtime is self-contained rather than a thing to push.
+
+The image **built on the first attempt**, which was not luck. Two checks were run
+before it ever went near a builder:
+
+- every pinned version resolved on its index, including that `pymupdf` ships a
+  `cp310-abi3` wheel that installs on 3.12 (an earlier check called this a failure
+  because it looked only for a literal `cp312` tag);
+- the container's import closure was **simulated** — `torch`,
+  `sentence_transformers`, `pypdf`, `pdfminer`, `rapidfuzz` and `playwright`
+  blocked at import — and `serve.py` still resolved, the embedder selected
+  cloudflare, a query embedded to a unit 1024-vector, and retrieval returned
+  ch8 p111 at 0.983. That is the failure this catches: a container that dies on an
+  import it was never built with.
+
+### Verified on the live box, not assumed
+
+```
+preflight --url          6 ok, 2 warnings, 0 failures
+/api/health              {"ok": true, "ready": true}  in 0.2s
+answer                   4 parts, cited अध्याय 2 पेज 18
+refusal                  Class 10 algebra declined in Hindi, with a way forward
+FR-10                    real NCERT page, 91 KB, 3.7s cold
+reason codes visible     none
+JS errors                none
+```
+
+The two warnings are the designed degradations: figure reading off (D18) and
+Bhashini absent.
+
+### What the free tier costs, stated plainly
+
+The instance sleeps after 15 minutes idle and takes about a minute to wake, so a
+cold link is slow for the first visitor. The showcase says so next to the button
+rather than letting a recruiter conclude the thing is broken.
+
+Capacity is unchanged and Groq still binds: ~90 answers/day against Workers AI's
+~300,000 query embeddings/day.
