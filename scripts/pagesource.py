@@ -159,7 +159,14 @@ def render(page: int) -> bytes:
 # server, not a race. It never blocks a request, and failures are retried on the
 # next sweep rather than raised.
 
-WARM_INTERVAL = 600          # seconds between sweeps while anything is missing
+# 180s, not 600. Measured on the live free-tier box: a first sweep got 11 of 15
+# chapters and the rest waited on the retry. But a free instance sleeps after 15
+# minutes idle and its disk is ephemeral, so a 10-minute interval allowed roughly
+# one retry before everything was thrown away and started over. Three minutes
+# gives about five attempts inside that window. A retry pass only re-requests the
+# chapters still missing — four requests, one second apart — so this stays a
+# polite client rather than a hammer.
+WARM_INTERVAL = int(__import__("os").environ.get("SAATHI_WARM_INTERVAL", "180"))
 _warming = False
 
 
