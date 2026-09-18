@@ -141,6 +141,75 @@ def render(page: int) -> bytes:
         return doc[idx].get_pixmap(dpi=WEB_DPI).tobytes("png")
 
 
+
+# ------------------------------------------------------------- cache warming
+#
+# ncert.nic.in is not reliable. It was fully unreachable (SSL connect failure,
+# HTTP 000) twice within an hour on 19 Sep 2026, each time for several minutes.
+# FR-10 — show the parent the actual page — is a P0 feature, and a lazy fetch
+# means it works only if NCERT happens to be up at the moment a parent taps.
+#
+# Warming converts that into a much weaker requirement: NCERT must be up at SOME
+# point after the box boots. The container fetches each chapter once, in the
+# background, into its own cache — the same bytes from the same server it would
+# fetch lazily, just eagerly. Nothing is redistributed and nothing is committed;
+# the cache is ephemeral and gitignored.
+#
+# Deliberately sequential and unhurried: this is a courtesy to a government
+# server, not a race. It never blocks a request, and failures are retried on the
+# next sweep rather than raised.
+
+WARM_INTERVAL = 600          # seconds between sweeps while anything is missing
+_warming = False
+
+
+def cache_state() -> dict:
+    """Which chapters are already local, for the status endpoint and preflight."""
+    codes = sorted({code for code, _ in _page_map().values()})
+    have = [c for c in codes
+            if (RAW / f"{c}.pdf").exists()
+            or (CACHE / f"{c}.pdf").exists()]
+    return {"chapters": len(codes), "cached": len(have),
+            "missing": [c for c in codes if c not in have]}
+
+
+def warm_cache(interval: int = WARM_INTERVAL) -> None:
+    """Fetch every chapter not already on disk, forever, in the background.
+
+    Runs in a daemon thread. Sweeps, sleeps, sweeps again — so an NCERT outage at
+    boot costs a delay rather than a broken feature for the life of the container.
+    """
+    global _warming
+    if _warming:
+        return
+    _warming = True
+
+    def sweep() -> None:
+        import time
+
+        while True:
+            state = cache_state()
+            if not state["missing"]:
+                print(f"  pages: all {state['chapters']} chapters cached", flush=True)
+                return
+            got = 0
+            for code in state["missing"]:
+                try:
+                    with _lock:
+                        _chapter_pdf(code)
+                    got += 1
+                except PageUnavailable:
+                    pass          # NCERT is down or slow; try again next sweep
+                time.sleep(1)     # be a polite client
+            left = len(cache_state()["missing"])
+            print(f"  pages: cached {got} chapter(s), {left} still missing"
+                  + (f" — retrying in {interval}s" if left else ""), flush=True)
+            if not left:
+                return
+            time.sleep(interval)
+
+    threading.Thread(target=sweep, daemon=True, name="page-cache-warm").start()
+
 # ---------------------------------------------------------------- web encoding
 #
 # §3.1: this parent's data is metered and intermittent, so the page image needs a

@@ -138,10 +138,13 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"ok": True, "ready": _state["ready"]})
 
         if url.path == "/api/status":
+            import pagesource
+
             return self._json(200, {"ready": _state["ready"], "error": _state["error"],
                                     "backend": _state["backend"],
                                     "voice": _state.get("voice", {"ok": False}),
-                                    "vision": _state.get("vision", {"ok": False})})
+                                    "vision": _state.get("vision", {"ok": False}),
+                                    "pages": pagesource.cache_state()})
 
         # FR-10: the textbook page image, by printed page number.
         #
@@ -345,6 +348,12 @@ def main() -> int:
     threading.Thread(target=warm, daemon=True).start()
     threading.Thread(target=check_voice, daemon=True).start()
     threading.Thread(target=check_vision, daemon=True).start()
+    # Pull the chapter PDFs into this box's cache in the background. ncert.nic.in
+    # goes down for minutes at a time, and FR-10 should not depend on it being up
+    # at the exact moment a parent taps "पेज देखिए".
+    import pagesource
+
+    pagesource.warm_cache()
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"\n  Homework Saathi — http://{args.host}:{args.port}")
     print(f"  backend: {args.backend}   (loading models in the background…)\n")

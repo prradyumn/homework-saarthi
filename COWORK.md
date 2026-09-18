@@ -22,16 +22,18 @@ Python is `./.venv/bin/python`. There is no `timeout` command on this machine.
 
 | | |
 |---|---|
-| App | Works end to end, locally and from `deploy/`. 51/51 browser assertions pass. |
-| `deploy/` | Generated, self-contained, 19 files, ~4.9 MB, its own git history, one commit ahead. |
+| App | Works end to end from `deploy/` with **no model on the box**. 52/52 browser assertions. |
+| `deploy/` | Generated, self-contained, 19 files, ~4.9 MB, its own git history. |
 | Generation | Groq, key in `.env`, **rotated and verified** (old key returns 401). |
-| Query embedding | Refactored out of the container to Cloudflare Workers AI. **Unverified.** |
-| Credentials | `GROQ_API_KEY` ✅ · `CF_API_TOKEN` ✅ · **`CF_ACCOUNT_ID` ❌ missing** |
-| Host | Render free tier. Not yet created. |
+| Query embedding | Cloudflare Workers AI. **Gate PASSED** — worst cosine 0.999999, identical top-5 on 5/5. |
+| Credentials | `GROQ_API_KEY` ✅ · `CF_API_TOKEN` ✅ · `CF_ACCOUNT_ID` ✅ |
+| Page images | Warmed into the container cache at boot; survives NCERT outages (D20). |
+| Host | Render free tier. **Not yet created — needs the human's login.** |
 | Showcase | Published, live, has no demo link yet. |
 
-The two things standing between here and done are **the embedder compatibility
-gate** and **a Render service**.
+**Steps 1–3 are DONE.** Everything that can be done from this terminal is done.
+What remains — Steps 4 to 7 — starts with two account actions only the human can
+take: create a GitHub repo, and create the Render service.
 
 ---
 
@@ -58,7 +60,7 @@ Break any of these and the work is worse than not doing it.
 
 ---
 
-## Step 1 — Get the Cloudflare Account ID
+## Step 1 — Get the Cloudflare Account ID ✅ DONE
 
 `CF_API_TOKEN` is already in `.env` and verified active. It is scoped to Workers
 AI only, so it **cannot** enumerate accounts — `/client/v4/accounts` returns an
@@ -90,7 +92,11 @@ grep -oE '^[A-Z_]+=' .env | tr -d '='
 
 ---
 
-## Step 2 — THE GATE: prove Cloudflare serves the same model
+## Step 2 — THE GATE: prove Cloudflare serves the same model ✅ PASSED
+
+> Ran 19 Sep 2026: worst cosine **0.999999**, identical top-5 ranking on 5/5
+> queries. Same model; the shipped index stays valid. Re-run it if the provider
+> or the model id ever changes.
 
 **This is the most important step in the runbook. Do not skip it, and do not
 proceed on a fail.**
@@ -129,7 +135,11 @@ scope, do not work around it.
 
 ---
 
-## Step 3 — Rebuild and re-verify `deploy/`
+## Step 3 — Rebuild and re-verify `deploy/` ✅ DONE
+
+> Last run: preflight **20 ok, 2 warnings, 0 failures**; `test_ui.py` **52/52**
+> against the slim stack; a live Groq answer cited to ch2 p18 and a correct
+> refusal of Class 10 algebra, both from `deploy/` with no local model.
 
 ```bash
 cd "/Users/pradyumnawasthi/homework saarthi"

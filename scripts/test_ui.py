@@ -470,13 +470,26 @@ def main() -> int:
         check("empty question creates no turn",
               pg.locator(".from-parent").count() == before)
 
-        # double-send must not fire twice (the composer disables while busy)
+        # Double-send must not fire twice. The composer disables while busy, but
+        # asserting THAT directly is a race: it was a fixed 250 ms sleep, and once
+        # the query embedding moved to Workers AI the whole turn finished inside
+        # that window, so a correctly re-enabled composer read as a failure.
+        #
+        # Assert the requirement instead of the mechanism — clicking send twice
+        # must produce exactly one new turn — which is what the comment always
+        # said this test was for, and which does not depend on how fast the
+        # backend happens to be.
+        before_turns = pg.locator(".from-parent").count()
         pg.fill("#input", "1 मिनट में कितने सेकंड होते हैं?")
         pg.click("#send")
+        was_disabled = pg.locator("#send").is_disabled()   # sampled with no sleep
+        pg.click("#send", force=True)                      # the second, ignored click
         pg.wait_for_selector("[data-yes]", timeout=30_000)
+        check("a double send creates one turn, not two",
+              pg.locator(".from-parent").count() == before_turns + 1,
+              f"{pg.locator('.from-parent').count() - before_turns} new turns")
+        check("composer guards against re-entry while busy", was_disabled)
         pg.locator("[data-yes]").last.click()
-        pg.wait_for_timeout(250)
-        check("composer disabled while answering", pg.locator("#send").is_disabled())
         pg.wait_for_selector(".card .part", timeout=120_000)
         pg.wait_for_timeout(500)
         check("composer re-enabled after answering",

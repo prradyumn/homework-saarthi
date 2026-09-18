@@ -2044,9 +2044,27 @@ same five queries both ways, reports per-query cosine agreement, and checks that
 both rank the real corpus identically in the top 5. Below 0.999 is treated as a
 different model and blocks the deployment.
 
-**That check has not run yet** — it needs a Cloudflare account. Until it passes,
-this is a refactor that is verified locally and unverified remotely, and
-`DEPLOY.md` says exactly that.
+### The gate PASSED (19 Sep 2026)
+
+```
+ok  cos=0.999999  1 किलोग्राम में कितने ग्राम होते हैं?
+ok  cos=0.999999  तुल्य भिन्न क्या होती है?
+ok  cos=0.999999  सम पंचभुज से टाइल क्यों नहीं बनती?
+ok  cos=1.000000  नक्शे में जगह कैसे ढूँढ़ते हैं?
+ok  cos=0.999999  how many grams are in one kilogram?
+
+identical top-5 ranking on 5/5 queries
+worst cosine agreement: 0.999999  -> SAME MODEL — index stays valid
+```
+
+Cloudflare serves the same BGE-M3. `index_combined.npz` stays valid and **every
+measured figure in this document still holds unchanged**. Query embedding is
+0.2 s over the network against ~10 s to cold-load the model locally.
+
+Verified end to end from `deploy/` with no model on the box: preflight **20 ok,
+0 failures**; a live Groq answer in four parts cited to ch2 p18; a correct refusal
+of Class 10 algebra; the real page fetched from ncert.nic.in; no reason code
+leaked; **52/52 browser assertions**.
 
 ### The wider lesson, which has now happened twice
 
@@ -2055,3 +2073,51 @@ I could not find (D18); Hugging Face withdrew a tier the architecture was shaped
 around (here). Both times the fix was the same: **stop depending on the thing.**
 The gain is not just resilience — a 300 MB container that runs anywhere is a
 better artefact than a 4 GB one that runs in exactly one place.
+
+
+---
+
+## D20 — ncert.nic.in is not reliable, so the box stops depending on when it is up
+
+Two separate full outages within one hour on 19 Sep 2026 — `HTTP 000`, SSL connect
+failure, several minutes each, recovering on their own. That matters more than it
+looks: FR-10 (show the parent the actual page) is P0, and a **lazy** fetch means
+the feature works only if NCERT happens to be reachable at the exact second a
+parent taps *पेज देखिए*.
+
+Two fixes, and one test that was wrong for a good reason.
+
+### A 120-second fetch inside a web request
+
+`pagesource` used `curl --max-time 120`, inherited from the ingest scripts where
+waiting is free. Here it runs inside a request **and holds `_lock`**, so one
+stalled chapter froze every other reader for two minutes. Now 20 s with an 8 s
+connect timeout (`SAATHI_FETCH_TIMEOUT`), which the outage let me verify
+properly: the server returned a clean 404 in 17 s instead of blocking. The page
+`<img>` already had an `onerror` swapping in a Hindi line, so the parent sees a
+sentence rather than a broken image.
+
+### Warming, which changes the requirement rather than the odds
+
+On boot the container now pulls every chapter into its own cache in a background
+daemon thread — sequential, one second apart, failures retried every 10 minutes,
+never blocking a request. Measured against a genuinely flaky NCERT: **12 of 15 on
+the first sweep, all 15 within 60 s** on the next run.
+
+This is the same bytes from the same server the lazy path would fetch, just
+eagerly, so it redistributes nothing. What it buys is a much weaker dependency:
+not *"NCERT must be up when a parent taps"* but *"NCERT must be up at some point
+after the box boots."* `/api/status` now reports `pages: {chapters, cached,
+missing}` so a deployed box can be inspected.
+
+### A test that failed because the product got faster
+
+`composer disabled while answering` asserted `is_disabled()` after a fixed 250 ms
+sleep. Once embedding moved to Workers AI the whole turn completed inside that
+window, so a **correctly re-enabled** composer read as a failure.
+
+The fix is not a longer sleep. The test's own comment said what it was for —
+*double-send must not fire twice* — so it now asserts that requirement directly:
+two clicks produce exactly one turn, plus a `is_disabled()` sample taken with no
+sleep at all. Timing-independent, and testing the requirement rather than the
+mechanism. **Assert what must be true, not how long it takes.**
