@@ -76,6 +76,17 @@ def check_vision() -> None:
         _state["vision"] = {"ok": False, "reason": str(exc)[:200]}
 
 
+def check_whatsapp() -> None:
+    try:
+        import whatsapp
+
+        _state["whatsapp"] = whatsapp.available()
+        print("  whatsapp: " + ("connected" if _state["whatsapp"]["ok"]
+                                else "not connected (web chat only)"), flush=True)
+    except Exception as exc:  # noqa: BLE001
+        _state["whatsapp"] = {"ok": False, "reason": str(exc)[:200]}
+
+
 def check_voice() -> None:
     try:
         import bhashini
@@ -137,6 +148,17 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/api/health":
             return self._json(200, {"ok": True, "ready": _state["ready"]})
 
+        # WhatsApp's subscribe handshake. Meta GETs this once with a challenge
+        # and expects it echoed back verbatim as plain text.
+        if url.path == "/webhook":
+            import whatsapp
+
+            params = {k: v[0] for k, v in parse_qs(url.query).items()}
+            challenge = whatsapp.verify_challenge(params)
+            if challenge is None:
+                return self._send(403, b"forbidden", "text/plain; charset=utf-8")
+            return self._send(200, challenge.encode(), "text/plain; charset=utf-8")
+
         if url.path == "/api/status":
             import pagesource
 
@@ -144,6 +166,7 @@ class Handler(BaseHTTPRequestHandler):
                                     "backend": _state["backend"],
                                     "voice": _state.get("voice", {"ok": False}),
                                     "vision": _state.get("vision", {"ok": False}),
+                                    "whatsapp": _state.get("whatsapp", {"ok": False}),
                                     "pages": pagesource.cache_state()})
 
         # FR-10: the textbook page image, by printed page number.
@@ -183,11 +206,18 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         url = urlparse(self.path)
         length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) or b"{}"
+        # The HMAC is over the exact bytes Meta sent, so keep them: re-serialising
+        # the parsed object produces different bytes and a signature that never
+        # matches.
+        self._raw_body = raw
         try:
-            payload = json.loads(self.rfile.read(length) or b"{}")
+            payload = json.loads(raw)
         except json.JSONDecodeError:
             return self._json(400, {"error": "bad json", "error_hi": "कुछ गड़बड़ हो गई, फिर कोशिश कीजिए।"})
 
+        if url.path == "/webhook":
+            return self._whatsapp(payload)
         if url.path == "/api/transcribe":
             return self._transcribe(payload)
         if url.path == "/api/speak":
@@ -307,6 +337,82 @@ class Handler(BaseHTTPRequestHandler):
         out["refusal_line_hi"] = out.get("refusal", {}).get("spoken")
         return self._json(200, out)
 
+    # ------------------------------------------------------------- WhatsApp
+    def _whatsapp(self, payload: dict) -> None:
+        """Take the message, say 200, and answer on a worker thread.
+
+        Meta expects an acknowledgement within seconds and redelivers anything
+        slower. Generation takes 6-16s, so replying inline would make Meta send
+        the same question two or three times and spend the daily Groq budget
+        answering it repeatedly. Acknowledge first, work afterwards.
+        """
+        import whatsapp
+
+        if not whatsapp.verify_signature(getattr(self, "_raw_body", b""),
+                                         self.headers.get("X-Hub-Signature-256")):
+            # The URL is public. Without this, anyone who finds it can spend the
+            # budget or make the product send messages.
+            return self._send(403, b"bad signature", "text/plain; charset=utf-8")
+
+        try:
+            messages = whatsapp.parse(payload)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  wa: unparseable webhook: {exc}", flush=True)
+            messages = []
+
+        # 200 now, before any work. Meta only needs to know we received it.
+        self._json(200, {"ok": True, "queued": len(messages)})
+
+        for m in messages:
+            if not m.get("id") or whatsapp.already_handled(m["id"]):
+                continue
+            threading.Thread(target=self._whatsapp_reply, args=(m,),
+                             daemon=True).start()
+
+    def _whatsapp_reply(self, m: dict) -> None:
+        import whatsapp
+
+        to = m.get("from")
+        try:
+            if m.get("type") == "audio":
+                # FR-1 needs Bhashini to turn a voice note into text. Until those
+                # credentials exist, say so in Hindi rather than going quiet —
+                # silence on WhatsApp reads as broken.
+                return self._wa_send(to, "अभी मैं आवाज़ नहीं समझ पाता। "
+                                         "सवाल लिखकर भेज दीजिए।")
+            q = (m.get("text") or "").strip()
+            if not q:
+                return self._wa_send(to, "सवाल लिखकर भेजिए।")
+            if len(q) > 500:
+                return self._wa_send(to, "सवाल बहुत लंबा है — छोटा करके पूछिए।")
+            if not _state["ready"]:
+                return self._wa_send(to, "एक मिनट रुकिए, तैयारी हो रही है…")
+
+            from answer import answer
+
+            t0 = time.time()
+            with _lock:
+                out = answer(q, backend=_state["backend"], verbose=False)
+            print(f"  wa: {'answered' if out.get('answered') else 'refused'} "
+                  f"in {time.time() - t0:.1f}s", flush=True)
+            self._wa_send(to, whatsapp.format_answer(out))
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc)
+            friendly = ("आज के लिए मुफ़्त सीमा पूरी हो गई है, कल फिर कोशिश कीजिए।"
+                        if "daily" in msg or "TPD" in msg else
+                        "कुछ तकनीकी दिक्कत आ गई। थोड़ी देर बाद कोशिश कीजिए।")
+            print(f"  wa: FAILED {msg[:160]}", flush=True)
+            self._wa_send(to, friendly)
+
+    @staticmethod
+    def _wa_send(to: str, body: str) -> None:
+        import whatsapp
+
+        try:
+            whatsapp.send_text(to, body)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  wa: could not send: {str(exc)[:160]}", flush=True)
+
     # ---------------------------------------------------------------- FR-7
     def _feedback(self, payload: dict) -> None:
         """Records accepted/not and explained/not — the two signals behind the
@@ -348,6 +454,7 @@ def main() -> int:
     threading.Thread(target=warm, daemon=True).start()
     threading.Thread(target=check_voice, daemon=True).start()
     threading.Thread(target=check_vision, daemon=True).start()
+    threading.Thread(target=check_whatsapp, daemon=True).start()
     # Pull the chapter PDFs into this box's cache in the background. ncert.nic.in
     # goes down for minutes at a time, and FR-10 should not depend on it being up
     # at the exact moment a parent taps "पेज देखिए".

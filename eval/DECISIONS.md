@@ -2168,3 +2168,70 @@ rather than letting a recruiter conclude the thing is broken.
 
 Capacity is unchanged and Groq still binds: ~90 answers/day against Workers AI's
 ~300,000 query embeddings/day.
+
+---
+
+## D22 — WhatsApp built and tested without a Meta account; voice left one command from proof
+
+Two channels, both blocked on signups I cannot do. Neither needed to stay
+unbuilt, because everything except the credential is reproducible locally.
+
+### WhatsApp is free for this product, and that was checked
+
+No subscription fee. Inbound messages are always free. Service replies inside the
+24-hour customer service window are free until 1 Oct 2026, after which each
+number gets **1,000 free service messages per month**. This product only ever
+sends service replies — a parent asks, it answers within seconds — so the free
+allowance is the entire envelope.
+
+Groq's ~90 answers/day (~2,700/month) stays the binding limit, so WhatsApp's
+1,000/month only starts to matter at a usage level this prototype cannot reach.
+That is checked, not remembered: asserting a free tier from memory already cost
+this project a whole deployment plan (D19).
+
+### Two things about the Cloud API that would have shipped as bugs
+
+**Meta expects a 200 within seconds and redelivers anything slower.** Generation
+takes 6-16s. Replying inline would make Meta send the same question two or three
+times and spend the daily Groq budget answering it repeatedly — a correctness bug
+that presents as a cost bug. The webhook acknowledges immediately and answers on
+a worker thread.
+
+**Redelivery happens anyway**, so every message id is remembered for an hour.
+
+Also: the webhook URL is public, so each request's HMAC is verified against the
+app secret before any work. Without it, anyone who finds the URL can spend the
+budget or make the product send messages. The signature is computed over the
+exact bytes Meta sent — re-serialising the parsed JSON produces different bytes
+and a signature that never matches, which is a satisfying way to waste an hour.
+
+### Tested with no account, which is the point
+
+`scripts/test_whatsapp.py` reproduces everything Meta does to us: the subscribe
+handshake, HMAC-signed POSTs, the real envelope shape, delivery receipts,
+redelivery, and a voice note. **12 assertions, 0 failures**, including that an
+unsigned and a wrongly-signed POST are both refused, that a redelivered message
+is not answered twice, that a delivery receipt queues no work, and that a refusal
+reaches the parent as a Hindi sentence rather than a reason code.
+
+The async worker was confirmed to run and fail *gracefully* against the real
+Graph API with a deliberately invalid token — logged, not crashed. When real
+credentials arrive, the only thing left unverified is whether the token is valid.
+
+### Voice: one command from proof
+
+`bhashini.py --selftest` speaks a known Hindi sentence, feeds that audio straight
+back into ASR, and reports similarity plus round-trip time against §7.3's 20s p95
+guardrail. A round trip is much stronger than either half alone — it proves the
+pipeline config resolved, that both serviceIds work, and that the encoding the
+browser produces is the one ASR expects. Either half can pass while the loop is
+broken in the middle. Without credentials it exits 2 with the portal URL.
+
+### Left undone deliberately
+
+Parent discovery interviews. `interviews/GUIDE.md` is a complete instrument —
+screening, consent, the Card A/B test and Q11 asked three ways (behavioural,
+projective, revealed), with **both decision rules pre-registered** so a
+disappointing result cannot be reasoned away afterwards. The study is designed;
+only the fieldwork is outstanding, and it is still the thing the whole thesis
+rests on.

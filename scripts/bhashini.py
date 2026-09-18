@@ -200,12 +200,84 @@ def available() -> dict:
         return {"ok": False, "reason": str(exc)[:200]}
 
 
+def selftest() -> int:
+    """TTS a known sentence, then ASR it back, and see if it survives the trip.
+
+    A round trip is a much stronger check than either half alone: it proves the
+    pipeline config resolved, that both serviceIds work, that the audio encoding
+    the browser produces is the encoding ASR expects, and — because the text is
+    known — roughly how much meaning survives. Either half passing on its own can
+    still leave the loop broken in the middle.
+
+    It also puts a number on §7.3's guardrail: the voice round trip must stay
+    under 20s at p95, and until this runs that figure is an assumption.
+    """
+    import difflib
+
+    phrase = "एक किलोग्राम में एक हज़ार ग्राम होते हैं"
+    print(f"\n  round trip: TTS -> ASR\n  phrase: {phrase}\n")
+
+    t0 = time.time()
+    try:
+        tts = speak(phrase)
+    except NotConfigured as exc:
+        print(f"  NOT CONFIGURED\n  {exc}\n")
+        return 2
+    except Exception as exc:  # noqa: BLE001
+        print(f"  FAIL  TTS: {str(exc)[:220]}\n")
+        return 1
+    t_tts = time.time() - t0
+    wav = base64.b64decode(tts["audio_base64"])
+    out = pathlib.Path("/tmp/bhashini_selftest.wav")
+    out.write_bytes(wav)
+    print(f"  ok    TTS  {len(wav)/1024:.0f} KB in {t_tts:.1f}s  -> {out}")
+
+    # Feed TTS output straight back in. The browser records 16 kHz mono WAV, so
+    # resample if TTS handed back something else — otherwise this tests a format
+    # the real client never sends.
+    t1 = time.time()
+    try:
+        heard = transcribe(base64.b64encode(wav).decode(),
+                           sample_rate=TTS_SAMPLE_RATE)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  FAIL  ASR: {str(exc)[:220]}\n")
+        return 1
+    t_asr = time.time() - t1
+    got = (heard.get("text") or "").strip()
+    print(f"  ok    ASR  {t_asr:.1f}s")
+    print(f"        heard: {got}")
+
+    ratio = difflib.SequenceMatcher(None, phrase, got).ratio()
+    total = t_tts + t_asr
+    print(f"\n  similarity to the original: {ratio:.0%}")
+    print(f"  round trip: {total:.1f}s   (§7.3 guardrail: 20s p95)")
+
+    good = ratio >= 0.6
+    print(f"\n  {'VOICE LOOP WORKS' if good else 'ROUND TRIP DEGRADED — read the heard text above'}")
+    if total > 20:
+        print("  WARNING: over the §7.3 20s guardrail on a quiet network")
+    print()
+    return 0 if good else 1
+
+
 if __name__ == "__main__":
+    import argparse
     import sys
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true",
+                    help="TTS a phrase then ASR it back; proves the whole loop")
+    ap.add_argument("--speak", action="store_true",
+                    help="write a test WAV to /tmp and stop")
+    args = ap.parse_args()
 
     status = available()
     print(json.dumps(status, ensure_ascii=False, indent=2))
-    if status["ok"] and len(sys.argv) > 1 and sys.argv[1] == "--speak":
+    if not status["ok"]:
+        sys.exit(2)
+    if args.selftest:
+        sys.exit(selftest())
+    if args.speak:
         r = speak("नमस्ते, मैं होमवर्क साथी हूँ।")
         pathlib.Path("/tmp/bhashini_test.wav").write_bytes(
             base64.b64decode(r["audio_base64"]))

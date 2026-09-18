@@ -36,7 +36,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "deploy"
 
 # Exactly what `serve.py` reaches at runtime, traced through the import graph:
-#   serve  -> pagesource, answer, query_gate, bhashini, vision
+#   serve  -> pagesource, answer, query_gate, bhashini, vision, whatsapp
 #   answer -> retrieval, query_gate, answer_contract, vision, embedder
 # Everything else under scripts/ builds or measures the corpus and has no place
 # on a public box.
@@ -50,6 +50,7 @@ RUNTIME_SCRIPTS = [
     "pagesource.py",     # FR-10 page images, incl. the fetch-from-NCERT route
     "vision.py",         # reads figures (optional; degrades to refusing)
     "bhashini.py",       # ASR/TTS (optional; degrades to browser speech)
+    "whatsapp.py",       # Cloud API webhook (optional; degrades to web chat only)
     "preflight.py",      # so a deployed box can check itself
 ]
 

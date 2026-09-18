@@ -167,6 +167,63 @@ about 2 GB of GPU libraries on a box with no GPU.
 
 ---
 
+## Turning on voice (Bhashini)
+
+Free for non-commercial use, and the reason it is Bhashini rather than a US API
+is §8.4: a child's homework passing through a speech service is a sovereignty and
+data-governance decision, not only a cost one.
+
+1. Register at <https://bhashini.gov.in> — the ULCA portal. Create a user and
+   generate an API key.
+2. Put them in the host's environment (not a file):
+   `BHASHINI_USER_ID`, `BHASHINI_API_KEY`
+3. Prove the whole loop in one command:
+
+```bash
+python scripts/bhashini.py --selftest
+```
+
+It speaks a known Hindi sentence, feeds the audio straight back into ASR, and
+reports how much survived plus the round-trip time against §7.3's 20s p95
+guardrail. A round trip is a much stronger check than either half: it proves the
+pipeline config resolved, both serviceIds work, and the audio encoding the
+browser produces is the one ASR expects. Either half can pass while the loop is
+broken in the middle.
+
+Until those variables exist the interface falls back to the browser Web Speech
+API and says so — which is honest but *not* private (Chrome sends audio to
+Google), so it is a development convenience, not the pilot answer.
+
+## Turning on WhatsApp
+
+**Cost, checked on 19 Sep 2026:** no subscription fee, inbound messages always
+free, and service replies inside the 24-hour window free until 1 Oct 2026 — after
+which each number gets **1,000 free service messages per month**. Every message
+this product sends is a service reply, so the free allowance is the whole
+envelope. Groq's ~90 answers/day is still the tighter limit.
+
+1. <https://developers.facebook.com> → create an app → add the **WhatsApp**
+   product. The test number messages only pre-approved recipients, which is
+   exactly why the web chat exists.
+2. Set four variables on the host:
+   - `WA_VERIFY_TOKEN` — any string you invent
+   - `WA_ACCESS_TOKEN` — from the WhatsApp panel
+   - `WA_PHONE_NUMBER_ID` — the number's id, **not** the phone number
+   - `WA_APP_SECRET` — App Settings → Basic
+3. Webhook URL: `https://<your-service>/webhook`, verify token as above,
+   subscribe to **messages**.
+4. Test it without touching Meta at all:
+
+```bash
+python scripts/test_whatsapp.py      # 12 assertions, signs its own payloads
+```
+
+Two things in this integration that are not obvious. Meta expects a 200 within
+seconds and redelivers anything slower — generation takes 6-16s, so the webhook
+acknowledges immediately and answers on a worker thread. And redelivery happens
+regardless, so every message id is remembered; answering twice spends the daily
+budget twice.
+
 ## Before shipping: prove the embedder is the same model
 
 Two services running "the same model" can still differ in pooling or
