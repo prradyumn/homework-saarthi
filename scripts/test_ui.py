@@ -181,12 +181,24 @@ def main() -> int:
                   "rerun for the answered path")
         else:
             check("FR-5 four parts rendered", n == 4, f"{n} parts")
+            # The card now leads with the payoff, so the old "every label has a
+            # digit" check no longer describes the design: the say-to-child line
+            # is the headline, not step four of anything, and is deliberately
+            # unnumbered. The invariants that actually matter are that all four
+            # parts are present and labelled, that the reasoning trio keeps its
+            # 1-2-3 sequence, and that the payoff comes FIRST.
             labels = page.locator(".part-label").all_inner_texts()[:4]
-            check("parts are numbered and labelled",
-                  len(labels) == 4 and all(any(c.isdigit() for c in l) for l in labels),
-                  str(labels))
-            check("part 4 is the say-to-child line",
-                  page.locator(".part.say").count() == 1)
+            check("all four parts are labelled",
+                  len(labels) == 4 and all(l.strip() for l in labels), str(labels))
+            check("the reasoning trio stays numbered in order",
+                  [l.strip()[0] for l in labels[1:4]] == ["1", "2", "3"],
+                  str(labels[1:4]))
+            check("exactly one say-to-child line", page.locator(".part.say").count() == 1)
+            check("the payoff is rendered FIRST, before the reasoning",
+                  page.evaluate("""() => {
+                      const parts = [...document.querySelectorAll('.card .part')];
+                      return parts.length > 0 && parts[0].classList.contains('say');
+                  }"""))
 
         # ---- FR-3: citation ----
         cite = page.locator(".cite").first

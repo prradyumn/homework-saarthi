@@ -2302,3 +2302,85 @@ credentials appear, so the approval, if it lands, is a configuration change rath
 than a rewrite.
 
 53/53 browser assertions, with `asr=server` and `tts=browser` asserted separately.
+
+---
+
+## D24 — The interface, rebuilt around what the parent came for
+
+Four changes, each argued from §3.1 rather than from taste.
+
+### The payoff moved to the top
+
+The contract generates answer → rule → example → say-to-child, and the card used
+to *display* it in that order. So the parent read three blocks before reaching
+the one thing they came for, and reading is the expensive act for this user. The
+say-to-child line is now the hero, with the reasoning below it.
+
+**The reasoning is not collapsed by default, and that is deliberate.** Hiding it
+would quietly turn the product into a line to parrot — which is precisely the
+answer-copying it refuses to do — and the parent needs the rule to survive the
+child's next question. It is collapsible for anyone who only wants the sentence.
+
+Replay and *पेज देखिए* now sit **on** the payoff rather than in a link row
+further down, and replay speaks only the say-line, not the whole card: that one
+sentence is the thing being repeated aloud.
+
+### The microphone is now the primary control
+
+The send arrow was the filled dark button and the mic a thin outline — backwards
+for a parent who struggles to type Devanagari, which is the entire reason
+server-side recognition exists (D23). The mic is now 56px and amber; typing stays
+available and secondary; send only goes solid once there is something to send.
+
+### The wait is narrated
+
+Six to sixteen seconds of three silent dots reads as *broken* to someone tired
+with a child waiting. Staged copy — सवाल समझ रहा हूँ… → किताब में ढूँढ़ रहा हूँ… →
+जवाब बना रहा हूँ… — costs nothing and makes the wait legible.
+
+### Type scale and tap targets
+
+A three-step size control on `<html>`, persisted. Measured 15px → 17.25px at one
+step. Every visible control is now **≥44px**; the audit found seven under it,
+including the control a parent would reach for *because* they cannot read the
+type comfortably.
+
+### Rejected: GSAP, and generated assets
+
+Measured, not assumed:
+
+| | gzipped |
+|---|---|
+| the whole app | **21.7 KB** |
+| GSAP alone | **28.1 KB** |
+
+A motion library would have cost more than the entire product, on a phone whose
+owner pays per megabyte (§3.1). Everything wanted here — tap feedback, the
+arrival of the payoff, height transitions — is CSS at zero bytes.
+
+Image generation for UI assets was also declined, for the reason already on the
+record: 1 of 4 generated diagrams correct, one with misspelled Devanagari, and no
+validator can check a rendered picture. Icons stay inline SVG — sharp at any
+size, theme-aware, ~200 bytes, and they cost the parent nothing.
+
+### A test that had to change, and why that is legitimate
+
+`parts are numbered and labelled` asserted every label contains a digit. With the
+payoff leading, it is no longer step four of anything and is deliberately
+unnumbered, so the check failed. It was replaced with the invariants that
+actually matter — all four parts labelled, the reasoning trio still numbered
+1-2-3, exactly one say-line, and **the payoff renders first** — which is a
+stronger assertion than the one it replaced, and one the old test could not make.
+
+One genuine bug surfaced: the page-image button moved onto the payoff, and its
+handler still did `closest('.cite')`, which found nothing, so no image was ever
+inserted. Now anchored on the card.
+
+**55 assertions, 0 failures.** Verified at 390px, both themes, zero horizontal
+overflow.
+
+### The standing caveat
+
+This is designed for a parent none of us has watched use it. These are careful
+inferences from §3.1, not observations. `interviews/GUIDE.md` would turn the two
+biggest calls — payoff-first, and voice-primary — from reasoning into findings.

@@ -27,6 +27,10 @@
     --ground: #F4F5F7; --surface: #FFFFFF; --sunk: #EEF0F3;
     --rule: #DCDFE5; --rule-2: #EAECF0;
 
+    /* One knob for the whole type scale. §3.1's parent reads Devanagari slowly;
+       some will want it bigger, and pinch-zoom on a fixed-position composer is a
+       bad answer. Set on <html> so it survives a re-render. */
+    --scale: 1;
     --deva: "IBM Plex Sans Devanagari", "Noto Sans Devanagari", system-ui, sans-serif;
     --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -52,6 +56,9 @@
       --sh-3: 0 8px 34px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
     }
   }
+  :root[data-size="large"]  { --scale: 1.15; }
+  :root[data-size="larger"] { --scale: 1.3; }
+
   :root[data-theme="dark"] {
     --amber: #E5AE47; --amber-ink: #F0C877;
     --amber-soft: #2C2412; --amber-line: #4A3B1C; --amber-tint: #201B10;
@@ -115,7 +122,7 @@
   .tool {
     font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: .09em;
     color: var(--ink-3); background: var(--surface); border: 1px solid var(--rule);
-    height: 27px; padding: 0 8px; border-radius: 7px; cursor: pointer;
+    height: 44px; padding: 0 12px; border-radius: 10px; cursor: pointer;
     display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
     transition: color .12s, border-color .12s, background .12s;
   }
@@ -123,13 +130,13 @@
   .tool[aria-pressed="true"] {
     color: var(--amber-ink); border-color: var(--amber-line); background: var(--amber-soft);
   }
-  .tool svg { width: 12px; height: 12px; flex: 0 0 auto; }
-  .tool.icon { padding: 0; width: 27px; justify-content: center; }
+  .tool svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .tool.icon { padding: 0; width: 44px; justify-content: center; }
   /* On a phone the tool labels go before anything belonging to the product does.
      They are for the reviewer; the icons still carry an aria-label. */
   @media (max-width: 600px) {
     .tool .lab { display: none; }
-    .tool { padding: 0; width: 27px; justify-content: center; }
+    .tool { padding: 0; width: 44px; justify-content: center; }
   }
 
   .tagline {
@@ -184,7 +191,8 @@
   }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chips button {
-    font-family: var(--deva); font-size: 15px; padding: 9px 15px; border-radius: 999px;
+    font-family: var(--deva); font-size: calc(15px * var(--scale));
+    min-height: 48px; padding: 10px 18px; border-radius: 999px;
     border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2);
     cursor: pointer; text-align: left; box-shadow: var(--sh-1);
     transition: border-color .12s, color .12s, transform .12s;
@@ -234,7 +242,17 @@
   }
   .badge.no { border-color: var(--warn-line); color: var(--warn); background: var(--warn-soft); }
 
-  /* -------------------------------------- the four parts of the contract (§10) */
+  /* ------------------------ the four parts of the contract (§10), reordered
+     The contract is answer -> rule -> example -> say-to-child. That is the order
+     it is GENERATED in, and it used to be the order it was shown in, which meant
+     the parent read three blocks before reaching the one thing they came for.
+     Reading is expensive for this user (§3.1), so the payoff now comes first and
+     the reasoning follows.
+
+     The reasoning is NOT hidden by default. Collapsing it would quietly turn the
+     product into a line to parrot, which is the answer-copying it exists to
+     refuse — the parent needs the rule to handle the child's next question. It
+     is collapsible for anyone who only wants the sentence. */
   .part { padding: 13px 16px; border-top: 1px solid var(--rule-2); }
   .card-top + .part { border-top: 0; padding-top: 9px; }
   .part-label {
@@ -248,17 +266,47 @@
     font-size: 10.5px; font-weight: 600; font-family: var(--sans); flex: 0 0 auto;
     border: 1px solid var(--rule);
   }
-  .part p { margin: 0; font-size: 19px; line-height: 1.72; }
+  .part p { margin: 0; font-size: calc(19px * var(--scale)); line-height: 1.72; }
 
-  /* Part 4 is the product. Everything above it is the reasoning that earns it —
-     the parent came for a sentence they can say out loud, so it gets the weight. */
+  /* The hero: the sentence the parent says out loud. */
   .part.say {
-    background: var(--amber-tint); border-top: 1px solid var(--amber-line);
-    box-shadow: inset 3px 0 0 var(--amber);
+    background: var(--amber-tint); border-top: 0;
+    box-shadow: inset 4px 0 0 var(--amber);
+    padding: 15px 16px 16px;
   }
   .part.say .part-label { color: var(--amber-ink); }
-  .part.say .part-num { background: var(--amber); color: #fff; border-color: var(--amber); }
-  .part.say p { font-weight: 500; font-size: 20px; }
+  .part.say p {
+    font-weight: 500; font-size: calc(21px * var(--scale)); line-height: 1.6;
+  }
+  .say-arrive { animation: sayIn .42s cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes sayIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* Replay sits ON the payoff, not in a link row three sections down. They will
+     say this sentence more than once. */
+  .say-actions { display: flex; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
+  .say-btn {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 44px;
+    padding: 0 16px; border-radius: 999px; cursor: pointer;
+    font-family: var(--deva); font-size: calc(15px * var(--scale));
+    background: var(--amber); color: #fff; border: 1px solid var(--amber);
+  }
+  .say-btn.ghost { background: transparent; color: var(--amber-ink); }
+  .say-btn:active { transform: scale(.97); }
+  .say-btn svg { width: 16px; height: 16px; }
+
+  /* the reasoning, visually secondary but present */
+  .why-toggle {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    min-height: 48px; padding: 0 16px; cursor: pointer;
+    background: var(--sunk); border: 0; border-top: 1px solid var(--rule-2);
+    font-family: var(--deva); font-size: calc(15px * var(--scale));
+    color: var(--ink-2); text-align: left;
+  }
+  .why-toggle .chev { margin-left: auto; transition: transform .2s; color: var(--ink-4); }
+  .why-toggle[aria-expanded="false"] .chev { transform: rotate(-90deg); }
+  .why-body[hidden] { display: none; }
 
   /* ----------------------------------------------------------------- citation */
   .cite {
@@ -308,7 +356,8 @@
   }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
   .btn {
-    font-family: var(--deva); font-size: 16px; padding: 9px 18px; border-radius: 999px;
+    font-family: var(--deva); font-size: calc(16px * var(--scale));
+    min-height: 48px; padding: 10px 20px; border-radius: 999px;
     border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
     cursor: pointer; line-height: 1.35; transition: border-color .12s, background .12s;
   }
@@ -354,7 +403,8 @@
     text-transform: uppercase; color: var(--ink-4);
   }
   .lang {
-    font-family: var(--deva); font-size: 13.5px; padding: 4px 13px;
+    font-family: var(--deva); font-size: calc(14px * var(--scale));
+    min-height: 44px; padding: 6px 16px;
     border-radius: 999px; border: 1px solid var(--rule);
     background: var(--surface); color: var(--ink-2); cursor: pointer;
   }
@@ -385,7 +435,18 @@
     transition: transform .1s, opacity .12s;
   }
   .rnd svg { width: 20px; height: 20px; }
-  .rnd.send { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  /* The mic is the primary action, not the send arrow. This parent struggles to
+     type Devanagari — that is why server-side recognition exists at all — so the
+     filled, largest control is the one that needs no keyboard. Typing stays
+     available and secondary. */
+  .rnd.mic-lead {
+    width: 56px; height: 56px;
+    background: var(--amber); color: #fff; border-color: var(--amber);
+    box-shadow: 0 2px 4px rgba(169,110,15,.18), 0 8px 20px rgba(169,110,15,.22);
+  }
+  .rnd.mic-lead svg { width: 24px; height: 24px; }
+  .rnd.send { background: var(--surface); color: var(--ink-2); border-color: var(--rule); }
+  .rnd.send.ready { background: var(--ink); color: var(--ground); border-color: var(--ink); }
   .rnd:active:not([disabled]) { transform: scale(.94); }
   .rnd[disabled] { opacity: .38; cursor: not-allowed; }
   .rnd.rec {
@@ -404,7 +465,12 @@
     font-size: 11.5px; color: var(--ink-3); text-align: center; min-height: 17px;
   }
 
-  .thinking { display: flex; gap: 5px; padding: 18px 16px; }
+  .think-copy {
+    font-family: var(--deva); font-size: calc(15.5px * var(--scale));
+    color: var(--ink-3); padding: 0 16px 16px; margin: 0;
+    transition: opacity .25s;
+  }
+  .thinking { display: flex; gap: 5px; padding: 18px 16px 10px; }
   .thinking i {
     width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4);
     animation: b 1.2s infinite ease-in-out;
@@ -451,7 +517,7 @@
   }
   .about-close {
     margin-left: auto; background: none; border: 1px solid var(--rule); cursor: pointer;
-    width: 28px; height: 28px; border-radius: 7px; color: var(--ink-3);
+    width: 44px; height: 44px; border-radius: 10px; color: var(--ink-3);
     display: grid; place-items: center;
   }
   .about-close:hover { color: var(--ink); border-color: var(--ink-4); }
@@ -545,6 +611,11 @@
                stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 5 2.6 8l3.2 3"/>
                <path d="M10.2 5 13.4 8l-3.2 3"/></svg>
           <span class="lab">HOW IT WORKS</span>
+        </button>
+        <button class="tool icon" id="sizebtn" aria-label="बड़े अक्षर / text size">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <text x="0" y="12" font-size="9" font-family="serif">A</text>
+            <text x="7" y="12" font-size="13" font-family="serif">A</text></svg>
         </button>
         <button class="tool icon" id="themebtn" aria-label="Light or dark theme"></button>
       </div>
@@ -744,6 +815,7 @@ let voiceProvider = 'none';
 const ICON = {
   book: '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 4.4C6.9 3.5 5.6 3.1 4 3.1H2v9h2c1.6 0 2.9.4 4 1.3 1.1-.9 2.4-1.3 4-1.3h2v-9h-2c-1.6 0-2.9.4-4 1.3zM8 4.4v9"/></svg>',
   sound: '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M7.4 2.6 4.2 5.4H2v5.2h2.2l3.2 2.8z"/><path d="M10.6 5.8a3 3 0 0 1 0 4.4"/></svg>',
+  chev: '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>',
   mic: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="7.2" y="2.2" width="5.6" height="9.6" rx="2.8"/><path d="M4.2 9.2a5.8 5.8 0 0 0 11.6 0M10 15v2.8"/></svg>',
   stop: '<svg viewBox="0 0 20 20" fill="currentColor"><rect x="6" y="6" width="8" height="8" rx="1.5"/></svg>',
 };
@@ -876,6 +948,8 @@ async function poll() {
         ? 'तैयार — किताब: NCERT गणित मेला, कक्षा 5'
         : 'तैयार — बोलकर या लिखकर पूछिए';
       const canMic = ASR_MODE !== 'none';
+      // Promote the mic to the primary control only if it can actually be used.
+      micBtn.classList.toggle('mic-lead', canMic);
       micBtn.disabled = !canMic;
       micBtn.title = canMic ? 'बोलकर पूछिए' : 'इस ब्राउज़र में आवाज़ नहीं चलेगी';
       return;
@@ -896,14 +970,36 @@ function addParent(text, viaVoice) {
     viaVoice ? '<span class="mic-mark">🎤 </span>' : ''}${esc(text)}</div>`));
   scroll();
 }
+/* Six to sixteen seconds of three silent dots reads as "it broke" to someone
+   tired with a child waiting. Narrating the stages costs nothing and turns dead
+   time into visible progress. The copy is honest about what is happening. */
+const THINK_STAGES = [
+  [0,    'सवाल समझ रहा हूँ…'],
+  [1200, 'किताब में ढूँढ़ रहा हूँ…'],
+  [4000, 'जवाब बना रहा हूँ…'],
+  [9000, 'लगभग हो गया…'],
+];
 function addThinking() {
-  const n = el('<div class="card"><div class="thinking"><i></i><i></i><i></i></div></div>');
-  thread.appendChild(n); scroll(); return n;
+  const n = el(`<div class="card">
+    <div class="thinking"><i></i><i></i><i></i></div>
+    <p class="think-copy"></p></div>`);
+  thread.appendChild(n);
+  const copy = n.querySelector('.think-copy');
+  const timers = THINK_STAGES.map(([at, text]) => setTimeout(() => {
+    copy.style.opacity = '0';
+    setTimeout(() => { copy.textContent = text; copy.style.opacity = '1'; }, 160);
+  }, at));
+  n.dataset.timers = timers.join(',');
+  scroll(); return n;
+}
+function clearThinking(node) {
+  (node && node.dataset.timers ? node.dataset.timers.split(',') : [])
+    .forEach(t => clearTimeout(Number(t)));
 }
 function setBusy(v) { busy = v; sendBtn.disabled = v; input.disabled = v; }
 
-const PARTS = [['answer','जवाब'], ['rule','एक नियम'],
-               ['example','अलग संख्याओं से उदाहरण'], ['say_to_child','बच्चे से यह कहिए']];
+const REASONING = [['answer','जवाब'], ['rule','एक नियम'],
+                   ['example','अलग संख्याओं से उदाहरण']];
 
 function devPanel(d) {
   const c = d.citation || {}, r = d.refusal || {};
@@ -929,24 +1025,39 @@ function devPanel(d) {
 }
 
 function renderAnswer(node, d) {
+  clearThinking(node);
   if (d.answered) {
     const c = d.citation || {};
-    const parts = PARTS.map(([k, label], i) => d.parts[k] ? `
-      <div class="part${k === 'say_to_child' ? ' say' : ''}">
+    /* The reasoning trio, in contract order, below the payoff. */
+    const reasoning = REASONING.map(([k, label], i) => d.parts[k] ? `
+      <div class="part">
         <p class="part-label"><span class="part-num">${i + 1}</span>${label}</p>
         <p>${esc(d.parts[k])}</p>
       </div>` : '').join('');
+    const say = d.parts.say_to_child;
     node.outerHTML = `
       <div class="card">
         <div class="card-top">
           <p class="who">साथी</p>
           <span class="badge">किताब से</span>
         </div>
-        ${parts}
+        ${say ? `
+        <div class="part say say-arrive">
+          <p class="part-label">बच्चे से यह कहिए</p>
+          <p data-sayline>${esc(say)}</p>
+          <div class="say-actions">
+            ${TTS_MODE !== 'none' ? `<button class="say-btn" data-speak>${ICON.sound}<span class="lb">सुनिए</span></button>` : ''}
+            <button class="say-btn ghost" data-page="${esc(c.page)}">${ICON.book}<span class="lb">पेज देखिए</span></button>
+          </div>
+        </div>` : ''}
+        ${reasoning ? `
+        <button class="why-toggle" data-why aria-expanded="true">
+          <span>यह क्यों — समझने का तरीका</span>
+          <span class="chev">${ICON.chev}</span>
+        </button>
+        <div class="why-body" data-whybody>${reasoning}</div>` : ''}
         <div class="cite">
           <span class="src">किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
-          <button class="link" data-page="${esc(c.page)}">${ICON.book}<span class="lb">पेज देखिए</span></button>
-          ${TTS_MODE !== 'none' ? `<button class="link" data-speak>${ICON.sound}<span class="lb">सुनकर देखिए</span></button>` : ''}
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
@@ -1006,13 +1117,24 @@ function wire() {
           + 'किताब का यह पेज अभी नहीं दिखा पा रहा हूँ।</p>'));
         lab().textContent = 'पेज देखिए';
       };
-      b.closest('.cite').after(img);
+      /* Anchor on the card, not on .cite. The page button now lives on the
+         payoff in an answer card and inside .cite in a refusal card, so
+         closest('.cite') found nothing in the first case and the image was
+         never inserted. */
+      const anchor = card.querySelector('.cite') || b.closest('.part') || card;
+      anchor.after(img);
     };
   });
   document.querySelectorAll('[data-speak]:not([data-w])').forEach(b => {
     b.dataset.w = '1';
-    b.onclick = () => speak(b, [...b.closest('.card').querySelectorAll('.part p')]
-      .map(p => p.textContent).join(' '));
+    b.onclick = () => {
+      const card = b.closest('.card');
+      const line = card.querySelector('[data-sayline]');
+      /* Read back the sentence they say to the child, not the whole card. That
+         one line is the thing being repeated aloud; the reasoning is for them. */
+      speak(b, line ? line.textContent
+                    : [...card.querySelectorAll('.part p')].map(p => p.textContent).join(' '));
+    };
   });
   document.querySelectorAll('[data-exp]:not([data-w])').forEach(b => {
     b.dataset.w = '1';
@@ -1025,6 +1147,15 @@ function wire() {
         await fetch('/api/feedback', { method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ session: SESSION, understood: yes, explained: yes }) });
       } catch (e) { /* feedback is best-effort */ }
+    };
+  });
+  document.querySelectorAll('[data-why]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
+    b.onclick = () => {
+      const body = b.closest('.card').querySelector('[data-whybody]');
+      const open = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', String(!open));
+      body.hidden = open;
     };
   });
   document.querySelectorAll('[data-ask]:not([data-w])').forEach(b => {
@@ -1118,7 +1249,7 @@ async function submit(text, viaVoice) {
   if (!q) { say('पहले सवाल लिखिए'); return; }
   if (q.length > 500) { say('सवाल बहुत लंबा है — छोटा करके पूछिए'); return; }
   setBusy(true); say('');
-  input.value = ''; autosize();
+  input.value = ''; autosize(); paintSend();
   $('#examples').hidden = true;
   addParent(q, viaVoice);
   try {
@@ -1258,7 +1389,8 @@ function autosize() {
   input.style.height = Math.min(input.scrollHeight, 132) + 'px';
 }
 sendBtn.onclick = () => submit();
-input.addEventListener('input', autosize);
+function paintSend() { sendBtn.classList.toggle('ready', input.value.trim().length > 0); }
+input.addEventListener('input', () => { autosize(); paintSend(); });
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
 });
@@ -1311,6 +1443,29 @@ const THEME = {
     if (meta) meta.setAttribute('content', dark ? '#101216' : '#F4F5F7');
   },
 };
+/* Three steps, cycling. §3.1 makes reading effort the most consequential user
+   attribute, and pinch-zoom is a poor answer when the composer is fixed. */
+const SIZE = {
+  key: 'saathi.size', steps: ['normal', 'large', 'larger'],
+  get() { try { return localStorage.getItem(this.key) || 'normal'; } catch (e) { return 'normal'; } },
+  set(v) {
+    try { v === 'normal' ? localStorage.removeItem(this.key) : localStorage.setItem(this.key, v); }
+    catch (e) { /* private window */ }
+    this.paint();
+  },
+  next() { const i = this.steps.indexOf(this.get()); return this.steps[(i + 1) % this.steps.length]; },
+  paint() {
+    const v = this.get();
+    if (v === 'normal') document.documentElement.removeAttribute('data-size');
+    else document.documentElement.setAttribute('data-size', v);
+    const b = document.getElementById('sizebtn');
+    b.setAttribute('aria-pressed', String(v !== 'normal'));
+    b.title = { normal: 'अक्षर बड़े कीजिए', large: 'और बड़े', larger: 'सामान्य आकार' }[v];
+  },
+};
+document.getElementById('sizebtn').onclick = () => SIZE.set(SIZE.next());
+SIZE.paint();
+
 document.getElementById('themebtn').onclick = () => THEME.set(THEME.dark() ? 'light' : 'dark');
 THEME.paint();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
