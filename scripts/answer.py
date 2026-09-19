@@ -619,7 +619,7 @@ def _try_figure_rescue(question: str, top: dict) -> dict | None:
         return {"text": None, "error": str(exc)[:160], "page": page}
 
 
-def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
+def _answer_core(question: str, backend: str = "groq", verbose: bool = True) -> dict:
     t0 = time.time()
     hits, corpora = retrieve(question)
     decision = gate(question, hits, corpora)
@@ -779,6 +779,41 @@ BAD_REUSES_NUMBERS = """1. 1/3 और 2/6 बराबर हैं।
 
 BAD_JARGON_AND_MISSING = """1. अंश और हर को गुणा कीजिए।
 2. भाज्य को भाजक से बाँटिए और भागफल देखिए।"""
+
+
+def answer(question: str, backend: str = "groq", verbose: bool = True) -> dict:
+    """Answer a question, normalising romanised Hindi (Hinglish) first.
+
+    Hinglish arrives in Roman script while every layer downstream is Devanagari:
+    the pre-check vocabulary, `PARENT_TO_BOOK`, and the embedded corpus. Measured
+    before this existed, on five Hinglish questions against their Devanagari
+    twins: **0 of 5** reached the same chunk, 3 of 5 were rejected as
+    `no_maths_topic`, and **2 of 5 passed the gate on the wrong chapter**.
+
+    That last pair is the reason this is not optional. A rejection is safe — the
+    parent is asked to try again. A confident answer drawn from an unrelated
+    chapter is the failure §8.1 exists to prevent, arriving through the front
+    door. After normalisation: 5/5 pass the gate and 5/5 reach the right chapter.
+
+    Wrapping rather than editing `_answer_core` is deliberate — it has seven
+    return points, and provenance attached at each is provenance that goes
+    missing at one of them.
+    """
+    import translit
+
+    romanised = translit.to_devanagari(question)
+    searched = romanised["text"] if romanised["changed"] else question
+    out = _answer_core(searched, backend=backend, verbose=verbose)
+    if romanised["changed"]:
+        # FR-2 reads the question back before answering. It must show what was
+        # actually searched, because a wrong transliteration is exactly the kind
+        # of silent mis-reading §8.3 makes the confirmation turn mandatory for.
+        out["transliterated"] = {
+            "from": romanised["original"],
+            "to": romanised["text"],
+            "seconds": romanised["seconds"],
+        }
+    return out
 
 
 def _shape(example: str) -> str:

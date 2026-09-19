@@ -2384,3 +2384,80 @@ overflow.
 This is designed for a parent none of us has watched use it. These are careful
 inferences from §3.1, not observations. `interviews/GUIDE.md` would turn the two
 biggest calls — payoff-first, and voice-primary — from reasoning into findings.
+
+---
+
+## D25 — Hinglish was silently answering from the wrong chapter
+
+Most Indian users type Roman script, and a parent on a low-cost Android often has
+no Devanagari keyboard at all. So *"ye concept batao"* is not an edge case — it is
+how the question actually arrives. The pipeline handled Devanagari (native) and
+English (D15) and failed on the script between them.
+
+### Measured before building anything
+
+Five Hinglish questions against their exact Devanagari twins:
+
+| | before |
+|---|---|
+| reached the same chunk | **0 / 5** |
+| rejected by the gate as `no_maths_topic` | 3 / 5 |
+| **passed the gate on the WRONG chapter** | **2 / 5** |
+| worst retrieval score | 0.397 (vs 0.93+ for Devanagari) |
+
+The three rejections were not the problem. A rejection is safe: the parent is
+asked to try again. **The two that passed are the failure.** `sam panchbhuj se
+tile kyon nahi banti` retrieved ch11 p154 instead of ch7 p94 and would have been
+answered confidently from an unrelated chapter — the exact thing §8.1 exists to
+prevent, arriving through the front door rather than round the back.
+
+Every layer downstream is Devanagari: `query_gate`'s vocabulary,
+`retrieval.PARENT_TO_BOOK`, and the embedded corpus. Romanised text matches none
+of it.
+
+### Normalise first, then run the unchanged pipeline
+
+| | before | after |
+|---|---|---|
+| passes the gate | 2 / 5 | **5 / 5** |
+| correct chapter | 0 / 5 | **5 / 5** |
+| exact chunk | 0 / 5 | 3 / 5 |
+| worst score | 0.397 | **0.555** |
+
+The two non-exact matches now land on an adjacent page of the *right* chapter,
+which is a different class of miss entirely.
+
+### Why a model and not a transliteration library
+
+Real Hinglish is phonetic and inconsistent — *kya/kyaa*, *hai/hain/he*,
+*bhinn/bhin*. Scheme-based transliterators (ITRANS, ISO 15919) expect one
+canonical spelling and mangle everything else. A model reads it the way a person
+does, and it adds **no new dependency**: the Groq client was already here, and
+the slim deploy container still ships numpy, pymupdf and pillow only.
+
+### What keeps it cheap and safe
+
+- **Detection is deterministic**, matching Hindi *function* words (`ye`, `kya`,
+  `hai`, `kaise`, `batao`) rather than content words — `kilogram` is shared with
+  English and would misfire. Two markers, or one in a short question. Verified to
+  fire on 6/6 Hinglish and **0/4** English-or-Devanagari probes, so those paths
+  cost **0.000s**. A model deciding whether to call a model is a good way to
+  spend the daily budget on nothing.
+- ~120 tokens per uncached query against ~2,200 for an answer — about 5%.
+- The result is **rejected unless it comes back in Devanagari**, so a model that
+  answers the question instead of transliterating it cannot replace the query.
+- It **fails open**: any error returns the original text, so a normaliser outage
+  degrades to the old behaviour rather than taking the question down.
+- The transliteration is returned in the payload, because FR-2 reads the question
+  back and a wrong transliteration is precisely the silent mis-reading §8.3 makes
+  that turn mandatory for.
+
+### A bug I caused and the lesson in it
+
+The wrapper was inserted with `str.replace` anchored on a function name that did
+not exist. `replace` does not raise on a miss — it silently returns the string
+unchanged. So `answer` had been renamed to `_answer_core` with **no replacement
+defined**, and every call site broke with `ImportError`. The UI suite caught it.
+Anchors for a structural edit now carry an `assert`.
+
+55/55 browser assertions, 35/35 in the new `scripts/test_hinglish.py`.

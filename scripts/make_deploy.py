@@ -38,7 +38,7 @@ OUT = ROOT / "deploy"
 # Exactly what `serve.py` reaches at runtime, traced through the import graph:
 #   serve  -> pagesource, answer, query_gate, speech, vision, whatsapp
 #   speech -> bhashini (only when ULCA credentials exist)
-#   answer -> retrieval, query_gate, answer_contract, vision, embedder
+#   answer -> translit, retrieval, query_gate, answer_contract, vision, embedder
 # Everything else under scripts/ builds or measures the corpus and has no place
 # on a public box.
 RUNTIME_SCRIPTS = [
@@ -48,6 +48,7 @@ RUNTIME_SCRIPTS = [
     "query_gate.py",     # deterministic pre-checks, before any model call
     "retrieval.py",      # hybrid dense + lexical, parent->textbook vocabulary
     "embedder.py",       # query vectors: local BGE-M3, or the same model on Workers AI
+    "translit.py",       # romanised Hindi -> Devanagari before the gate sees it
     "pagesource.py",     # FR-10 page images, incl. the fetch-from-NCERT route
     "vision.py",         # reads figures (optional; degrades to refusing)
     "speech.py",         # ASR via Groq Whisper (default) or Bhashini; TTS on-device
