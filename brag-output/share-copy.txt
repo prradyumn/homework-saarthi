@@ -1,0 +1,7 @@
+Introducing होमवर्क साथी — a Hindi homework helpline for the parents of Class 5
+government-school children, not the children.
+
+Most AI demos brag about answering. This one's best feature is refusing: its user
+is a parent who can't tell when an answer is wrong. 1.1% wrong-answer rate.
+
+homework-saathi.onrender.com

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Homework Saathi — brag</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  /* Fonts shipped locally so the render is deterministic and the Devanagari
+     subset is guaranteed present — the Google CSS splits by unicode-range and
+     the Latin block does not contain a single glyph this film needs. */
+  @font-face { font-family: "Plex Deva"; src: url("assets/fonts/deva-400.woff2") format("woff2"); font-weight: 400; font-display: block; }
+  @font-face { font-family: "Plex Deva"; src: url("assets/fonts/deva-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+  @font-face { font-family: "Plex Serif"; src: url("assets/fonts/serif-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+  @font-face { font-family: "Plex Sans"; src: url("assets/fonts/sans-400.woff2") format("woff2"); font-weight: 400; font-display: block; }
+  @font-face { font-family: "Plex Sans"; src: url("assets/fonts/sans-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+  @font-face { font-family: "Plex Mono"; src: url("assets/fonts/mono-500.woff2") format("woff2"); font-weight: 500; font-display: block; }
+
+  /* Palette lifted from the product, which lifted it from the textbook: the
+     amber is Maths Mela's section-header pill fill, the lavender its
+     शिक्षण संकेत callout fill. */
+  :root {
+    --ground:#F4F5F7; --surface:#FFFFFF; --sunk:#EDEAE4;
+    --amber:#A96E0F; --amber-ink:#7C4F08; --amber-wash:#FCF7EE; --amber-line:#E3CCA0;
+    --lavender:#6E5C8A; --lavender-soft:#EFEBF5; --lavender-line:#D8CFE8;
+    --refuse:#A63328; --refuse-soft:#F8E7E3; --refuse-line:#E4C0B8;
+    --ok:#2C6A58;
+    --ink:#14161A; --ink2:#4B4A52; --ink3:#78767F; --ink4:#66636B;
+    --rule:#DDD9D1; --rule2:#EAE7E0;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background: var(--ground); font-family:"Plex Sans", system-ui, sans-serif; }
+  #root { position: relative; width:100%; height:100%; overflow:hidden; background: var(--ground); }
+  .clip { position:absolute; inset:0; }
+
+  .center { display:grid; place-items:center; text-align:center; }
+  .serif  { font-family:"Plex Serif", Georgia, serif; font-weight:600; color:var(--ink); letter-spacing:-.02em; }
+  .deva   { font-family:"Plex Deva", sans-serif; }
+  .mono   { font-family:"Plex Mono", ui-monospace, monospace; font-weight:500; }
+
+  /* ---------- S1 ---------- */
+  .hookline { position:absolute; left:0; right:0; top:440px; text-align:center;
+             padding:0 160px; font-size:82px; line-height:1.2; }
+
+  /* ---------- S2 ---------- */
+  /* Devanagari needs more leading than Latin at the same size: the shirorekha
+     sits above the x-height and matras hang well below the baseline, so a
+     line-height that is comfortable for Latin lets the ink escape its own box
+     and collide with whatever sits beneath. */
+  .lockup { position:absolute; left:0; right:0; top:330px; text-align:center;
+            display:flex; flex-direction:column; align-items:center; gap:20px; }
+  .lockup .hi { font-family:"Plex Deva",sans-serif; font-weight:600; font-size:116px;
+                color:var(--ink); line-height:1.38; }
+  .lockup .rom { font-size:22px; letter-spacing:.34em; color:var(--ink4); }
+  .s2line { position:absolute; left:0; right:0; top:620px; font-size:44px; line-height:1.4; color:var(--ink2); }
+  .pill { position:absolute; left:50%; top:760px; transform:translateX(-50%);
+          font-family:"Plex Deva",sans-serif; font-size:24px; color:var(--amber-ink);
+          background:var(--amber-wash); border:1px solid var(--amber-line);
+          padding:10px 24px; border-radius:999px; }
+
+  /* ---------- the product card (S3 / S4) ---------- */
+  .card { position:absolute; background:var(--surface); border:1px solid var(--rule);
+          border-radius:18px; overflow:hidden;
+          box-shadow:0 2px 4px rgba(23,23,26,.04), 0 18px 48px rgba(23,23,26,.08); }
+  .ctop { display:flex; align-items:center; gap:14px; padding:22px 30px 0; }
+  .who  { font-family:"Plex Mono",monospace; font-size:16px; letter-spacing:.16em; color:var(--ink4); margin:0; }
+  .badge{ margin-left:auto; font-family:"Plex Deva",sans-serif; font-size:20px; font-weight:600;
+          padding:6px 18px; border-radius:999px; border:1px solid var(--ok); color:var(--ok); }
+  .badge.no { border-color:var(--refuse-line); color:var(--refuse); background:var(--refuse-soft); }
+
+  .say  { margin-top:18px; background:var(--amber-wash); border-top:1px solid var(--amber-line);
+          box-shadow: inset 5px 0 0 var(--amber); padding:26px 30px 30px; }
+  .say .lab { font-family:"Plex Deva",sans-serif; font-size:21px; font-weight:600;
+              letter-spacing:.05em; color:var(--amber-ink); margin:0 0 12px; }
+  .say .line{ font-family:"Plex Deva",sans-serif; font-size:42px; font-weight:500;
+              line-height:1.5; color:var(--ink); margin:0; }
+  .cite { padding:20px 30px; border-top:1px solid var(--rule2); background:var(--sunk);
+          font-family:"Plex Deva",sans-serif; font-size:22px; color:var(--ink3); }
+  .rbody{ padding:26px 30px 30px; }
+  .rbody p { font-family:"Plex Deva",sans-serif; font-size:38px; line-height:1.5; color:var(--ink); margin:0; }
+
+  .caption { position:absolute; font-family:"Plex Serif",Georgia,serif; font-weight:600;
+             font-size:40px; line-height:1.4; color:var(--ink2); letter-spacing:-.01em; }
+
+  .bubble { position:absolute; background:var(--lavender-soft); border:1px solid var(--lavender-line);
+            border-radius:20px 20px 6px 20px; padding:18px 28px;
+            font-family:"Plex Deva",sans-serif; font-size:32px; color:var(--ink); }
+
+  .statwrap { position:absolute; text-align:left;
+              display:flex; flex-direction:column; gap:22px; }
+  .statwrap .v { font-size:150px; font-weight:600; color:var(--refuse);
+                 font-family:"Plex Sans",sans-serif; letter-spacing:-.04em; line-height:1.08; }
+  .statwrap .k { font-family:"Plex Mono",monospace; font-size:24px; color:var(--ink3);
+                 letter-spacing:.04em; }
+
+  /* ---------- S5 ---------- */
+  .tag   { position:absolute; left:0; right:0; top:400px; text-align:center;
+           font-family:"Plex Deva",sans-serif; font-weight:600; font-size:64px;
+           line-height:1.45; color:var(--ink); }
+  .gloss { position:absolute; left:0; right:0; top:610px; text-align:center;
+           font-size:34px; color:var(--ink2); }
+  .url   { position:absolute; left:0; right:0; top:760px; text-align:center;
+           font-family:"Plex Mono",monospace; font-size:24px; letter-spacing:.1em; color:var(--ink4); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="brag" data-start="0"
+     data-width="1920" data-height="1080" data-duration="22.5" data-fps="30">
+
+  <!-- S1 — the inversion -->
+  <section id="s1" class="clip" data-start="0" data-duration="4.2" data-track-index="0">
+    <div id="hook-a" class="hookline serif" data-layout-allow-overlap="true">Every AI brags about answering.</div>
+    <div id="hook-b" class="hookline serif" data-layout-allow-overlap="true">This one’s best feature is refusing.</div>
+  </section>
+
+  <!-- S2 — who it is for -->
+  <section id="s2" class="clip" data-start="4.2" data-duration="4.0" data-track-index="1">
+    <div id="s2-lock" class="lockup">
+      <div class="hi">होमवर्क साथी</div>
+      <div class="rom mono">HOMEWORK SAATHI</div>
+    </div>
+    <div id="s2-line" class="s2line serif">For parents who left school before the class their child is in.</div>
+    <div id="s2-pill" class="pill">कक्षा 5 · गणित</div>
+  </section>
+
+  <!-- S3 — the product, payoff first -->
+  <section id="s3" class="clip" data-start="8.2" data-duration="5.6" data-track-index="2">
+    <div id="s3-card" class="card" style="left:170px; top:330px; width:1020px;">
+      <div class="ctop"><p class="who">साथी</p><span class="badge">किताब से</span></div>
+      <div id="s3-say" class="say">
+        <p class="lab">बच्चे से यह कहिए</p>
+        <p class="line">“बेटा, एक किलो में हज़ार ग्राम होते हैं।”</p>
+      </div>
+      <div id="s3-cite" class="cite">किताब: अध्याय 8 — भार और धारिता, पेज 111</div>
+    </div>
+    <div id="s3-cap" class="caption" style="left:1290px; top:432px; width:470px;">
+      The output isn’t an answer. It’s a sentence you say to your child.
+    </div>
+  </section>
+
+  <!-- S4 — it refuses -->
+  <section id="s4" class="clip" data-start="13.8" data-duration="4.2" data-track-index="3">
+    <div id="s4-bubble" class="bubble" style="left:170px; top:292px;">द्विघात समीकरण का सूत्र क्या है?</div>
+    <div id="s4-card" class="card" style="left:170px; top:412px; width:1020px;">
+      <div class="ctop"><p class="who">साथी</p><span class="badge no">जवाब नहीं दूँगा</span></div>
+      <div class="rbody"><p>यह सवाल कक्षा 5 की किताब से आगे का है — बड़ी कक्षा में यह आएगा।</p></div>
+    </div>
+    <div id="s4-stat" class="statwrap" style="left:1330px; top:452px;">
+      <div class="v">1.1%</div>
+      <div class="k">wrong-answer rate</div>
+    </div>
+  </section>
+
+  <!-- S5 — the line it is built on -->
+  <section id="s5" class="clip" data-start="18.0" data-duration="4.5" data-track-index="4">
+    <div id="s5-tag" class="tag">हम बच्चों के ट्यूटर नहीं हैं —<br>हम माता-पिता के कोच हैं।</div>
+    <div id="s5-gloss" class="gloss serif" style="font-weight:600;">We are not a tutor for children. We are a coach for parents.</div>
+    <div id="s5-url" class="url">homework-saathi.onrender.com</div>
+  </section>
+
+  <audio id="music" data-start="0" data-duration="22.5" data-track-index="9" data-volume="0.34"
+         src="assets/music/happy-beats-business-moves-vol-10-by-ende-dot-app.mp3"></audio>
+  <audio id="sfx-say"  data-start="9.83"  data-duration="0.12" data-track-index="10" data-volume="0.34" src="assets/sfx/bong_001.ogg"></audio>
+  <audio id="sfx-cite" data-start="11.47" data-duration="0.19" data-track-index="11" data-volume="0.22" src="assets/sfx/drop_003.ogg"></audio>
+  <audio id="sfx-ref"  data-start="15.28" data-duration="0.19" data-track-index="12" data-volume="0.26" src="assets/sfx/drop_002.ogg"></audio>
+</div>
+
+<script>
+  const tl = gsap.timeline({ paused: true });
+  const E = "power3.out";
+
+  /* ---- S1: two claims, same position. The second replaces the first. ---- */
+  tl.fromTo("#hook-a", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .55, ease: E }, 0.25);
+  tl.to("#hook-a", { opacity: 0, y: -16, duration: .45, ease: "power2.in" }, 2.10);
+  tl.fromTo("#hook-b", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .55, ease: E }, 2.35);
+  tl.to("#hook-b", { opacity: 0, duration: .45 }, 3.80);
+
+  /* ---- S2 ---- */
+  tl.fromTo("#s2-lock",  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .7, ease: E }, 4.45);
+  tl.fromTo("#s2-line",  { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: .6, ease: E }, 5.54); // beat-grid 5.54
+  tl.fromTo("#s2-pill",  { opacity: 0 },        { opacity: 1, duration: .5 },                6.28); // beat-grid 6.28
+  tl.to(["#s2-lock", "#s2-line", "#s2-pill"], { opacity: 0, duration: .45 }, 7.80);
+
+  /* ---- S3: the card assembles. Sequential TEXT is spaced ~1.1s (every other
+       beat at 110 BPM) so each line clears the reading floor. ---- */
+  tl.fromTo("#s3-card", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: .65, ease: E }, 8.73);  // beat-grid 8.73
+  tl.fromTo("#s3-say",  { opacity: 0 },        { opacity: 1, duration: .5 },                 9.83);  // beat-grid 9.83
+  tl.fromTo("#s3-cap",  { opacity: 0, x: 26 }, { opacity: 1, x: 0, duration: .6, ease: E },  10.38);
+  tl.fromTo("#s3-cite", { opacity: 0 },        { opacity: 1, duration: .5 },                 11.47); // beat-grid 11.47
+  tl.to(["#s3-card", "#s3-cap"], { opacity: 0, duration: .45 }, 13.40);
+
+  /* ---- S4: the refusal. It must read as integrity, not as an error. ---- */
+  tl.fromTo("#s4-bubble", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .5, ease: E }, 14.20); // beat-grid 14.20
+  tl.fromTo("#s4-card",   { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .6, ease: E }, 15.28); // beat-grid 15.28
+  tl.fromTo("#s4-stat",   { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .6, ease: E }, 16.38); // beat-grid 16.38
+  tl.to(["#s4-bubble", "#s4-card", "#s4-stat"], { opacity: 0, duration: .45 }, 17.60);
+
+  /* ---- S5: the closing line lands on the track's one strong cue. ---- */
+  tl.fromTo("#s5-tag",   { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .7, ease: E }, 18.56); // beat-grid 18.56
+  tl.fromTo("#s5-gloss", { opacity: 0 },        { opacity: 1, duration: .6 },                20.19); // beat-locked: 20.19s strong cue
+  tl.fromTo("#s5-url",   { opacity: 0 },        { opacity: 1, duration: .5 },                20.75); // beat-grid 20.75
+
+  /* ---- music: quiet bed, warms for the payoff, ducks under the refusal,
+       fades out under the closing line. ---- */
+  const music = document.getElementById("music");
+  tl.fromTo(music, { volume: 0 }, { volume: 0.34, duration: 1.2 }, 0);
+  tl.to(music, { volume: 0.44, duration: 1.0 }, 8.4);    // warm into the payoff
+  tl.to(music, { volume: 0.26, duration: 0.8 }, 13.9);   // duck under the refusal
+  tl.to(music, { volume: 0.34, duration: 0.8 }, 18.0);
+  tl.to(music, { volume: 0.0,  duration: 2.6 }, 19.8);   // fade out under the close
+
+  window.__timelines["brag"] = tl;
+</script>
+</body>
+</html>
