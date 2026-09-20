@@ -39,12 +39,14 @@ OUT = ROOT / "deploy"
 #   serve  -> pagesource, answer, query_gate, speech, vision, whatsapp
 #   speech -> bhashini (only when ULCA credentials exist)
 #   answer -> translit, retrieval, query_gate, answer_contract, vision, embedder
+#   serve  -> followup (same passage, own narrower contract)
 # Everything else under scripts/ builds or measures the corpus and has no place
 # on a public box.
 RUNTIME_SCRIPTS = [
     "serve.py",          # the HTTP surface
     "answer.py",         # gate -> retrieve -> generate -> validate
     "answer_contract.py",  # the §10 four-part validator
+    "followup.py",       # depth on demand, against the same approved passage
     "query_gate.py",     # deterministic pre-checks, before any model call
     "retrieval.py",      # hybrid dense + lexical, parent->textbook vocabulary
     "embedder.py",       # query vectors: local BGE-M3, or the same model on Workers AI

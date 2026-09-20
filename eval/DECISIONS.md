@@ -2461,3 +2461,69 @@ defined**, and every call site broke with `ImportError`. The UI suite caught it.
 Anchors for a structural edit now carry an `assert`.
 
 55/55 browser assertions, 35/35 in the new `scripts/test_hinglish.py`.
+
+---
+
+## D26 — "More detail" was the wrong shape; depth on demand is the right one
+
+The ask was for richer answers. Taken literally that would have undone a measured
+win: **D16 found that more context inflated answer length without improving
+grounding**, and it was length control that took contract conformance 73% → 83%.
+
+There is a product argument as well. §10's four parts exist so the parent can
+*say* the answer. A longer answer is one they read silently and cannot reproduce
+— which is the answer-copying this product refuses to do. Length is not the same
+thing as depth.
+
+So depth became a **second question against the same passage**, not a fatter
+first one:
+
+| | for | cost |
+|---|---|---|
+| एक और उदाहरण | the child did not get the first example | ~870 tok |
+| आसान भाषा में | the rule did not land | ~820 tok |
+| और समझाइए | the parent wants to understand it themselves | ~810 tok |
+
+All three are cheaper than a full answer (~2,200) and cost **nothing until a
+parent taps**. Measured live: 0.45–0.75s each.
+
+### Why the passage is reused, not re-searched
+
+The chunk already cleared §8.1. Re-retrieving on a vaguer prompt ("explain more")
+would risk drifting to a worse passage than the one the gate approved — spending
+a call to make the grounding weaker. So follow-ups never re-retrieve and never
+re-gate; they re-read.
+
+### Each kind has its own contract
+
+Enforcing the full four parts would make every follow-up repeat the original
+answer. Enforcing nothing would drop the safety net at exactly the moment the
+parent is most confused. So each validator checks the narrow thing that kind must
+get right, and all three check the reply came back in Hindi at all (D2's
+`gpt-oss-120b` failure was answering in English).
+
+`another_example` inherits §10's different-numbers rule **and extends it**: the
+new example must differ from the question's numbers *and* from the first
+example's. An "another example" that repeats the first is worse than no button.
+Verified live — the first example used 1/2 → 3/6, the second returned 1/3 → 4/12.
+
+A follow-up that fails its own contract is **withheld**, not shipped with an
+apology attached. Same discipline as the main answer.
+
+### A budget trap, caught before it cost anything
+
+`followup.ask` called Groq directly, ignoring the server's `--backend`. The
+browser suite clicks these buttons, so every UI run would have spent a full
+generation per click — the exact failure `call_stub` was written for after four
+runs consumed 197,907 of 200,000 daily tokens. The follow-up now honours
+`--backend` and has its own canned stub. Measured: **0 tokens** under `stub`.
+
+### Interface
+
+The buttons sit between the reasoning and the feedback prompt, under *अभी भी समझ
+नहीं आया?* — the question a parent is actually asking at that moment. The tapped
+button locks; the other two stay live, because someone who wanted another example
+may also want it in plainer words.
+
+60/60 browser assertions, including that all three are ≥44px and that spending
+one does not lock the others.

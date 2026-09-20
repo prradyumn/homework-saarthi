@@ -369,6 +369,42 @@
     font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--ok); margin: 0;
   }
 
+  /* ---------------------------------------------- depth, only when asked
+     The answer stays short on purpose (D16: more context inflated length
+     without improving grounding). These appear at the moment a parent is
+     actually stuck, and cost nothing until tapped. */
+  .more { padding: 13px 16px; border-top: 1px solid var(--rule-2); }
+  .more .q {
+    font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--ink-4);
+    margin: 0 0 10px;
+  }
+  .more-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .more-btn {
+    font-family: var(--deva); font-size: calc(15px * var(--scale));
+    min-height: 48px; padding: 10px 18px; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2);
+    cursor: pointer; transition: border-color .12s, color .12s;
+  }
+  .more-btn:hover:not([disabled]) { border-color: var(--amber); color: var(--ink); }
+  .more-btn[disabled] { opacity: .45; cursor: default; }
+  .more-out {
+    margin-top: 12px; background: var(--amber-tint);
+    border: 1px solid var(--amber-line); border-radius: var(--r-md);
+    padding: 14px 16px;
+  }
+  .more-out p { margin: 0; font-size: calc(17.5px * var(--scale)); line-height: 1.66; }
+  .more-out .say {
+    margin-top: 11px; padding: 11px 0 0; border-top: 1px solid var(--amber-line);
+    background: none; box-shadow: none;
+  }
+  .more-out .say p { font-weight: 500; }
+  .more-out .lab {
+    font-family: var(--sans); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .05em; text-transform: uppercase; color: var(--amber-ink);
+    margin: 0 0 6px;
+  }
+
   /* ------------------------------------------------------------ FR-7 feedback */
   .fb { padding: 13px 16px; border-top: 1px solid var(--rule-2); }
   .fb p { font-size: 16.5px; margin: 0 0 10px; }
@@ -1037,7 +1073,9 @@ function renderAnswer(node, d) {
       </div>` : '').join('');
     const say = d.parts.say_to_child;
     node.outerHTML = `
-      <div class="card">
+      <div class="card" data-chunk="${esc(c.chunk_id || '')}"
+           data-question="${esc(d.asked || '')}"
+           data-example="${esc(d.parts.example || '')}">
         <div class="card-top">
           <p class="who">साथी</p>
           <span class="badge">किताब से</span>
@@ -1059,6 +1097,14 @@ function renderAnswer(node, d) {
         <div class="why-body" data-whybody>${reasoning}</div>` : ''}
         <div class="cite">
           <span class="src">किताब: अध्याय ${esc(c.chapter)} — ${esc(c.title || '')}, पेज ${esc(c.page)}</span>
+        </div>
+        <div class="more" data-more>
+          <p class="q">अभी भी समझ नहीं आया?</p>
+          <div class="more-row">
+            <button class="more-btn" data-follow="another_example">एक और उदाहरण</button>
+            <button class="more-btn" data-follow="simpler">आसान भाषा में</button>
+            <button class="more-btn" data-follow="explain_more">और समझाइए</button>
+          </div>
         </div>
         <div class="fb" data-fb>
           <p>क्या आपने बच्चे को समझा दिया?</p>
@@ -1135,6 +1181,49 @@ function wire() {
          one line is the thing being repeated aloud; the reasoning is for them. */
       speak(b, line ? line.textContent
                     : [...card.querySelectorAll('.part p')].map(p => p.textContent).join(' '));
+    };
+  });
+  document.querySelectorAll('[data-follow]:not([data-w])').forEach(b => {
+    b.dataset.w = '1';
+    b.onclick = async () => {
+      const card = b.closest('.card'), row = b.closest('.more');
+      const kind = b.dataset.follow;
+      const was = b.textContent;
+      row.querySelectorAll('.more-btn').forEach(x => x.disabled = true);
+      b.textContent = 'बना रहा हूँ…';
+      /* Send the passage id plus what the parent has already seen, so the model
+         can be told not to repeat the example that just failed to land. */
+      const parts = [...card.querySelectorAll('.part')];
+      const body = {
+        kind,
+        chunk_id: card.dataset.chunk || '',
+        question: card.dataset.question || '',
+        answer_text: (parts.map(p => p.querySelector('p:last-child'))
+                           .filter(Boolean).map(p => p.textContent).join(' ')),
+        previous_example: card.dataset.example || '',
+      };
+      try {
+        const d = await (await fetch('/api/followup', { method: 'POST',
+          headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })).json();
+        const out = el('<div class="more-out"></div>');
+        if (d.ok && d.parts) {
+          out.appendChild(el(`<p>${esc(d.parts.text)}</p>`));
+          if (d.parts.say_to_child) {
+            out.appendChild(el(`<div class="say"><p class="lab">बच्चे से यह कहिए</p>
+              <p>${esc(d.parts.say_to_child)}</p></div>`));
+          }
+        } else {
+          out.appendChild(el(`<p>${esc(d.error_hi || 'अभी यह नहीं बना पाया।')}</p>`));
+        }
+        row.appendChild(out);
+      } catch (e) {
+        row.appendChild(el('<div class="more-out"><p>जुड़ने में दिक्कत हुई।</p></div>'));
+      }
+      b.textContent = was;
+      /* Re-enable the other two: a parent who wanted another example may also
+         want it in simpler words. Only this one is spent. */
+      row.querySelectorAll('.more-btn').forEach(x => { if (x !== b) x.disabled = false; });
+      b.disabled = true;
     };
   });
   document.querySelectorAll('[data-exp]:not([data-w])').forEach(b => {

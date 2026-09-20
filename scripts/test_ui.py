@@ -283,6 +283,27 @@ def main() -> int:
             page.wait_for_selector(".fb-done", timeout=10_000)
             check("FR-7 records the answer", "शुक्रिया" in page.inner_text(".fb-done"))
 
+        # ---- depth on demand (D26): the answer stays short, depth is opt-in ----
+        more = page.locator("[data-follow]")
+        check("three follow-ups offered on an answer", more.count() == 3,
+              f"{more.count()} buttons")
+        check("follow-ups are reachable on a phone",
+              page.evaluate("""() => [...document.querySelectorAll('[data-follow]')]
+                  .every(b => b.getBoundingClientRect().height >= 44)"""))
+        if more.count() == 3:
+            page.locator("[data-follow='another_example']").click()
+            page.wait_for_selector(".more-out", timeout=60_000)
+            out = page.locator(".more-out").first.inner_text()
+            check("a follow-up returns Hindi text",
+                  any("\u0900" <= c <= "\u097f" for c in out), out[:50].replace("\n", " "))
+            check("the spent follow-up is disabled",
+                  page.locator("[data-follow='another_example']").is_disabled())
+            # A parent who wanted another example may also want it in plainer
+            # words. Only the button they spent should lock.
+            check("the other follow-ups stay available",
+                  not page.locator("[data-follow='simpler']").is_disabled()
+                  and not page.locator("[data-follow='explain_more']").is_disabled())
+
         # ---- FR-4: a refusal must show the §8.1 package, not a bare no ----
         # No confirmation turn is expected here any more. This question is caught
         # by pre_check on its beyond-Class-5 vocabulary, so the outcome is known

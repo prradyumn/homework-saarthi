@@ -235,6 +235,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._interpret(payload)
         if url.path == "/api/answer":
             return self._answer(payload)
+        if url.path == "/api/followup":
+            return self._followup(payload)
         if url.path == "/api/feedback":
             return self._feedback(payload)
         self._json(404, {"error": "not found"})
@@ -343,6 +345,9 @@ class Handler(BaseHTTPRequestHandler):
         sess["turns"] = (sess["turns"] + [{"q": q, "answered": out.get("answered")}])[-MAX_TURNS:]
 
         out["elapsed"] = round(time.time() - t0, 2)
+        # The question, echoed back. A follow-up asks a second question about the
+        # same passage and needs to know what the first one was.
+        out["asked"] = q
         # so a stubbed answer can never be mistaken for a real one
         out["backend"] = _state["backend"]
         out["refusal_line_hi"] = out.get("refusal", {}).get("spoken")
@@ -423,6 +428,66 @@ class Handler(BaseHTTPRequestHandler):
             whatsapp.send_text(to, body)
         except Exception as exc:  # noqa: BLE001
             print(f"  wa: could not send: {str(exc)[:160]}", flush=True)
+
+    # ------------------------------------------------------- depth on demand
+    def _followup(self, payload: dict) -> None:
+        """A second question against the SAME passage — not a longer first answer.
+
+        D16 measured that more context inflates length without improving
+        grounding, and length control is what took conformance 73% -> 83%. So
+        depth is opt-in and costs nothing until a parent taps.
+
+        No re-retrieval and no re-gating: this chunk already cleared §8.1, and
+        searching again on a vaguer prompt would only risk drifting to a worse
+        passage than the one the gate approved.
+        """
+        if not _state["ready"]:
+            return self._json(503, {"error_hi": "एक मिनट रुकिए, तैयारी हो रही है…"})
+
+        import followup
+
+        kind = (payload.get("kind") or "").strip()
+        if kind not in followup.KINDS:
+            return self._json(400, {"error_hi": "यह विकल्प उपलब्ध नहीं है।"})
+
+        chunk_id = (payload.get("chunk_id") or "").strip()
+        try:
+            from answer import load_chunks
+
+            chunk = load_chunks().get(chunk_id)
+        except Exception:  # noqa: BLE001
+            chunk = None
+        if not chunk:
+            return self._json(400, {"error_hi": "किताब का वह हिस्सा नहीं मिला।"})
+
+        try:
+            with _lock:
+                out = followup.ask(
+                    kind,
+                    # Honour --backend: a follow-up is a full generation, and the
+                    # browser suite must not spend the daily budget to click a
+                    # button three times.
+                    backend="stub" if _state["backend"] == "stub" else None,
+                    question=(payload.get("question") or "")[:500],
+                    passage=chunk["text_hi"][:900],
+                    answer_text=(payload.get("answer_text") or "")[:900],
+                    previous_example=(payload.get("previous_example") or "")[:600],
+                )
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc)
+            return self._json(200, {"ok": False, "error_hi": (
+                "आज के लिए मुफ़्त सीमा पूरी हो गई है, कल फिर कोशिश कीजिए।"
+                if "daily" in msg or "TPD" in msg else
+                "अभी यह नहीं बना पाया। थोड़ी देर बाद कोशिश कीजिए।")})
+
+        print(f"  followup[{kind}] ok={out['ok']} {out.get('seconds')}s "
+              f"{out.get('tokens')}tok", flush=True)
+        if not out["ok"]:
+            # Same discipline as the main contract: a follow-up that fails its
+            # own rules is withheld, not shipped with an apology attached.
+            out["error_hi"] = "इसे ठीक से बना नहीं पाया — दूसरा तरीका आज़माइए।"
+        out.pop("raw", None)
+        return self._json(200, out)
 
     # ---------------------------------------------------------------- FR-7
     def _feedback(self, payload: dict) -> None:

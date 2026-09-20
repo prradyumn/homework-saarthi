@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PM Vishwakarma Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500;1,700&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a2f4a;--navy-dk:#0f1e30;--accent:#1a6fc4;--accent-lt:#2a88e0;
+  --green:#1a7a45;--green-lt:#e8f5ee;--amber:#b45309;--amber-lt:#fef3c7;
+  --red:#b91c1c;--red-lt:#fee2e2;--purple:#6b21a8;--purple-lt:#f3e8ff;
+  --saffron:#e05500;
+  --g50:#f8f9fa;--g100:#f1f3f5;--g200:#e9ecef;--g300:#dee2e6;
+  --g500:#adb5bd;--g600:#6c757d;--g700:#495057;--g800:#343a40;--g900:#212529;
+  --border:#d1d5db;--r:6px;--rl:10px;
+  --sh:0 1px 3px rgba(0,0,0,.10);--shl:0 10px 15px rgba(0,0,0,.07)
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--g900);background:var(--g100);line-height:1.5}
+/* ===== HOMEPAGE ===== */
+#homePage{display:block}
+#portal{display:none;flex-direction:row;min-height:100vh}
+.ticker{background:var(--navy-dk);color:#fff;height:32px;display:flex;align-items:center;overflow:hidden}
+.ticker-lbl{background:var(--saffron);padding:0 14px;height:32px;display:flex;align-items:center;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.ticker-txt{padding:0 20px;font-size:12px;white-space:nowrap;animation:tick 40s linear infinite}
+@keyframes tick{0%{transform:translateX(100vw)}100%{transform:translateX(-200%)}}
+.hp-hdr{background:linear-gradient(90deg,#0f1e30,#1a2f4a,#1a3d5c);border-bottom:3px solid var(--saffron)}
+.hp-hdr-inner{max-width:1400px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.emblem{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--navy);flex-shrink:0}
+.logo-txt h1{font-size:17px;font-weight:800;color:#fff;line-height:1.2}
+.logo-txt p{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
+.logo-txt small{font-size:10px;color:rgba(255,255,255,.45)}
+.login-box{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:var(--r);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.login-box select,.login-box input{padding:7px 10px;border:1px solid rgba(255,255,255,.3);border-radius:var(--r);font-size:12px;background:rgba(255,255,255,.12);color:#fff;outline:none}
+.login-box select{width:165px}
+.login-box input{width:110px}
+.login-box select option{background:var(--navy);color:#fff}
+.login-box input::placeholder{color:rgba(255,255,255,.5)}
+.btn-login{padding:8px 18px;background:var(--saffron);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.hp-nav-bar{background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.08)}
+.hp-nav-bar-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;overflow-x:auto}
+.hp-nav-bar a{display:inline-block;padding:10px 15px;font-size:13px;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;text-decoration:none}
+.hp-nav-bar a:hover{color:#fff;border-bottom-color:var(--saffron)}
+.hero{background:linear-gradient(135deg,#0f1e30,#1a3d5c);padding:52px 24px;text-align:center}
+.hero h2{font-size:34px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:12px}
+.hero h2 span{color:var(--saffron)}
+.hero p{font-size:15px;color:rgba(255,255,255,.8);max-width:660px;margin:0 auto 22px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:11px 26px;background:var(--saffron);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer}
+.btn-hero-outline{padding:11px 26px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer}
+.hero-stats{display:flex;gap:32px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.hero-stat .num{font-size:26px;font-weight:800;color:var(--saffron)}
+.hero-stat .lbl{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+.hp-sec{max-width:1400px;margin:0 auto;padding:44px 24px}
+.hp-sec-title{font-size:21px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.hp-sec-sub{font-size:14px;color:var(--g600);margin-bottom:26px;padding-bottom:14px;border-bottom:2px solid var(--g200);line-height:1.75;box-sizing:border-box;text-align:left;width:100%}
+@media(max-width:640px){.hp-sec-sub{font-size:13px;line-height:1.65}}
+.scheme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.scheme-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.scheme-grid{grid-template-columns:1fr}}
+.scheme-card{background:#fff;border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:0 6px 22px rgba(14,39,58,.06);transition:transform .25s ease,box-shadow .25s ease}
+.scheme-card:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(14,39,58,.12)}
+.scheme-card-img{height:132px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(135deg,#fff7ec,#fde5c3);border-bottom:1px solid var(--border)}
+.scheme-card-img::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.6),transparent 55%);pointer-events:none}
+.scheme-card-img .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:0 6px 16px rgba(14,39,58,.12),inset 0 0 0 1px rgba(199,123,34,.15);color:#b45309;position:relative;z-index:1}
+.scheme-card-img .ic svg{width:32px;height:32px}
+.scheme-card-img span.lbl{position:absolute;bottom:8px;right:8px;background:rgba(7,27,46,.85);color:#fff;font-size:10px;padding:3px 9px;border-radius:20px;letter-spacing:.3px;font-weight:600;z-index:1}
+.scheme-card-body{padding:16px 16px 18px}
+.scheme-card-body h4{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;letter-spacing:-.2px}
+.scheme-card-body p{font-size:12.5px;color:var(--g600);line-height:1.6}
+.scheme-card-body .tag{display:inline-block;margin-top:10px;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;background:var(--amber-lt);color:var(--amber);letter-spacing:.2px}
+.pillars{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:6px 0 26px}
+@media(max-width:1100px){.pillars{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.pillars{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.pillars{grid-template-columns:1fr}}
+.pillar{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 4px 14px rgba(14,39,58,.04)}
+.pillar-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fef3c7,#fcd9a1);color:#b45309;flex-shrink:0}
+.pillar-ic svg{width:20px;height:20px}
+.pillar h5{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:2px}
+.pillar p{font-size:11.5px;color:var(--g600);line-height:1.5}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+.gallery-item{border-radius:var(--r);overflow:hidden;aspect-ratio:4/3;position:relative;cursor:pointer}
+.gallery-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;color:rgba(255,255,255,.95)}
+.gallery-img svg{width:56px;height:56px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));opacity:.95}
+#pmvModalIcon svg{width:88px;height:88px;color:rgba(255,255,255,.95);filter:drop-shadow(0 6px 14px rgba(0,0,0,.4))}
+.gallery-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-size:11px;padding:16px 10px 7px;font-weight:600}
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.news-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:14px;box-shadow:var(--sh);display:flex;gap:11px}
+.news-date{font-size:11px;color:var(--accent);font-weight:700;white-space:nowrap;margin-top:2px}
+.news-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.news-desc{font-size:12px;color:var(--g600)}
+.events-list{display:flex;flex-direction:column;gap:10px}
+.event-item{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:13px 15px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--sh)}
+.evt-date{background:var(--navy);color:#fff;border-radius:var(--r);padding:7px 10px;text-align:center;flex-shrink:0;min-width:46px}
+.evt-date .day{font-size:19px;font-weight:800;line-height:1}
+.evt-date .mon{font-size:10px;font-weight:600;margin-top:2px}
+.evt-title{font-size:13px;font-weight:700}
+.evt-meta{font-size:12px;color:var(--g600);margin-top:3px}
+.evt-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:var(--green-lt);color:var(--green)}
+.support-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.support-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:18px;text-align:center;box-shadow:var(--sh)}
+.support-icon{font-size:30px;margin-bottom:8px}
+.support-card h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:5px}
+.support-card p{font-size:12px;color:var(--g600)}
+.support-card .contact{font-size:13px;font-weight:700;color:var(--accent);margin-top:8px}
+.story-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:14px;display:flex;gap:12px;box-shadow:var(--sh)}
+.story-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.story-content h4{font-size:13px;font-weight:700}
+.story-content p{font-size:12px;color:var(--g600);margin-top:3px;line-height:1.6}
+.story-trade{font-size:11px;font-weight:700;color:var(--accent);margin-top:5px}
+.hp-footer{background:var(--navy-dk);color:rgba(255,255,255,.7);padding:28px 24px 14px}
+.hp-footer-inner{max-width:1400px;margin:0 auto}
+.hp-footer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:22px;margin-bottom:22px}
+.hp-footer h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:10px}
+.hp-footer ul{list-style:none}
+.hp-footer li{margin-bottom:5px;font-size:12px;cursor:pointer}
+.hp-footer-btm{border-top:1px solid rgba(255,255,255,.1);padding-top:14px;font-size:11px;text-align:center}
+/* ===== PORTAL ===== */
+.sidebar{width:238px;background:var(--navy-dk);flex-shrink:0;display:flex;flex-direction:column}
+.sb-hdr{padding:15px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-hdr .ptitle{font-size:13px;font-weight:700;color:#fff}
+.sb-hdr .rlabel{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.sb-hdr .uname{font-size:12px;color:rgba(255,255,255,.8);margin-top:6px;font-weight:600}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-sec{padding:10px 16px 3px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:block;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:var(--accent);color:#fff}
+.sb-ftr{padding:11px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.btn-logout{width:100%;padding:8px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);font-size:12px;cursor:pointer}
+.btn-logout:hover{background:rgba(255,255,255,.14);color:#fff}
+.main-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-meta{font-size:12px;color:var(--g500)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.content{flex:1;padding:22px;overflow-y:auto;background:var(--g100)}
+/* COMPONENTS */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-lt);color:var(--green)}
+.badge-amber{background:var(--amber-lt);color:var(--amber)}
+.badge-red{background:var(--red-lt);color:var(--red)}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-purple{background:var(--purple-lt);color:var(--purple)}
+.badge-gray{background:var(--g200);color:var(--g700)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:13px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:var(--r);padding:16px;border:1px solid var(--border);box-shadow:var(--sh);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.amber::before{background:var(--amber)}
+.stat-card.red::before{background:var(--red)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-num{font-size:24px;font-weight:800;color:var(--navy);line-height:1}
+.stat-label{font-size:12px;color:var(--g600);margin-top:4px}
+.stat-sub{font-size:11px;color:var(--g500);margin-top:2px}
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);margin-bottom:16px}
+.card-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:13px;font-weight:700}
+.card-body{padding:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--g50);text-align:left;padding:9px 11px;font-size:11px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid var(--g100);color:var(--g800);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g50)}
+.table-wrap{overflow-x:auto}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-lt)}
+.btn-secondary{background:var(--g100);color:var(--g700);border:1px solid var(--border)}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-outline{background:#fff;border:1px solid var(--border);color:var(--g700)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:13px;margin-bottom:13px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:600;color:var(--g700)}
+.field input,.field select,.field textarea{padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;color:var(--g900);background:#fff;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,111,196,.1)}
+.field textarea{resize:vertical;min-height:70px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:8px}
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.tab{padding:8px 15px;font-size:13px;font-weight:600;color:var(--g600);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--accent)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:13px;border-left:4px solid}
+.alert-info{background:#dbeafe;border-color:var(--accent);color:#1e40af}
+.alert-success{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.alert-warning{background:var(--amber-lt);border-color:var(--amber);color:var(--amber)}
+.alert-danger{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--rl);width:560px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shl)}
+.modal-header{padding:17px 22px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--g500)}
+.modal-body{padding:20px}
+.modal-footer{padding:13px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.otp-display{background:var(--navy);color:#fff;font-size:28px;font-weight:700;text-align:center;padding:13px;border-radius:var(--r);letter-spacing:12px;margin:13px 0;font-family:'Courier New',monospace}
+.otp-note{font-size:12px;color:var(--g600);text-align:center;margin-bottom:10px}
+.kv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px}
+.kv-item{padding:9px 11px;background:var(--g50);border-radius:var(--r);border:1px solid var(--border)}
+.kv-key{font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.4px}
+.kv-val{font-size:13px;color:var(--g900);margin-top:2px;font-weight:600}
+.progress-bar{height:7px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:5px}
+.progress-fill{height:100%;border-radius:4px;background:var(--accent)}
+.cert-card{background:linear-gradient(135deg,#fef9e7,#fff);border:2px solid #d4a017;border-radius:var(--rl);padding:30px;text-align:center}
+.cert-title{font-size:19px;font-weight:800;color:var(--navy)}
+.cert-name{font-size:21px;font-weight:700;color:var(--accent);border-bottom:2px solid var(--accent);display:inline-block;padding-bottom:4px;margin:10px 0}
+.cert-detail{font-size:13px;color:var(--g600);margin:4px 0}
+.cert-footer{font-size:11px;color:var(--g500);margin-top:16px}
+.timeline{list-style:none;position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:var(--g200)}
+.timeline li{position:relative;margin-bottom:16px}
+.timeline li::before{content:'';position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--accent)}
+.timeline li.done::before{background:var(--green);box-shadow:0 0 0 2px var(--green)}
+.timeline li.pending::before{background:var(--amber);box-shadow:0 0 0 2px var(--amber)}
+.tl-title{font-size:13px;font-weight:700}
+.tl-meta{font-size:12px;color:var(--g500);margin-top:1px}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}
+.photo-mock{aspect-ratio:4/3;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;overflow:hidden}
+.photo-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:5px 7px;font-weight:600}
+.top5-list{list-style:none}
+.top5-list li{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--g100)}
+.top5-list li:last-child{border-bottom:none}
+.top5-rank{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.top5-rank.gold{background:#d4a017}
+.top5-rank.silver{background:#9ca3af}
+.top5-rank.bronze{background:#b45309}
+.top5-info{flex:1}
+.top5-name{font-size:13px;font-weight:700}
+.top5-meta{font-size:11px;color:var(--g500)}
+.top5-score{font-size:13px;font-weight:700;color:var(--accent)}
+.flag-item{display:flex;gap:8px;padding:9px 11px;border-radius:var(--r);border:1px solid;margin-bottom:7px;font-size:12px}
+.flag-red{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+.flag-amber{background:var(--amber-lt);border-color:var(--amber);color:var(--amber)}
+.flag-green{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:13px;align-items:flex-end}
+.filter-bar .field{min-width:130px}
+.pagination{display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.page-btn{padding:5px 10px;border:1px solid var(--border);border-radius:var(--r);background:#fff;font-size:12px;cursor:pointer}
+.page-btn:hover,.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.page-info{font-size:12px;color:var(--g600)}
+.avatar-wrap{position:relative;display:inline-block}
+.avatar-circle{width:78px;height:78px;border-radius:50%;background:var(--navy);color:#fff;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar-circle img{width:100%;height:100%;object-fit:cover}
+.avatar-upload-btn{position:absolute;bottom:0;right:0;background:var(--accent);color:#fff;border:2px solid #fff;border-radius:50%;width:25px;height:25px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.room-card{background:var(--g50);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.room-card h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:7px}
+.room-kv{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.rk-k{font-size:11px;color:var(--g500)}
+.rk-v{font-size:13px;font-weight:600;color:var(--g900)}
+.profile-card{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px}
+.profile-info h2{font-size:17px;font-weight:700}
+.profile-info p{font-size:13px;color:var(--g600)}
+.profile-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
+.section-title{font-size:16px;font-weight:700;margin-bottom:3px}
+.section-sub{font-size:13px;color:var(--g500);margin-bottom:16px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.chip{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--g200);color:var(--g700)}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.flex-wrap{flex-wrap:wrap}
+.rating-btn{padding:5px 11px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;cursor:pointer;background:#fff}
+.rating-btn.active-1{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+.rating-btn.active-2{background:var(--amber-lt);border-color:var(--amber);color:var(--amber)}
+.rating-btn.active-3{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.rating-group{display:flex;gap:7px;flex-wrap:wrap}
+#notifToast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:var(--r);font-size:13px;z-index:999;box-shadow:var(--shl);transform:translateY(80px);transition:transform .3s;max-width:310px}
+#notifToast.show{transform:translateY(0)}
+.mb-bar{margin-bottom:11px}
+.mb-bar-head{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
+.mb-bar-head span:last-child{font-weight:700}
+
+/* ===== COMPLETE STORY-RICH DASHBOARD SYSTEM ===== */
+.dash-hero{background:linear-gradient(135deg,var(--navy-dk),var(--navy),#17496f);color:#fff;border-radius:var(--rl);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shl);position:relative;overflow:hidden}.dash-hero:after{content:'';position:absolute;right:-55px;top:-55px;width:210px;height:210px;border-radius:50%;background:rgba(255,255,255,.08)}.dash-hero h2{font-size:20px;margin-bottom:4px;position:relative;z-index:1}.dash-hero p{font-size:13px;color:rgba(255,255,255,.78);position:relative;z-index:1}.dash-filter{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;position:relative;z-index:1}.dash-filter select{padding:8px 10px;border:1px solid rgba(255,255,255,.28);border-radius:var(--r);background:rgba(255,255,255,.12);color:#fff}.dash-filter option{color:#111;background:#fff}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:16px}.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:14px;position:relative;overflow:hidden}.kpi:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}.kpi.green:before{background:var(--green)}.kpi.amber:before{background:var(--amber)}.kpi.red:before{background:var(--red)}.kpi.purple:before{background:var(--purple)}.kpi .num{font-size:23px;font-weight:800;color:var(--navy);line-height:1}.kpi .lbl{font-size:12px;color:var(--g600);margin-top:5px}.kpi .sub{font-size:11px;color:var(--g500);margin-top:2px}
+.dash-2{display:grid;grid-template-columns:1.35fr .9fr;gap:16px}.dash-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}@media(max-width:1000px){.dash-2,.dash-3{grid-template-columns:1fr}}.vcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}.vcard h3{font-size:13px;padding:13px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px}.vbody{padding:16px}.tag-soft{display:inline-flex;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#eef6ff;color:#1e40af}
+.bar-row{display:grid;grid-template-columns:112px 1fr 54px;gap:10px;align-items:center;margin:9px 0;font-size:12px}.bar-track{height:9px;background:var(--g200);border-radius:20px;overflow:hidden}.bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent-lt))}.bar-fill.green{background:linear-gradient(90deg,var(--green),#22a363)}.bar-fill.amber{background:linear-gradient(90deg,var(--amber),#f59e0b)}.bar-fill.purple{background:linear-gradient(90deg,var(--purple),#9333ea)}.bar-fill.red{background:linear-gradient(90deg,var(--red),#ef4444)}
+.rank-list{list-style:none}.rank-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--g100)}.rank-list li:last-child{border-bottom:none}.rank-no{width:25px;height:25px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}.rank-no.r1{background:#d4a017}.rank-no.r2{background:#9ca3af}.rank-no.r3{background:#b45309}.rank-main{flex:1}.rank-title{font-size:13px;font-weight:700}.rank-sub{font-size:11px;color:var(--g500)}.rank-score{font-size:13px;font-weight:800;color:var(--accent)}
+.story-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.story-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}.story-img{height:108px;display:flex;align-items:flex-end;padding:10px;color:#fff;font-size:12px;font-weight:800;background:linear-gradient(135deg,#1a2f4a,#1a6fc4);position:relative}.story-img:before{content:'';position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.45))}.story-img span{position:relative;z-index:1}.story-body{padding:12px}.story-body h4{font-size:13px;color:var(--navy);margin-bottom:4px}.story-body p{font-size:12px;color:var(--g600);line-height:1.5}.story-meta{margin-top:8px;font-size:11px;font-weight:700;color:var(--accent)}
+.photo-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.photo-tile{height:115px;border-radius:var(--r);display:flex;align-items:flex-end;padding:10px;color:#fff;font-size:12px;font-weight:800;background:linear-gradient(135deg,#064e3b,#1a7a45);box-shadow:var(--sh)}.practice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.practice{border:1px solid var(--border);border-left:4px solid var(--green);border-radius:var(--r);padding:11px;background:var(--g50)}.practice h4{font-size:12px;color:var(--navy);margin-bottom:4px}.practice p{font-size:12px;color:var(--g600)}.insight{display:flex;gap:8px;padding:9px 10px;border-radius:var(--r);border:1px solid var(--border);font-size:12px;background:var(--g50);margin-bottom:8px}.insight.good{border-color:var(--green);background:var(--green-lt);color:var(--green)}.insight.warn{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}.insight.bad{border-color:var(--red);background:var(--red-lt);color:var(--red)}.heat{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.heat div{height:42px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}.hot{background:var(--green-lt);color:var(--green)}.mid{background:var(--amber-lt);color:var(--amber)}.low{background:var(--red-lt);color:var(--red)}
+.donut{width:118px;height:118px;border-radius:50%;background:conic-gradient(var(--green) 0 58%,var(--accent) 58% 78%,var(--amber) 78% 92%,var(--red) 92%);display:flex;align-items:center;justify-content:center}.donut span{width:74px;height:74px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--navy)}
+
+
+/* ===== MSDE COMMUNICATION & RECOGNITION CENTRE ===== */
+.comm-hero{background:linear-gradient(135deg,#0f1e30,#17496f);color:#fff;border-radius:10px;padding:20px 22px;margin-bottom:16px;display:flex;justify-content:space-between;gap:18px;align-items:center}.comm-hero h2{font-size:20px;margin-bottom:4px}.comm-hero p{font-size:13px;color:rgba(255,255,255,.75)}
+.comm-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}.comm-tab{border:1px solid var(--border);background:#fff;padding:8px 14px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer}.comm-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.msg-banner{border:1px solid #f3c45b;border-left:5px solid #d4a017;background:linear-gradient(90deg,#fff9e9,#fff);border-radius:8px;padding:14px 16px;margin-bottom:14px;display:flex;gap:13px;align-items:flex-start;box-shadow:var(--sh)}.msg-banner.info{border-color:#93c5fd;border-left-color:var(--accent);background:linear-gradient(90deg,#eff6ff,#fff)}.msg-banner.alert{border-color:#fca5a5;border-left-color:var(--red);background:linear-gradient(90deg,#fff1f2,#fff)}.msg-banner.appreciation{border-color:#86efac;border-left-color:var(--green);background:linear-gradient(90deg,#f0fdf4,#fff)}
+.msg-icon{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:var(--sh);flex-shrink:0}.msg-main{flex:1;min-width:0}.msg-title{font-size:14px;font-weight:800;color:var(--navy)}.msg-text{font-size:13px;color:var(--g700);margin-top:3px;white-space:pre-wrap}.msg-meta{font-size:11px;color:var(--g500);margin-top:6px}.msg-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.unread-dot{width:9px;height:9px;background:var(--red);border-radius:50%;display:inline-block;margin-right:5px}.recipient-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.recipient-chip{padding:3px 9px;border-radius:20px;background:#e8f1fb;color:#17496f;font-size:11px;font-weight:700}.comm-count{background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;margin-left:6px}.msg-empty{text-align:center;padding:35px 15px;color:var(--g500)}
+@media(max-width:700px){.comm-hero{align-items:flex-start;flex-direction:column}.msg-banner{flex-direction:column}}
+
+
+/* ===== PMV EXECUTIVE EXPERIENCE V2 ===== */
+:root{--ink:#10243b;--cyan:#0b8fa8;--gold:#c99324;--surface:#f4f7fb}
+body{background:var(--surface)}.sidebar{background:linear-gradient(180deg,#0b1d30 0%,#102f4b 72%,#0b1d30 100%);box-shadow:8px 0 24px rgba(15,30,48,.08)}
+.sb-hdr{padding:20px 16px}.sb-hdr .ptitle{font-size:14px;letter-spacing:.25px}.nav-section{padding:17px 16px 5px!important;color:rgba(255,255,255,.4)!important;font-size:9px!important;letter-spacing:1.2px!important;text-transform:uppercase;font-weight:800}.nav-item{border-left:3px solid transparent;padding:10px 16px}.nav-item.active{background:linear-gradient(90deg,#1769aa,#1d82c2);border-left-color:#ffb24a;box-shadow:inset 0 1px rgba(255,255,255,.12)}
+.topbar{padding:12px 22px;box-shadow:0 1px 10px rgba(16,36,59,.05)}.content{padding:24px;background:radial-gradient(circle at 95% 0,#eaf4ff 0,transparent 25%),var(--surface)}
+.card,.vcard,.kpi,.stat-card{border-color:#dce5ef;box-shadow:0 3px 12px rgba(16,36,59,.055)}.card:hover,.vcard:hover,.kpi:hover{box-shadow:0 8px 24px rgba(16,36,59,.09)}
+.dash-hero{padding:23px 25px;background:linear-gradient(125deg,#0b1d30,#174c73 63%,#0b829a);border:1px solid rgba(255,255,255,.12)}.dash-hero h2{font-size:22px}.dash-hero:before{content:'';position:absolute;width:300px;height:300px;right:90px;top:-220px;border:55px solid rgba(255,255,255,.045);border-radius:50%}
+.kpi{padding:16px 15px;transition:.2s}.kpi:hover{transform:translateY(-2px)}.kpi .num{font-size:25px}.kpi .lbl{font-weight:600}.vcard h3{background:linear-gradient(90deg,#fbfdff,#fff);color:var(--ink);padding:14px 16px}
+.exec-strip{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:12px;margin:-2px 0 16px}.exec-primary,.exec-mini{border-radius:9px;border:1px solid #d8e3ee;background:#fff;box-shadow:0 3px 12px rgba(16,36,59,.06);padding:14px 16px}.exec-primary{background:linear-gradient(135deg,#fff7e6,#fff);border-left:5px solid var(--gold)}.exec-kicker{font-size:10px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#8b6419}.exec-title{font-size:15px;font-weight:800;color:var(--ink);margin-top:3px}.exec-copy{font-size:11px;color:var(--g600);margin-top:3px}.exec-mini .n{font-size:20px;font-weight:800;color:var(--ink)}.exec-mini .l{font-size:11px;color:var(--g600);margin-top:2px}.exec-mini .trend{font-size:10px;color:var(--green);font-weight:700;margin-top:4px}
+.pmv-pillar-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.pmv-pillar{padding:12px;border-radius:8px;background:#f8fbff;border:1px solid #dfeaf4;min-height:90px}.pmv-pillar .ico{font-size:20px}.pmv-pillar h4{font-size:11px;color:var(--ink);margin:6px 0 2px}.pmv-pillar p{font-size:10px;color:var(--g600);line-height:1.35}
+.funnel-v2{display:flex;align-items:stretch;gap:4px}.funnel-step{flex:1;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%,8% 50%);padding:14px 10px 14px 18px;background:linear-gradient(135deg,#e8f3ff,#dbeafe);text-align:center}.funnel-step:first-child{clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%)}.funnel-step:nth-child(2){background:#e9f8f1}.funnel-step:nth-child(3){background:#fff4d8}.funnel-step:nth-child(4){background:#f1eaff}.funnel-step:nth-child(5){background:#ffe8e8}.funnel-step b{display:block;font-size:17px;color:var(--ink)}.funnel-step span{font-size:10px;color:var(--g600)}
+.action-row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #edf1f5}.action-row:last-child{border:none}.action-no{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:#fff1e8;color:#b45309;font-weight:800}.action-main b{font-size:12px;color:var(--ink);display:block}.action-main span{font-size:10px;color:var(--g500)}
+.role-lens{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.lens-chip{background:#fff;border:1px solid #d7e2ed;border-radius:20px;padding:5px 10px;font-size:10px;font-weight:700;color:#37516b}.lens-chip.on{background:#e7f3ff;color:#1264a3;border-color:#a9d2f5}
+@media(max-width:1050px){.exec-strip{grid-template-columns:1fr 1fr}.pmv-pillar-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.exec-strip{grid-template-columns:1fr}.pmv-pillar-grid{grid-template-columns:1fr 1fr}.funnel-v2{display:grid;grid-template-columns:1fr}.funnel-step,.funnel-step:first-child{clip-path:none;border-radius:7px}}
+
+
+/* ===== PMV GRIEVANCE REDRESSAL SYSTEM ===== */
+.grv-hero{background:linear-gradient(130deg,#10243b,#174c73 70%,#9a5b12);color:#fff;border-radius:10px;padding:21px 23px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:15px}.grv-hero h2{font-size:20px}.grv-hero p{font-size:12px;color:rgba(255,255,255,.75);margin-top:4px}.grv-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:16px}.grv-step{background:#fff;border:1px solid #dce5ef;border-radius:8px;padding:11px;text-align:center;position:relative}.grv-step b{display:block;color:var(--navy);font-size:12px}.grv-step span{font-size:10px;color:var(--g500)}.grv-step:after{content:'›';position:absolute;right:-7px;top:21px;color:#789;font-size:18px;z-index:2}.grv-step:last-child:after{display:none}.grv-ticket{border-left:4px solid var(--accent)}.grv-ticket.urgent{border-left-color:var(--red)}.grv-ticket.resolved{border-left-color:var(--green)}.grv-id{font-family:ui-monospace,monospace;font-size:12px;font-weight:800;color:var(--accent)}.grv-thread{border-left:2px solid #dce5ef;margin-left:9px;padding-left:17px}.grv-note{position:relative;margin:0 0 14px}.grv-note:before{content:'';position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);left:-22px;top:4px}.grv-note b{font-size:12px}.grv-note p{font-size:11px;color:var(--g600);margin-top:2px}.grv-note small{font-size:10px;color:var(--g500)}.sla-good{color:var(--green);font-weight:800}.sla-warn{color:var(--amber);font-weight:800}.sla-bad{color:var(--red);font-weight:800}.grv-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:16px}.grv-kpi>div{background:#fff;border:1px solid #dce5ef;border-radius:8px;padding:14px}.grv-kpi b{font-size:22px;color:var(--navy);display:block}.grv-kpi span{font-size:11px;color:var(--g600)}
+@media(max-width:800px){.grv-flow{grid-template-columns:1fr 1fr}.grv-step:after{display:none}.grv-kpi{grid-template-columns:1fr 1fr}.grv-hero{flex-direction:column;align-items:flex-start}}
+
+
+/* ============================================================
+   PMV AURORA - PREMIUM PRODUCT DESIGN SYSTEM
+   ============================================================ */
+:root{
+ --navy:#102a43;--navy-dk:#071b2e;--accent:#176b87;--accent-lt:#2d8ba5;
+ --green:#158466;--green-lt:#e6f6f1;--amber:#b7791f;--amber-lt:#fff6dd;
+ --red:#c2414b;--red-lt:#fff0f1;--purple:#7456a8;--purple-lt:#f2edfb;
+ --saffron:#d8892b;--g50:#f8fafc;--g100:#f2f5f8;--g200:#e6ebf1;
+ --g300:#d7dee7;--g500:#8b98a7;--g600:#657383;--g700:#455465;
+ --g800:#2c3c4e;--g900:#172737;--border:#dfe6ed;--r:10px;--rl:16px;
+ --sh:0 2px 8px rgba(18,40,62,.05);--shl:0 18px 45px rgba(13,35,56,.13);
+ --premium-bg:#edf2f7;--panel:#fff;--line:rgba(30,61,87,.09);
+}
+*{scrollbar-width:thin;scrollbar-color:#bdc8d4 transparent}body{font-family:"Segoe UI Variable","Segoe UI",Inter,system-ui,sans-serif;background:var(--premium-bg);color:var(--g900);letter-spacing:-.01em}
+#portal{background:var(--premium-bg)}
+.sidebar{width:254px;background:linear-gradient(180deg,#081c2f 0%,#0c2941 48%,#102f49 100%);border-right:1px solid rgba(255,255,255,.06);box-shadow:12px 0 40px rgba(7,27,46,.12);position:relative;z-index:20}
+.sidebar:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0,rgba(41,142,165,.16),transparent 26%),linear-gradient(140deg,transparent 55%,rgba(216,137,43,.05));pointer-events:none}
+.sb-hdr{padding:25px 20px 21px;border-bottom:1px solid rgba(255,255,255,.08);position:relative}.sb-hdr:before{content:"PMV";display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#fff,#dce8ef);color:#0b344f;font-size:12px;font-weight:900;letter-spacing:.5px;margin-bottom:13px;box-shadow:0 9px 22px rgba(0,0,0,.22)}.sb-hdr .ptitle{font-size:14px;font-weight:750;letter-spacing:.1px}.sb-hdr .rlabel{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:#8bb6c8;margin-top:6px}.sb-hdr .uname{font-size:11px;color:rgba(255,255,255,.72);margin-top:8px;line-height:1.45}
+.sb-nav{padding:12px 11px 18px;position:relative}.nav-section{display:none!important}.nav-section + .nav-item{margin-top:10px!important;position:relative}.nav-section + .nav-item:before{content:"";position:absolute;left:11px;right:11px;top:-6px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent)}.nav-section:first-child + .nav-item:before{display:none}.nav-item{border:0;border-radius:9px;padding:10px 11px;margin:2px 0;color:rgba(255,255,255,.7);font-size:12px;font-weight:520;transition:.18s ease;position:relative}.nav-item:hover{background:rgba(255,255,255,.065);color:#fff;transform:translateX(2px)}.nav-item.active{background:linear-gradient(100deg,rgba(45,139,165,.92),rgba(23,107,135,.88));color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.18);border-left:0}.nav-item.active:after{content:"";position:absolute;right:10px;top:50%;width:5px;height:5px;border-radius:50%;background:#f1be68;transform:translateY(-50%);box-shadow:0 0 0 4px rgba(241,190,104,.12)}.sb-ftr{padding:14px;border-top:1px solid rgba(255,255,255,.07);position:relative}.btn-logout{border-radius:9px;background:rgba(255,255,255,.045)}
+.main-area{background:var(--premium-bg)}.topbar{min-height:68px;padding:12px 28px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(16,42,67,.08);box-shadow:0 6px 22px rgba(19,44,68,.035)}.topbar-title{font-size:17px;font-weight:740;color:#102a43}.topbar-meta{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8492a1;margin-top:3px}.topbar-right{gap:8px}.content{padding:25px 28px 40px;background:radial-gradient(circle at 90% -8%,rgba(49,145,168,.1),transparent 25%),radial-gradient(circle at 30% 110%,rgba(216,137,43,.07),transparent 28%),var(--premium-bg)}
+.dash-hero{min-height:164px;padding:28px 30px;margin-bottom:18px;background:linear-gradient(120deg,#071b2e 0%,#123d58 53%,#157485 100%);border-radius:19px;border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 46px rgba(15,51,75,.17);overflow:hidden}.dash-hero:before{content:"";position:absolute;width:320px;height:320px;right:8%;top:-245px;border:52px solid rgba(255,255,255,.06);border-radius:50%}.dash-hero:after{right:-80px;top:-95px;width:280px;height:280px;background:radial-gradient(circle,rgba(216,137,43,.18),transparent 68%)}.dash-hero h2{font-size:24px;font-weight:720;letter-spacing:-.45px}.dash-hero p{max-width:760px;font-size:12px;line-height:1.7;color:rgba(255,255,255,.67)}.dash-filter{margin-top:18px;gap:8px}.dash-filter select{height:35px;padding:0 34px 0 12px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);backdrop-filter:blur(8px);font-size:11px}
+.exec-strip{grid-template-columns:1.55fr repeat(3,.82fr);gap:11px;margin:0 0 16px}.exec-primary,.exec-mini{border:1px solid rgba(24,57,82,.08);border-radius:14px;padding:16px 17px;box-shadow:0 8px 25px rgba(17,45,67,.055)}.exec-primary{background:linear-gradient(135deg,#fff 0%,#fff8eb 100%);border-left:0;position:relative;overflow:hidden}.exec-primary:after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(#e5a13e,#b66b1d)}.exec-kicker{color:#9b651f;font-size:9px}.exec-title{font-size:14px;line-height:1.35}.exec-copy{font-size:10px}.exec-mini{background:rgba(255,255,255,.9)}.exec-mini .n{font-size:22px;letter-spacing:-.6px}.exec-mini .trend{color:#4e8a78;font-size:9px}
+.role-lens{margin:0 0 17px;padding:4px;background:rgba(255,255,255,.62);border:1px solid rgba(31,64,88,.07);border-radius:12px;width:max-content;max-width:100%}.lens-chip{border:0;background:transparent;padding:7px 12px;border-radius:9px;font-size:10px}.lens-chip.on{background:#fff;color:#155f7a;box-shadow:0 3px 10px rgba(20,63,88,.08)}
+.kpi-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px}.kpi,.stat-card{border:1px solid rgba(18,49,72,.075);border-radius:14px;background:linear-gradient(145deg,#fff,#fbfcfd);padding:17px 16px;box-shadow:0 6px 20px rgba(13,38,59,.045);transition:transform .2s,box-shadow .2s}.kpi:hover,.stat-card:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(13,38,59,.09)}.kpi:before,.stat-card:before{width:3px;border-radius:0 4px 4px 0}.kpi .num,.stat-num{font-size:25px;font-weight:710;letter-spacing:-.75px;color:#102a43}.kpi .lbl,.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.55px;font-weight:700;color:#748192;margin-top:8px}.kpi .sub,.stat-sub{font-size:9px}
+.dash-2{grid-template-columns:minmax(0,1.35fr) minmax(270px,.85fr);gap:15px}.vcard,.card{border:1px solid rgba(16,48,72,.075);border-radius:15px;background:rgba(255,255,255,.95);box-shadow:0 7px 24px rgba(11,38,58,.045);overflow:hidden;margin-bottom:15px;transition:box-shadow .2s}.vcard:hover,.card:hover{box-shadow:0 14px 34px rgba(11,38,58,.075)}.vcard h3,.card-header{min-height:49px;padding:14px 17px;background:#fff;border-bottom:1px solid rgba(18,50,74,.07)}.vcard h3,.card-header h3{font-size:12px;font-weight:730;color:#18344c;letter-spacing:.02px}.vbody,.card-body{padding:17px}.tag-soft{background:#e8f5f7;color:#176b87;font-size:9px;padding:4px 8px}
+.bar-row{grid-template-columns:105px 1fr 50px;font-size:10px;margin:11px 0}.bar-track{height:6px;background:#edf1f4}.bar-fill{background:linear-gradient(90deg,#176b87,#45a0b7)}.rank-list li{padding:10px 0}.rank-no{width:27px;height:27px;background:#eaf1f5;color:#36566d}.rank-no.r1{background:linear-gradient(145deg,#f8d878,#bd7b18);box-shadow:0 4px 10px rgba(189,123,24,.22)}.rank-title{font-size:11px}.rank-sub{font-size:9px;margin-top:2px}.rank-score{font-size:12px}.photo-tile{height:122px;border-radius:11px;box-shadow:inset 0 -35px 45px rgba(0,0,0,.2);font-size:10px}.story-box{border:1px solid rgba(25,56,79,.08);border-radius:13px;box-shadow:0 6px 18px rgba(15,39,57,.045)}.story-img{height:118px}.story-body{padding:14px}.story-body h4{font-size:12px}.story-body p{font-size:10px;line-height:1.6}.practice{background:#fbfdfd;border:1px solid #e4ebef;border-left:3px solid #279077;border-radius:10px}.insight{border:0;border-left:3px solid;border-radius:9px;padding:10px 11px;font-size:10px}.donut{box-shadow:inset 0 0 0 1px rgba(0,0,0,.02),0 10px 24px rgba(15,50,72,.08)}
+.btn{border-radius:9px;font-size:11px;padding:8px 13px;font-weight:650}.btn-primary{background:linear-gradient(135deg,#176b87,#2489a0);box-shadow:0 5px 14px rgba(23,107,135,.18)}.btn-success{background:linear-gradient(135deg,#15795f,#249777)}.btn-danger{background:#bf4650}.btn-outline,.btn-secondary{background:#fff;border:1px solid #dce4eb}.badge{font-size:9px;padding:4px 8px;font-weight:700}.field label{font-size:10px;text-transform:uppercase;letter-spacing:.45px;color:#657585}.field input,.field select,.field textarea{border-radius:9px;border:1px solid #dce4eb;background:#fbfcfd;font-size:11px;padding:9px 11px}.field input:focus,.field select:focus,.field textarea:focus{background:#fff;border-color:#5ba3b5;box-shadow:0 0 0 3px rgba(36,137,160,.1)}
+table{font-size:11px}th{padding:10px 11px;background:#f7f9fb;color:#788695;font-size:9px;letter-spacing:.65px}td{padding:10px 11px;border-bottom-color:#eef2f5}tr:hover td{background:#f8fbfc}.alert{border:0;border-left:3px solid;border-radius:10px;font-size:11px;padding:11px 13px}.modal-overlay{backdrop-filter:blur(5px);background:rgba(4,20,34,.53)}.modal{border-radius:18px;box-shadow:0 28px 80px rgba(4,20,34,.28)}.modal-header,.modal-footer{background:#fbfcfd}
+.comm-hero,.grv-hero{border-radius:18px;padding:27px 29px;background:linear-gradient(120deg,#071b2e,#174862 62%,#176b73);box-shadow:0 20px 45px rgba(14,50,72,.16);overflow:hidden;position:relative}.comm-hero:after,.grv-hero:after{content:"";position:absolute;right:-65px;top:-80px;width:240px;height:240px;border-radius:50%;border:42px solid rgba(255,255,255,.045)}.comm-hero h2,.grv-hero h2{font-size:22px;letter-spacing:-.35px}.msg-banner{border-width:1px;border-left-width:4px;border-radius:12px;padding:14px}.msg-icon{border-radius:12px}.grv-flow{gap:9px}.grv-step{border-radius:12px;padding:13px;box-shadow:0 5px 15px rgba(16,42,67,.04)}.grv-kpi>div{border-radius:13px;box-shadow:0 6px 20px rgba(13,38,59,.045)}
+.section-title{font-size:19px;font-weight:730;letter-spacing:-.25px;color:#102a43}.section-sub{font-size:11px;color:#758493}.profile-avatar,.avatar-circle{background:linear-gradient(145deg,#176b87,#102a43);box-shadow:0 10px 24px rgba(16,42,67,.2)}
+/* homepage polish */
+.hp-hdr{background:rgba(7,27,46,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}.hero{padding:72px 24px 62px;background:radial-gradient(circle at 70% 10%,rgba(39,145,165,.2),transparent 27%),linear-gradient(135deg,#071b2e,#103b55 66%,#176d77)}.hero h2{font-size:42px;letter-spacing:-1.3px;font-weight:720}.hero h2 span{color:#f2b75e}.hero p{line-height:1.75}.btn-hero{border-radius:10px;background:linear-gradient(135deg,#e7a544,#c77b22);box-shadow:0 12px 28px rgba(0,0,0,.2)}.btn-hero-outline{border-radius:10px}.hero-stat .num{color:#f2b75e;letter-spacing:-.6px}.scheme-card,.news-card,.support-card,.story-card{border-radius:14px;border-color:#e3e9ef;box-shadow:0 8px 25px rgba(14,39,58,.055)}
+@media(max-width:1050px){.sidebar{width:225px}.exec-strip{grid-template-columns:1fr 1fr}.dash-2{grid-template-columns:1fr}.content{padding:20px}.hero h2{font-size:34px}}@media(max-width:700px){.sidebar{width:205px}.content{padding:15px}.topbar{padding:11px 15px}.dash-hero{padding:22px}.exec-strip{grid-template-columns:1fr}.role-lens{width:100%}.comm-hero,.grv-hero{padding:22px}.hero h2{font-size:30px}}
+
+
+@keyframes pmvRise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+.gallery-item{transition:transform .25s ease, box-shadow .25s ease}
+.gallery-item:hover{transform:translateY(-3px);box-shadow:0 12px 28px -12px rgba(0,0,0,.35)}
+.gallery-item .zoom-ic{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.9);color:#111;border-radius:999px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s}
+.gallery-item:hover .zoom-ic{opacity:1}
+.story-card{cursor:pointer;transition:transform .25s ease, box-shadow .25s ease;position:relative}
+.story-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(0,0,0,.28)}
+.story-card .read-more{display:inline-flex;align-items:center;gap:4px;color:var(--saffron,#e07b1f);font-weight:600;font-size:12px;margin-top:8px}
+.pmv-modal{position:fixed;inset:0;background:rgba(15,23,42,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.pmv-modal.open{display:flex}
+.pmv-modal-box{background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 80px -20px rgba(0,0,0,.5);animation:pmvPop .25s ease}
+@keyframes pmvPop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.pmv-modal-hero{height:230px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:60px;position:relative}
+.pmv-modal-hero .cap{position:absolute;bottom:0;left:0;right:0;padding:12px 18px;background:linear-gradient(transparent,rgba(0,0,0,.75));font-size:13px;font-weight:600}
+.pmv-modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);border:0;width:32px;height:32px;border-radius:999px;cursor:pointer;font-size:18px;font-weight:700;color:#111;display:flex;align-items:center;justify-content:center}
+.pmv-modal-body{padding:22px 24px 24px;overflow:auto}
+.pmv-modal-body h3{margin:0 0 6px;font-size:20px;color:#0f172a}
+.pmv-modal-body .meta{font-size:12px;color:#64748b;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.pmv-modal-body p{color:#334155;line-height:1.6;font-size:14px;margin:0 0 10px}
+.pmv-modal-body .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.pmv-modal-body .tags span{background:#f1f5f9;color:#0f172a;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.stakeholder-list{margin-top:8px;font-size:12px;line-height:1.55;color:#334155;text-align:left}
+.stakeholder-list b{color:#0f172a}
+
+
+/* ===== PMV Polish Layer (visual only) ===== */
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,#eef2f7 0%,#f4f6fb 100%) fixed}
+.content{padding:22px 26px!important}
+/* Topbar refinement */
+.topbar{background:#fff;border-bottom:1px solid #e6ebf2;box-shadow:0 1px 0 rgba(15,30,48,.02)}
+.topbar-title{font-weight:700;letter-spacing:-.2px;color:#0f1e30}
+/* Sidebar sheen */
+.sidebar{background:linear-gradient(180deg,#0f1e30 0%,#152740 55%,#0e2038 100%)!important;box-shadow:inset -1px 0 0 rgba(255,255,255,.04)}
+.sb-hdr{border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-item{transition:all .2s ease}
+.nav-item:hover{transform:translateX(3px)}
+/* Logout CTA styled as clear action */
+.btn-logout{width:100%!important;padding:10px 12px!important;background:linear-gradient(135deg,rgba(224,85,0,.18),rgba(185,28,28,.18))!important;color:#fff!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:10px!important;font-size:12.5px!important;font-weight:600!important;cursor:pointer;transition:.2s ease;display:flex;align-items:center;justify-content:center}
+.btn-logout:hover{background:linear-gradient(135deg,#e05500,#b91c1c)!important;color:#fff!important;border-color:transparent!important;transform:translateY(-1px);box-shadow:0 8px 18px rgba(224,85,0,.25)}
+.btn-logout svg{opacity:.95}
+/* KPI cards elevated */
+.kpi,.stat-card{background:#fff;border:1px solid #e6ecf3;border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,30,48,.03),0 6px 20px -12px rgba(15,30,48,.15);transition:transform .18s ease,box-shadow .18s ease}
+.kpi:hover,.stat-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,30,48,.05),0 18px 32px -18px rgba(15,30,48,.28)}
+.kpi .num,.stat-num{font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#0f1e30,#1a6fc4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi.green .num{background:linear-gradient(135deg,#1a7a45,#22c55e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi.amber .num{background:linear-gradient(135deg,#b45309,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi.red .num{background:linear-gradient(135deg,#b91c1c,#ef4444);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi.purple .num{background:linear-gradient(135deg,#6b21a8,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Vcards / generic cards */
+.vcard,.card{border-radius:14px;border:1px solid #e6ecf3;box-shadow:0 1px 2px rgba(15,30,48,.03),0 8px 24px -18px rgba(15,30,48,.18);overflow:hidden;background:#fff}
+.vcard h3,.card-header h3{font-weight:700;letter-spacing:-.2px}
+.card-header{background:linear-gradient(180deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e6ecf3}
+/* Section titles */
+.section-title{font-weight:800!important;letter-spacing:-.4px!important;background:linear-gradient(135deg,#0f1e30,#1a6fc4);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Dashboard hero refresh */
+.dash-hero,.comm-hero,.grv-hero{background:linear-gradient(120deg,#0f1e30 0%,#1a3d5c 55%,#1a6fc4 100%)!important;color:#fff;border-radius:16px;padding:26px 28px!important;box-shadow:0 20px 40px -24px rgba(15,30,48,.5);position:relative;overflow:hidden}
+.dash-hero:before,.comm-hero:before,.grv-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(1200px 240px at 100% -20%,rgba(224,85,0,.35),transparent 60%),radial-gradient(600px 240px at -10% 120%,rgba(42,136,224,.35),transparent 60%);pointer-events:none}
+.dash-hero>*,.comm-hero>*,.grv-hero>*{position:relative}
+.dash-hero h2,.hero h2{font-weight:800;letter-spacing:-.5px}
+/* Buttons */
+.btn{border-radius:9px;font-weight:600;transition:.18s ease}
+.btn-primary{background:linear-gradient(135deg,#1a6fc4,#2a88e0);border:0;color:#fff;box-shadow:0 6px 14px -6px rgba(26,111,196,.6)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 20px -8px rgba(26,111,196,.7)}
+.btn-outline{border:1px solid #cfd8e3;background:#fff}
+.btn-outline:hover{border-color:#1a6fc4;color:#1a6fc4}
+/* Profile card */
+.profile-card{background:linear-gradient(120deg,#ffffff,#f6f9fd);border:1px solid #e6ecf3;border-radius:16px;padding:18px 20px;box-shadow:0 8px 24px -18px rgba(15,30,48,.25)}
+.profile-avatar,.avatar-circle{box-shadow:0 12px 28px -10px rgba(16,42,67,.35),inset 0 0 0 3px rgba(255,255,255,.6)!important}
+/* Tables */
+table{border-radius:10px;overflow:hidden}
+thead th{background:#f1f5f9!important;color:#0f1e30;font-weight:700;letter-spacing:.2px}
+tbody tr:hover{background:#f8fbff}
+/* Badges pop */
+.badge{border-radius:999px;padding:3px 9px;font-weight:600}
+/* Ticker warmer */
+.ticker{box-shadow:0 1px 0 rgba(255,255,255,.06) inset}
+/* Rank list flair */
+.rank-no{box-shadow:0 6px 14px -6px rgba(15,30,48,.35)}
+.rank-no.r1{background:linear-gradient(135deg,#f59e0b,#f5d76e);color:#3a2a00}
+.rank-no.r2{background:linear-gradient(135deg,#94a3b8,#e2e8f0);color:#1e293b}
+.rank-no.r3{background:linear-gradient(135deg,#c2410c,#f97316);color:#fff}
+/* Alerts refined */
+.alert{border-radius:12px;border-left:4px solid;padding:12px 14px}
+.alert-info{background:#eaf4ff;border-color:#1a6fc4;color:#0f2f52}
+.alert-success{background:#e8f5ee;border-color:#1a7a45;color:#0c3d22}
+/* Nice focus ring */
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #2a88e0;outline-offset:2px}
+/* Fade pages in */
+#mainContent>*{animation:pmvRise .35s ease both}
+
+
+/* ================= AP-EOS inspired layer (keeps base theme) ================= */
+/* Editorial serif for hero headlines and section titles */
+.hero h2, .dash-hero h2, .comm-hero h2, .grv-hero h2, .hp-sec-title{
+  font-family:'Fraunces','Cormorant Garamond',Georgia,serif;
+  font-weight:600;letter-spacing:-.5px;line-height:1.06;
+}
+.hero h2{font-size:44px}
+@media(min-width:900px){.hero h2{font-size:58px}}
+.hp-sec-title{font-size:32px;letter-spacing:-.6px}
+
+/* Italic saffron accent word with hand-drawn underline (AP-EOS signature) */
+.ap-accent{
+  font-style:italic;color:var(--saffron);position:relative;
+  display:inline-block;padding:0 .12em;
+}
+.ap-accent::after{
+  content:"";position:absolute;left:0;right:0;bottom:-6px;height:10px;
+  background:no-repeat center/100% 100% url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 12'><path d='M2 8 Q 110 -2 218 6' stroke='%23e8a53a' stroke-width='3' stroke-linecap='round' fill='none'/></svg>");
+  opacity:.9;
+}
+
+/* Live-status pill with pinging dot */
+.ap-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:8px 16px;border-radius:999px;
+  background:rgba(232,165,58,.14);color:#f2b75e;
+  font-size:13px;font-weight:600;letter-spacing:.2px;
+  border:1px solid rgba(232,165,58,.28);
+  margin-bottom:18px;
+}
+.ap-pill .dot{position:relative;width:8px;height:8px;display:inline-flex}
+.ap-pill .dot::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--saffron);opacity:.55;animation:apPing 1.6s cubic-bezier(0,0,.2,1) infinite}
+.ap-pill .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--saffron)}
+@keyframes apPing{75%,100%{transform:scale(2.4);opacity:0}}
+
+/* Numbered section eyebrow badge */
+.ap-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:12px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--g600);margin-bottom:10px;
+}
+.ap-eyebrow .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(26,122,69,.1);color:var(--green);
+  font-family:'Fraunces',serif;font-size:12px;font-weight:700;
+  border:1px solid rgba(26,122,69,.25);
+}
+
+/* Subtle grain overlay on dark hero surfaces */
+.hero, .dash-hero, .comm-hero, .grv-hero{position:relative}
+.hero::before, .dash-hero::before{
+  pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:3px 3px;mix-blend-mode:overlay;opacity:.5;
+}
+.hero::before{content:"";position:absolute;inset:0}
+
+/* Refined hero stats: leading tick + small-caps label */
+.hero-stats{gap:44px}
+.hero-stat{position:relative;padding-left:14px;text-align:left}
+.hero-stat::before{content:"";position:absolute;left:0;top:6px;width:3px;height:26px;background:var(--saffron);border-radius:2px;opacity:.85}
+.hero-stat .num{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.5px}
+.hero-stat .lbl{text-transform:uppercase;letter-spacing:.15em;font-size:10.5px;color:rgba(255,255,255,.62)}
+
+/* Large pill CTA in hero (AP-EOS style) */
+.btn-hero{
+  padding:14px 30px;border-radius:999px;font-size:15px;
+  box-shadow:0 14px 30px rgba(0,0,0,.22);
+  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.btn-hero:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 18px 38px rgba(0,0,0,.28)}
+.btn-hero-outline{padding:14px 26px;border-radius:999px;font-size:15px}
+
+/* Section title alignment with eyebrow */
+
+
+.photo-tile{position:relative;overflow:hidden;cursor:pointer;transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s;isolation:isolate;min-height:130px;align-items:stretch!important;padding:0!important;font-size:0!important}
+.photo-tile:hover{transform:translateY(-4px);box-shadow:0 16px 30px -14px rgba(15,39,57,.45)}
+.photo-tile .pt-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:transform .35s ease}
+.photo-tile .pt-ic svg{width:52px;height:52px;color:#fff;opacity:.92;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+.photo-tile:hover .pt-ic{transform:scale(1.08)}
+.photo-tile .pt-grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.72) 100%)}
+.photo-tile .pt-cap{position:absolute;left:10px;right:10px;bottom:8px;color:#fff;font-size:11px;font-weight:700;line-height:1.3;letter-spacing:.2px;font-family:'Inter',sans-serif}
+.photo-tile .pt-tag{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);color:#0f2739;font-size:9px;font-weight:800;padding:3px 7px;border-radius:999px;letter-spacing:.4px;text-transform:uppercase}
+.photo-tile .pt-zoom{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.92);color:#111;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;opacity:0;transition:opacity .22s}
+.photo-tile:hover .pt-zoom{opacity:1}
+.photo-grid2{gap:12px!important}
+.vcard h3 + .vbody .photo-grid2{margin-top:2px}
+.pev-hint{font-size:11px;color:var(--g600);margin:-4px 0 10px;font-style:italic}
+.pev-upbtn{float:right;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:0;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(234,88,12,.28);letter-spacing:.3px;display:inline-flex;align-items:center;gap:5px}
+.pev-upbtn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(234,88,12,.35)}
+.pev-upbtn svg{width:12px;height:12px}
+.pev-tile-user{position:relative}
+.pev-tile-user .pt-del{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:0;font-size:12px;line-height:20px;cursor:pointer;z-index:3;display:none}
+.pev-tile-user:hover .pt-del{display:block}
+.pev-dlg-back{position:fixed;inset:0;background:rgba(15,39,57,.55);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+.pev-dlg{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:'Inter',sans-serif}
+.pev-dlg h4{margin:0 0 4px;font-size:16px;color:var(--navy);font-weight:800}
+.pev-dlg p.sub{font-size:12px;color:var(--g600);margin:0 0 14px}
+.pev-dlg label{display:block;font-size:11px;font-weight:700;color:var(--navy);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.pev-dlg input,.pev-dlg select,.pev-dlg textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+.pev-dlg textarea{min-height:60px;resize:vertical}
+.pev-dlg .row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.pev-dlg button{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--navy)}
+.pev-dlg button.primary{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border-color:transparent}
+.pev-drop{border:2px dashed #cbd5e1;border-radius:10px;padding:16px;text-align:center;font-size:12px;color:var(--g600);cursor:pointer;background:#f8fafc}
+.pev-drop.has{border-color:var(--green);background:#ecfdf5;color:var(--green)}
+</style>
+</head>
+<body>
+<div id="homePage" style="display: block;">
+<div class="ticker">
+  <div class="ticker-lbl">UPDATES</div>
+  <div class="ticker-txt">PM Vishwakarma Scheme - 30 lakh+ artisans registered &nbsp;|&nbsp; 26.91 lakh skill verified &nbsp;|&nbsp; 24.55 lakh Basic trained &amp; assessed &nbsp;|&nbsp; 5,500 Advanced trained &amp; assessed &nbsp;|&nbsp; 6,000+ TCs delivering Basic Training &nbsp;|&nbsp; 20+ TCs delivering Advanced Training &nbsp;|&nbsp; New trades: Stone Carver, Boat Maker &nbsp;|&nbsp; Advanced Training batches open - July 2025</div>
+</div>
+<div class="hp-hdr">
+  <div class="hp-hdr-inner">
+    <div class="logo-area">
+      <div class="emblem">🏛</div>
+      <div class="logo-txt">
+        <h1>PM Vishwakarma Skill India Digital Hub</h1>
+        <p>A Central Sector Scheme for Traditional Artisans &amp; Craftspeople</p>
+        <small>Ministry of Skill Development &amp; &amp; entrepreneurship| Government of India</small>
+      </div>
+    </div>
+    <div class="login-box">
+      <select id="hp-role">
+        <option value="">Select Login Role</option>
+        <option value="candidate">Candidate</option>
+        <option value="tc">Training Centre (TC)</option>
+        <option value="tp">Training Partner (TP)</option>
+        <option value="trainer">Trainer</option>
+        <option value="assessor">Assessor</option>
+        <option value="mobilisation">Mobilisation Agency Admin</option>
+        <option value="mob-mobilizer">Mobilizer</option>
+        <option value="ssc">Sector Skill Council (SSC)</option>
+        <option value="aa">Assessment Agency</option>
+        <option value="dpmu">DPMU</option>
+        <option value="rdsde">RDSDE</option>
+        <option value="seo">SEO</option>
+        <option value="nsdc">NSDC</option>
+        <option value="msde">MSDE Admin</option>
+      </select>
+      <input type="password" id="hp-pass" placeholder="Password">
+      <button class="btn-login" onclick="doLogin()">Login</button>
+    </div>
+  </div>
+  <div class="hp-nav-bar">
+    <div class="hp-nav-bar-inner">
+      <a onclick="window.scrollTo(0,0)">Home</a>
+      <a onclick="document.getElementById('sec-scheme').scrollIntoView({behavior:'smooth'})">About Scheme</a>
+      <a onclick="document.getElementById('sec-events').scrollIntoView({behavior:'smooth'})">Events</a>
+      <a onclick="document.getElementById('sec-news').scrollIntoView({behavior:'smooth'})">News &amp; Updates</a>
+      <a onclick="document.getElementById('sec-support').scrollIntoView({behavior:'smooth'})">PMV Support</a>
+      <a onclick="document.getElementById('sec-gallery').scrollIntoView({behavior:'smooth'})">Gallery</a>
+      <a onclick="document.getElementById('sec-stories').scrollIntoView({behavior:'smooth'})">Success Stories</a>
+    </div>
+  </div>
+</div>
+<div class="hero" data-ap-done="1"><div class="ap-pill"><span class="dot"></span>18 trades · 38,640+ artisans empowered</div>
+  <h2>Empowering India's<br><span style="color: rgb(255, 255, 255);">Traditional Artisans <em class="ap-accent">&amp; Craftspeople</em></span></h2>
+  <p>PM Vishwakarma provides holistic support - recognition, skilling, toolkit, credit, and market linkage - to traditional artisans across 18 trades through a unified digital platform.</p>
+  <div class="hero-btns">
+    <button class="btn-hero" onclick="document.getElementById('hp-role').focus()">Beneficiary Login</button>
+    <button class="btn-hero-outline" onclick="document.getElementById('sec-scheme').scrollIntoView({behavior:'smooth'})">Learn More</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">30 L+</div><div class="lbl">Artisans Registered</div></div>
+    <div class="hero-stat"><div class="num">26.91 L</div><div class="lbl">Skill Verified</div></div>
+    <div class="hero-stat"><div class="num">24.55 L</div><div class="lbl">Basic Trained &amp; Assessed</div></div>
+    <div class="hero-stat"><div class="num">5,500</div><div class="lbl">Advanced Trained &amp; Assessed</div></div>
+    <div class="hero-stat"><div class="num">6,000+</div><div class="lbl">TCs (Basic Training)</div></div>
+    <div class="hero-stat"><div class="num">20+</div><div class="lbl">TCs (Advanced Training)</div></div>
+  </div>
+
+</div>
+<div id="sec-scheme" style="background:#fff;padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">01</span><span>About</span></div><div class="hp-sec-title" data-ap="1">About the Scheme</div>
+  <div class="hp-sec-sub">PM Vishwakarma is a Central Sector Scheme launched on 17 September 2023 to provide end-to-end support to artisans and craftspeople practising <strong style="color:var(--saffron)">18 traditional trades</strong> — from recognition through the PM Vishwakarma Certificate &amp; ID Card, to skilling with stipend, modern toolkit incentive, collateral-free credit, digital-transactions incentive, and market linkage.</div>
+
+  <div class="pillars">
+    <div class="pillar"><div class="pillar-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.8 6.5 19.5l1-6.3L3 8.9 9 8z"></path></svg></div><div><h5>Recognition</h5><p>PM Vishwakarma Certificate &amp; ID Card</p></div></div>
+    <div class="pillar"><div class="pillar-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-5 9 5-9 5-9-5z"></path><path d="M7 12v4a5 5 0 0010 0v-4"></path></svg></div><div><h5>Skilling</h5><p>Basic &amp; Advanced training with ₹500/day stipend</p></div></div>
+    <div class="pillar"><div class="pillar-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"></rect><path d="M8 8V6a4 4 0 018 0v2"></path></svg></div><div><h5>Toolkit Incentive</h5><p>₹15,000 e-voucher for modern toolkit</p></div></div>
+    <div class="pillar"><div class="pillar-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 7h7a3 3 0 010 6H9a3 3 0 000 6h8"></path></svg></div><div><h5>Credit Support</h5><p>Collateral-free loan up to ₹3 lakh @ 5%</p></div></div>
+    <div class="pillar"><div class="pillar-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"></path></svg></div><div><h5>Market Linkage</h5><p>Branding, e-commerce &amp; GeM onboarding</p></div></div>
+  </div>
+
+  <div class="scheme-grid">
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l6-6M14 4l6 6-8 8H6v-6z"></path><path d="M13 5l6 6"></path></svg></div><span class="lbl">Trade 01</span></div><div class="scheme-card-body"><h4>Carpenter (Suthar)</h4><p>Traditional woodworkers receive 0-Day, Basic, and Advanced skilling with toolkit support and market linkage.</p><span class="tag">18,000+ enrolled</span></div></div>
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3l7 7-5 5-7-7z"></path><path d="M9 8l-6 6 4 4 6-6"></path><path d="M3 21l3-3"></path></svg></div><span class="lbl">Trade 02</span></div><div class="scheme-card-body"><h4>Blacksmith (Lohar)</h4><p>Metal and iron artisans trained in advanced techniques, upgraded with modern toolkits and credit facilities.</p><span class="tag">12,000+ enrolled</span></div></div>
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v3a4 4 0 01-8 0z"></path><path d="M6 21h12l-1-10H7z"></path><path d="M9 11c1 2 5 2 6 0"></path></svg></div><span class="lbl">Trade 03</span></div><div class="scheme-card-body"><h4>Potter (Kumhar)</h4><p>Clay artisans benefit from structured skilling, modern electric kilns as toolkit, and digital market access.</p><span class="tag">9,500+ enrolled</span></div></div>
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="3"></circle><circle cx="6" cy="17" r="3"></circle><path d="M9 7l12 10M9 17L21 7"></path></svg></div><span class="lbl">Trade 04</span></div><div class="scheme-card-body"><h4>Tailor (Darji)</h4><p>Tailors learn advanced stitching, design, and entrepreneurship to grow their businesses under PM Vishwakarma.</p><span class="tag">15,000+ enrolled</span></div></div>
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2l2 4h-4zM12 22l2-4h-4zM2 12l4 2v-4zM22 12l-4 2v-4z"></path></svg></div><span class="lbl">Trade 05</span></div><div class="scheme-card-body"><h4>Goldsmith (Sonar)</h4><p>Traditional jewellers trained in hallmarking, contemporary designs, and business practices with credit and toolkit support.</p><span class="tag">7,200+ enrolled</span></div></div>
+    <div class="scheme-card"><div class="scheme-card-img"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17c2 2 4 2 6 0s4-2 6 0 4 2 6 0"></path><path d="M4 14l2-8h12l2 8"></path><path d="M8 6V4h8v2"></path></svg></div><span class="lbl">Trade 06</span></div><div class="scheme-card-body"><h4>Boat Maker (Naav Nirman)</h4><p>Traditional boat makers from coastal communities are trained, certified, and supported to modernise their craft.</p><span class="tag">2,800+ enrolled</span></div></div>
+  </div>
+</div></div>
+<div id="sec-events" style="background:var(--g100);padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">02</span><span>Explore</span></div><div class="hp-sec-title" data-ap="1">Upcoming Events</div>
+  <div class="hp-sec-sub">Workshops, training camps, and scheme activities across India</div>
+  <div class="two-col">
+    <div class="events-list">
+      <div class="event-item"><div class="evt-date"><div class="day">18</div><div class="mon">JUL</div></div><div><div class="evt-title">Advanced Training Batch Launch - UP Region</div><div class="evt-meta">Rampur TC, Sitapur TC, Hardoi TC • UP</div><span class="evt-tag">Advanced Training</span></div></div>
+      <div class="event-item"><div class="evt-date"><div class="day">22</div><div class="mon">JUL</div></div><div><div class="evt-title">ToT Batch - Carpenter &amp; Welder Trades</div><div class="evt-meta">CWSC Training Hub, New Delhi</div><span class="evt-tag">ToT</span></div></div>
+      <div class="event-item"><div class="evt-date"><div class="day">25</div><div class="mon">JUL</div></div><div><div class="evt-title">State-Level Monitoring Review - Rajasthan</div><div class="evt-meta">RDSDE Office, Jaipur</div><span class="evt-tag">Monitoring</span></div></div>
+      <div class="event-item"><div class="evt-date"><div class="day">02</div><div class="mon">AUG</div></div><div><div class="evt-title">Certificate Distribution Ceremony - Bihar</div><div class="evt-meta">Patna Municipal Convention Centre</div><span class="evt-tag">Certificate</span></div></div>
+      <div class="event-item"><div class="evt-date"><div class="day">10</div><div class="mon">AUG</div></div><div><div class="evt-title">PM Vishwakarma Artisan Mela 2025</div><div class="evt-meta">Pragati Maidan, New Delhi - National Showcase</div><span class="evt-tag">National Event</span></div></div>
+    </div>
+    <div class="card" style="margin-bottom:0"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3>State-wise Batch Activity (July 2025)</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="sbaSearch" type="search" placeholder="Filter states..." style="padding:7px 10px;border:1px solid var(--g300);border-radius:8px;font-size:12px;min-width:150px" oninput="sbaFilter()">
+        <select id="sbaRegion" style="padding:7px 10px;border:1px solid var(--g300);border-radius:8px;font-size:12px;background:#fff" onchange="sbaFilter()">
+          <option value="">All regions</option><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option><option value="central">Central</option><option value="ne">North-East</option>
+        </select>
+      </div></div><div class="card-body">
+      <div id="sbaList" style="max-height:340px;overflow-y:auto;padding-right:4px">
+        <div class="mb-bar" data-region="north" data-name="uttar pradesh"><div class="mb-bar-head"><span>Uttar Pradesh</span><span>342 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div></div>
+        <div class="mb-bar" data-region="west" data-name="rajasthan"><div class="mb-bar-head"><span>Rajasthan</span><span>218 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--green)"></div></div></div>
+        <div class="mb-bar" data-region="west" data-name="maharashtra"><div class="mb-bar-head"><span>Maharashtra</span><span>195 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--purple)"></div></div></div>
+        <div class="mb-bar" data-region="east" data-name="bihar"><div class="mb-bar-head"><span>Bihar</span><span>167 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:41%;background:var(--amber)"></div></div></div>
+        <div class="mb-bar" data-region="central" data-name="madhya pradesh"><div class="mb-bar-head"><span>Madhya Pradesh</span><span>134 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:33%;background:var(--saffron)"></div></div></div>
+        <div class="mb-bar" data-region="south" data-name="tamil nadu"><div class="mb-bar-head"><span>Tamil Nadu</span><span>128 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:32%;background:var(--green)"></div></div></div>
+        <div class="mb-bar" data-region="south" data-name="karnataka"><div class="mb-bar-head"><span>Karnataka</span><span>119 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:29%;background:var(--purple)"></div></div></div>
+        <div class="mb-bar" data-region="west" data-name="gujarat"><div class="mb-bar-head"><span>Gujarat</span><span>112 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:28%;background:var(--saffron)"></div></div></div>
+        <div class="mb-bar" data-region="east" data-name="west bengal"><div class="mb-bar-head"><span>West Bengal</span><span>104 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:26%;background:var(--amber)"></div></div></div>
+        <div class="mb-bar" data-region="south" data-name="andhra pradesh"><div class="mb-bar-head"><span>Andhra Pradesh</span><span>96 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:24%;background:var(--green)"></div></div></div>
+        <div class="mb-bar" data-region="south" data-name="telangana"><div class="mb-bar-head"><span>Telangana</span><span>88 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:22%;background:var(--purple)"></div></div></div>
+        <div class="mb-bar" data-region="north" data-name="haryana"><div class="mb-bar-head"><span>Haryana</span><span>74 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:19%"></div></div></div>
+        <div class="mb-bar" data-region="north" data-name="punjab"><div class="mb-bar-head"><span>Punjab</span><span>69 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--saffron)"></div></div></div>
+        <div class="mb-bar" data-region="east" data-name="odisha"><div class="mb-bar-head"><span>Odisha</span><span>63 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--amber)"></div></div></div>
+        <div class="mb-bar" data-region="south" data-name="kerala"><div class="mb-bar-head"><span>Kerala</span><span>58 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--green)"></div></div></div>
+        <div class="mb-bar" data-region="central" data-name="chhattisgarh"><div class="mb-bar-head"><span>Chhattisgarh</span><span>47 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:12%;background:var(--purple)"></div></div></div>
+        <div class="mb-bar" data-region="east" data-name="jharkhand"><div class="mb-bar-head"><span>Jharkhand</span><span>41 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--saffron)"></div></div></div>
+        <div class="mb-bar" data-region="ne" data-name="assam"><div class="mb-bar-head"><span>Assam</span><span>36 batches</span></div><div class="progress-bar"><div class="progress-fill" style="width:9%;background:var(--amber)"></div></div></div>
+      </div>
+      <div id="sbaEmpty" style="display:none;text-align:center;color:var(--g500);font-size:12px;padding:16px">No states match your filter.</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--g500);text-align:right"><span id="sbaCount">18</span> states · scroll for more</div>
+    </div></div>
+  </div>
+</div></div>
+<div id="sec-gallery" style="background:#fff;padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">03</span><span>Highlights</span></div><div class="hp-sec-title" data-ap="1">Training Activity Gallery</div>
+  <div class="hp-sec-sub">Click any photograph to view full details</div>
+  <div class="gallery-grid" id="pmvGallery"></div>
+</div></div>
+<div id="sec-news" style="background:var(--g100);padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">04</span><span>Support</span></div><div class="hp-sec-title" data-ap="1">News &amp; Updates</div>
+  <div class="hp-sec-sub">Latest announcements and scheme notifications</div>
+  <div class="news-grid">
+    <div class="news-card"><div class="news-date">12 JUL 2025</div><div><div class="news-title">Advanced Training batches now open across 18 states</div><div class="news-desc">Candidates who completed Basic Training and availed Loan 1 are now eligible for Advanced Training.</div><span class="badge badge-green" style="margin-top:6px">New</span></div></div>
+    <div class="news-card"><div class="news-date">08 JUL 2025</div><div><div class="news-title">₹142 Crore released for Loan 1 disbursement</div><div class="news-desc">Ministry of MSME releases funds for interest-free Loan 1 for all eligible PM Vishwakarma certified artisans.</div><span class="badge badge-blue" style="margin-top:6px">Finance</span></div></div>
+    <div class="news-card"><div class="news-date">05 JUL 2025</div><div><div class="news-title">Two new trades added: Stone Carver &amp; Boat Maker</div><div class="news-desc">NSDC has accredited Training Centres for two newly approved trades under PM Vishwakarma.</div><span class="badge badge-amber" style="margin-top:6px">Update</span></div></div>
+    <div class="news-card"><div class="news-date">28 JUN 2025</div><div><div class="news-title">AEBAS biometric mandatory for all active batches</div><div class="news-desc">Day 1 and Assessment Day AEBAS attendance is mandatory for stipend, TC payment, and AA payment eligibility.</div><span class="badge badge-amber" style="margin-top:6px">Circular</span></div></div>
+    <div class="news-card"><div class="news-date">20 JUN 2025</div><div><div class="news-title">Toolkit delivery reaches 75% milestone</div><div class="news-desc">28,900 toolkits delivered to certified artisans via MSME and DFS network across 18 states.</div><span class="badge badge-green" style="margin-top:6px">Achievement</span></div></div>
+    <div class="news-card"><div class="news-date">15 JUN 2025</div><div><div class="news-title">PM Vishwakarma Artisan Mela 2025 announced</div><div class="news-desc">Annual showcase - 10 August 2025, Pragati Maidan, New Delhi.</div><span class="badge badge-purple" style="margin-top:6px">Event</span></div></div>
+  </div>
+</div></div>
+<div id="sec-stories" style="background:#fff;padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">05</span><span>Stories</span></div><div class="hp-sec-title" data-ap="1">Success Stories</div>
+  <div class="hp-sec-sub">Click a story to read the full journey</div>
+  <div class="three-col" id="pmvStories"></div>
+</div></div>
+<div id="sec-support" style="background:var(--g100);padding:44px 0">
+<div class="hp-sec" style="padding-top:0;padding-bottom:0">
+  <div class="ap-eyebrow"><span class="n">06</span><span>Gallery</span></div><div class="hp-sec-title" data-ap="1">PMV Support</div>
+  <div class="hp-sec-sub">Help and assistance for scheme beneficiaries and stakeholders</div>
+  <div class="support-grid">
+    <div class="support-card"><div class="support-icon">📞</div><h4>Helpline</h4><p>Scheme-related queries, registration issues, and technical support</p><div class="contact">1800-XXX-XXXX (Toll Free)</div></div>
+    <div class="support-card"><div class="support-icon">💌</div><h4>Email Support</h4><p>Write to us for scheme queries, document submission, and grievances</p><div class="contact">pmvishwakarma@msme.gov.in</div></div>
+    <div class="support-card"><div class="support-icon">👥</div><h4>Stakeholder Contacts</h4><p>Direct points of contact across the PMV delivery chain</p>
+      <div class="stakeholder-list">
+        <div><b>NSDC PMU:</b> pmv-pmu@nsdcindia.org</div>
+        <div><b>State Nodal (SSDM):</b> ssdm.pmv@state.gov.in</div>
+        <div><b>DPMU Coordinator:</b> +91-98XXX-XXXXX</div>
+        <div><b>Sector Skill Council:</b> ssc.pmv@nsdcindia.org</div>
+      </div>
+    </div>
+    <div class="support-card"><div class="support-icon">❓</div><h4>FAQs</h4><p>Frequently asked questions about eligibility, benefits, and process</p><div class="contact">View FAQs</div></div>
+    <div class="support-card"><div class="support-icon">🎥</div><h4>Tutorial Videos</h4><p>Step-by-step video guides for portal login, registration, and benefit tracking</p><div class="contact">Watch Videos</div></div>
+    <div class="support-card"><div class="support-icon">📄</div><h4>Scheme Documents</h4><p>Download guidelines, circulars, formats, and scheme implementation documents</p><div class="contact">Download</div></div>
+  </div>
+</div></div>
+
+<div class="pmv-modal" id="pmvModal" onclick="if(event.target===this)pmvCloseModal()">
+  <div class="pmv-modal-box">
+    <div class="pmv-modal-hero" id="pmvModalHero">
+      <button class="pmv-modal-close" onclick="pmvCloseModal()" aria-label="Close">×</button>
+      <span id="pmvModalIcon"></span>
+      <div class="cap" id="pmvModalCap"></div>
+    </div>
+    <div class="pmv-modal-body">
+      <div class="meta" id="pmvModalMeta"></div>
+      <h3 id="pmvModalTitle"></h3>
+      <div id="pmvModalContent"></div>
+      <div class="tags" id="pmvModalTags"></div>
+    </div>
+  </div>
+</div>
+
+<div class="hp-footer">
+  <div class="hp-footer-inner">
+    <div class="hp-footer-grid">
+      <div><h4>PM Vishwakarma SIDH Portal</h4><ul><li>About the Scheme</li><li>Eligibility Criteria</li><li>18 Approved Trades</li><li>Benefits Overview</li></ul></div>
+      <div><h4>Quick Links</h4><ul><li>Candidate Registration</li><li>TC Locator</li><li>Certificate Verification</li><li>Toolkit Status</li></ul></div>
+      <div><h4>Stakeholders</h4><ul><li>Training Centres</li><li>Training Partners</li><li>Assessment Agencies</li><li>Sector Skill Councils</li></ul></div>
+      <div><h4>Ministry of MSME</h4><ul><li>msme.gov.in</li><li>nsdcindia.org</li><li>skillindiadigital.gov.in</li><li>pmvishwakarma.gov.in</li></ul></div>
+    </div>
+    <div class="hp-footer-btm">© 2025 Ministry of Micro, Small &amp; Medium Enterprises, Government of India. PM Vishwakarma Scheme - Demo portal for presentation purposes.</div>
+  </div>
+</div>
+</div>
+<div id="portal">
+  <nav class="sidebar">
+    <div class="sb-hdr">
+      <div class="ptitle">PMV SIDH Portal</div>
+      <div class="rlabel" id="sidebarRole">MSDE Admin</div>
+      <div class="uname" id="sidebarUser">MSDE Central Dashboard</div>
+    </div>
+    <div class="sb-nav" id="sidebarNav"><div class="nav-section">Overview</div><button class="nav-item active" data-id="dashboard" onclick="navigateTo('dashboard','Dashboard')">Dashboard</button><div class="nav-section">Communication</div><button class="nav-item" data-id="msde-communications" onclick="navigateTo('msde-communications','Communication &amp; Recognition')">Communication &amp; Recognition</button><div class="nav-section">Scheme Status</div><button class="nav-item" data-id="msde-scheme" onclick="navigateTo('msde-scheme','Overall Scheme Status')">Overall Scheme Status</button><button class="nav-item" data-id="msde-cert" onclick="navigateTo('msde-cert','Certificates Issued')">Certificates Issued</button><div class="nav-section">Finance</div><button class="nav-item" data-id="msde-finance" onclick="navigateTo('msde-finance','Finance Overview')">Finance Overview</button><button class="nav-item" data-id="msde-claims" onclick="navigateTo('msde-claims','Claims Approval')">Claims Approval</button><div class="nav-section">Reports</div><button class="nav-item" data-id="msde-mis" onclick="navigateTo('msde-mis','National MIS')">National MIS</button><div class="nav-section">Grievance Redressal</div><button class="nav-item" data-id="grievance-admin" onclick="navigateTo('grievance-admin','Grievance Command Centre')">Grievance Command Centre</button></div>
+    <div class="sb-ftr"><button class="btn-logout" onclick="doLogout()" title="Sign out of the portal"><span style="display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;letter-spacing:.3px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</span></button></div>
+  </nav>
+  <div class="main-area">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-meta">PM Vishwakarma Scheme - FY 2025-26</div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-green">Live Demo</span>
+        <span id="topbarRole" class="badge badge-blue">MSDE Admin</span>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+<div id="notifToast"></div>
+<script>
+/* ============ HOMEPAGE: gallery + success stories + modal ============ */
+window.PMV_ICONS={
+ carpenter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-6"/><path d="M14 4l6 6-9 9H5v-6z"/><path d="M13 5l6 6"/><path d="M2 22l3-3"/></svg>',
+ blacksmith:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3l7 7-4 4-7-7z"/><path d="M10 7L3 14l3 3 7-7"/><path d="M5 19l-2 2"/></svg>',
+ potter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 3a5 5 0 015 5v3a7 7 0 01-14 0v-3a5 5 0 015-5z"/><path d="M9 3v3M15 3v3"/><path d="M6 21h12"/></svg>',
+ certificate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/><path d="M10 9l1.5 1.5L14 8"/></svg>',
+ tailor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.2 16L20 4"/><path d="M15.8 16L4 4"/></svg>',
+ sewing:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6 20V8a2 2 0 012-2h9a2 2 0 012 2v6"/><circle cx="17" cy="14" r="2"/><path d="M9 10h4"/></svg>',
+ toolkit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 13h18"/><path d="M11 13v3M13 13v3"/></svg>',
+ trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 6H5v2a3 3 0 003 3M16 6h3v2a3 3 0 01-3 3"/><path d="M10 15h4v3h-4z"/><path d="M8 21h8"/></svg>'
+};
+window.PMV_GALLERY=[
+ {icon:PMV_ICONS.carpenter,bg:'linear-gradient(135deg,#1a2f4a,#1a6fc4)',cap:'Carpenter training - Rampur TC, UP',title:'Advanced Carpenter Batch, Rampur TC',meta:'Uttar Pradesh • Batch #UP-CRP-042',desc:'Hands-on practical session on precision joinery and modern power-tool safety. 32 candidates trained across 120 hours, with AEBAS attendance at 96% and a 91% Day-0 assessment pass rate.',tags:['Carpenter','Advanced Training','AEBAS 96%']},
+ {icon:PMV_ICONS.blacksmith,bg:'linear-gradient(135deg,#7f1d1d,#b91c1c)',cap:'Blacksmith batch - Lakhimpur TC',title:'Blacksmith Skilling Drive, Lakhimpur',meta:'Uttar Pradesh • Batch #UP-BSM-018',desc:'Traditional forging combined with modern metallurgy inputs. Toolkit demonstration on Day 4 covered anvil, tongs and portable furnace usage. 28 candidates certified.',tags:['Blacksmith','Toolkit Demo']},
+ {icon:PMV_ICONS.potter,bg:'linear-gradient(135deg,#064e3b,#0f766e)',cap:'Potter assessment day - Hardoi TC',title:'Potter Assessment Day, Hardoi TC',meta:'Uttar Pradesh • Batch #UP-POT-011',desc:'Third-party assessment across throwing, glazing and kiln-firing modules. Evidence photographs mapped to each candidate with batch ID for AA verification.',tags:['Potter','Assessment']},
+ {icon:PMV_ICONS.certificate,bg:'linear-gradient(135deg,#4c1d95,#6d28d9)',cap:'Certificate distribution - Patna',title:'PMV Certificate Ceremony, Patna',meta:'Bihar • July 2025',desc:'214 artisans received PM Vishwakarma certificates from the District Magistrate. Loan-1 sanction letters were handed out on the same stage to 96 top performers.',tags:['Certification','Bihar']},
+ {icon:PMV_ICONS.sewing,bg:'linear-gradient(135deg,#78350f,#b45309)',cap:'Advanced tailoring workshop - Jaipur',title:'Advanced Tailoring Workshop, Jaipur',meta:'Rajasthan • Batch #RJ-TLR-027',desc:'Focus on industrial machines, pattern-making and export-quality finishing. Master trainer session on marketplace onboarding included.',tags:['Tailor','Advanced Training']},
+ {icon:PMV_ICONS.tailor,bg:'linear-gradient(135deg,#0c4a6e,#0369a1)',cap:'Tailor batch - Barabanki TC',title:'Women Tailoring Batch, Barabanki',meta:'Uttar Pradesh • Batch #UP-TLR-034',desc:'All-women batch of 30 trainees with on-site crèche support. Flexible timings improved attendance to 98%. 12 trainees started home units after certification.',tags:['Tailor','Women Inclusion']},
+ {icon:PMV_ICONS.toolkit,bg:'linear-gradient(135deg,#14532d,#15803d)',cap:'Toolkit distribution ceremony',title:'Toolkit Distribution Drive',meta:'Multi-state • Q2 2025',desc:'₹15,000 toolkit e-vouchers redeemed by 3,240 certified artisans this quarter. Trade-specific kits verified against master BOM before dispatch.',tags:['Toolkit','₹15,000 grant']},
+ {icon:PMV_ICONS.trophy,bg:'linear-gradient(135deg,#312e81,#4338ca)',cap:'Best trainer award - National Event',title:'National Best Trainer Award 2025',meta:'New Delhi • National Event',desc:'12 master trainers recognised across 8 trades for outcome quality, attendance discipline and post-training handholding.',tags:['Recognition','Trainers']}
+];
+window.PMV_STORIES=[
+ {avatar:'👨',bg:'var(--green-lt)',name:'Ramesh Kumar, Carpenter',short:'Started own furniture workshop after Advanced Training. Employs 4 people. Monthly income tripled to ₹45,000.',trade:'Carpenter • Rampur, UP • Loan 1 Availed ✓',
+  full:'Ramesh began as a daily-wage helper earning ₹9,000 a month. After Basic + Advanced Training at Rampur TC and a ₹1 lakh Loan-1, he set up "Vishwakarma Wood Works" in his village. Within 10 months he was fulfilling school-furniture orders for two panchayats and now employs four helpers. His monthly turnover has crossed ₹1.2 lakh with a take-home of ~₹45,000.',
+  tags:['Carpenter','Loan 1','Enterprise']},
+ {avatar:'👥',bg:'var(--amber-lt)',name:'Mohan Lal, Blacksmith',short:'Upgraded tools using PM Vishwakarma toolkit and Loan 1. Now supplying to 3 hardware stores in district.',trade:'Blacksmith • Lakhimpur, UP • Advanced Certified ✓',
+  full:'Mohan Lal is a third-generation blacksmith. The PMV toolkit gave him a portable furnace and precision tongs; Loan-1 helped him buy a power hammer. Output rose 3× and he now supplies agricultural tools to three hardware stores across Lakhimpur district, with monthly sales of ₹80,000.',
+  tags:['Blacksmith','Toolkit','Advanced']},
+ {avatar:'👩',bg:'var(--purple-lt)',name:'Vijay Singh, Tailor',short:'Set up a garment stitching unit after Advanced Training. Now sells through PM Vishwakarma marketplace online.',trade:'Tailor • Barabanki, UP • Business Started ✓',
+  full:'After Advanced Training, Vijay set up a 4-machine stitching unit at home. Onboarding to the PM Vishwakarma marketplace opened B2B orders for school uniforms. Monthly revenue: ₹65,000, with two trainees now working under him.',
+  tags:['Tailor','Marketplace','Business']}
+];
+function pmvRenderHome(){
+ var g=document.getElementById('pmvGallery');
+ if(g&&!g.dataset.done){g.dataset.done='1';g.innerHTML=window.PMV_GALLERY.map(function(x,i){return '<div class="gallery-item" onclick="pmvOpenGallery('+i+')"><div class="gallery-img" style="background:'+x.bg+'">'+x.icon+'</div><span class="zoom-ic">⤢</span><div class="gallery-cap">'+x.cap+'</div></div>'}).join('');}
+ var s=document.getElementById('pmvStories');
+ if(s&&!s.dataset.done){s.dataset.done='1';s.innerHTML=window.PMV_STORIES.map(function(x,i){return '<div class="story-card" onclick="pmvOpenStory('+i+')"><div class="story-avatar" style="background:'+x.bg+'">'+x.avatar+'</div><div class="story-content"><h4>'+x.name+'</h4><p>'+x.short+'</p><div class="story-trade">'+x.trade+'</div><span class="read-more">Read full story →</span></div></div>'}).join('');}
+}
+function pmvOpenModal(o){
+ document.getElementById('pmvModalHero').style.background=o.bg;
+ document.getElementById('pmvModalIcon').innerHTML=o.icon||'';
+ document.getElementById('pmvModalCap').textContent=o.cap||'';
+ document.getElementById('pmvModalMeta').textContent=o.meta||'';
+ document.getElementById('pmvModalTitle').textContent=o.title||'';
+ document.getElementById('pmvModalContent').innerHTML='<p>'+(o.desc||'')+'</p>';
+ document.getElementById('pmvModalTags').innerHTML=(o.tags||[]).map(function(t){return '<span>'+t+'</span>'}).join('');
+ document.getElementById('pmvModal').classList.add('open');
+}
+function pmvOpenGallery(i){var x=window.PMV_GALLERY[i];pmvOpenModal({bg:x.bg,icon:x.icon,cap:x.cap,meta:x.meta,title:x.title,desc:x.desc,tags:x.tags});}
+function pmvOpenStory(i){var x=window.PMV_STORIES[i];pmvOpenModal({bg:x.bg&&x.bg.indexOf('var(')===0?'linear-gradient(135deg,#0f172a,#334155)':x.bg,icon:x.avatar,cap:x.trade,meta:x.trade,title:x.name,desc:x.full,tags:x.tags});}
+function pmvCloseModal(){document.getElementById('pmvModal').classList.remove('open');}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')pmvCloseModal();});
+
+/* ============ State-wise batch activity filter ============ */
+function sbaFilter(){var q=(document.getElementById('sbaSearch').value||'').toLowerCase().trim();var r=document.getElementById('sbaRegion').value;var rows=document.querySelectorAll('#sbaList .mb-bar');var shown=0;rows.forEach(function(el){var okN=!q||el.dataset.name.indexOf(q)>-1;var okR=!r||el.dataset.region===r;var vis=okN&&okR;el.style.display=vis?'':'none';if(vis)shown++;});document.getElementById('sbaEmpty').style.display=shown?'none':'block';document.getElementById('sbaCount').textContent=shown;}
+
+/* ============ Toast ============ */
+function showToast(msg){var t=document.getElementById('notifToast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__tt);window.__tt=setTimeout(function(){t.classList.remove('show')},2600);}
+function toast2(msg){showToast(msg);}
+function approveClaim(id){showToast('Claim '+id+' approved');}
+function commPublish(){showToast('Message published to recipient dashboards');}
+function commRecipientControls(){
+  var scope=document.getElementById('comm-scope');var box=document.getElementById('comm-target-box');
+  if(!scope||!box)return;
+  if(scope.value==='role'){box.innerHTML='<div class="field" style="margin-top:12px"><label>Stakeholder Role</label><select><option>Candidate</option><option>Training Centre (TC)</option><option>Training Partner (TP)</option><option>Trainer</option><option>Assessor</option><option>Sector Skill Council (SSC)</option><option>Assessment Agency</option><option>DPMU</option><option>RDSDE</option><option>NSDC</option></select></div>';}
+  else if(scope.value==='user'){box.innerHTML='<div class="field" style="margin-top:12px"><label>User / Organisation</label><input placeholder="e.g. Rampur TC or PMV-001234"></div>';}
+  else{box.innerHTML='';}
+}
+function switchTab(el,id){
+  var tabs=el.parentElement.querySelectorAll('.tab');tabs.forEach(function(t){t.classList.remove('active')});el.classList.add('active');
+  var panels=document.querySelectorAll('.tab-panel');panels.forEach(function(p){p.classList.remove('active')});
+  var target=document.getElementById(id);if(target)target.classList.add('active');
+}
+
+/* ============ PORTAL PAGES (MSDE Admin role) ============ */
+window.PMV_PAGES={};
+
+PMV_PAGES['dashboard']=`<div class="exec-strip"><div class="exec-primary"><div class="exec-kicker">NATIONAL COMMAND PRIORITY</div><div class="exec-title">Move certified artisans toward toolkit, credit and enterprise outcomes</div><div class="exec-copy">Role-based operational focus • Demo intelligence layer</div></div><div class="exec-mini"><div class="n">89%</div><div class="l">Scheme Health</div><div class="trend">● Current view</div></div><div class="exec-mini"><div class="n">18</div><div class="l">Trades</div><div class="trend">● Current view</div></div><div class="exec-mini"><div class="n">12</div><div class="l">Action Flags</div><div class="trend">● Current view</div></div></div><div class="role-lens"><span class="lens-chip on">Operational View</span><span class="lens-chip">Outcome View</span><span class="lens-chip">Exceptions</span><span class="lens-chip">Evidence</span><span class="lens-chip">Best Practices</span></div><div class="dash-2"><div><div class="vcard"><h3>PM Vishwakarma Lifecycle Funnel<span class="tag-soft">National Flow</span></h3><div class="vbody"><div class="funnel-v2"><div class="funnel-step"><b>38.6K</b><span>Enrolled</span></div><div class="funnel-step"><b>31.2K</b><span>0-Day Completed</span></div><div class="funnel-step"><b>24.3K</b><span>Certified</span></div><div class="funnel-step"><b>28.9K</b><span>Toolkit Delivered</span></div><div class="funnel-step"><b>14.2K</b><span>Loan 1 Availed</span></div></div></div></div><div class="vcard"><h3>Scheme Support Architecture<span class="tag-soft">5 Pillars</span></h3><div class="vbody"><div class="pmv-pillar-grid"><div class="pmv-pillar"><div class="ico">🪪</div><h4>Recognition</h4><p>Artisan identity and scheme registration visibility.</p></div><div class="pmv-pillar"><div class="ico">🎓</div><h4>Skilling</h4><p>0-Day, Basic and Advanced journey tracking.</p></div><div class="pmv-pillar"><div class="ico">🧰</div><h4>Toolkit</h4><p>Dispatch, delivery and acknowledgement status.</p></div><div class="pmv-pillar"><div class="ico">₹</div><h4>Credit Linkage</h4><p>Eligibility, application and loan-linked progression.</p></div><div class="pmv-pillar"><div class="ico">🏪</div><h4>Market &amp; Enterprise</h4><p>Business outcomes, stories and market linkage.</p></div></div></div></div></div><div><div class="vcard"><h3>National Action Centre<span class="tag-soft">Decision Queue</span></h3><div class="vbody"><div class="action-row"><div class="action-no">1</div><div class="action-main"><b>Assessment capacity</b><span>Expand availability for low-pool trades and delayed districts</span></div><span class="badge badge-red">Priority</span></div><div class="action-row"><div class="action-no">2</div><div class="action-main"><b>Evidence and compliance</b><span>Close TC photo, attendance and infrastructure exceptions</span></div><span class="badge badge-amber">Watch</span></div><div class="action-row"><div class="action-no">3</div><div class="action-main"><b>Outcome conversion</b><span>Track certification to toolkit, credit and enterprise journey</span></div><span class="badge badge-green">Outcome</span></div></div></div><div class="vcard"><h3>Outcome Lens</h3><div class="vbody"><div class="insight good"><strong>Scale</strong><span>Move beyond activity counts to artisan outcomes.</span></div><div class="insight warn"><strong>Convergence</strong><span>Connect training, toolkit, credit and enterprise milestones.</span></div><div class="insight good"><strong>Evidence</strong><span>Keep success stories linked with verified scheme stages.</span></div></div></div></div></div><div class="dash-hero"><h2>MSDE Admin Dashboard</h2><p>Complete role-wise dashboard with KPIs, filters, visuals, top performers, photographs, success stories, best practices and action flags.</p><div class="dash-filter"><select onchange="toast2('State filter: '+this.value)"><option>All States</option><option>Uttar Pradesh</option><option>Rajasthan</option><option>Maharashtra</option><option>Bihar</option></select><select onchange="toast2('District filter: '+this.value)"><option>All Districts</option><option>Rampur</option><option>Sitapur</option><option>Hardoi</option><option>Barabanki</option></select><select onchange="toast2('Trade filter: '+this.value)"><option>All PMV Trades</option><option>Carpenter</option><option>Blacksmith</option><option>Potter</option><option>Tailor</option><option>Welder</option><option>Boat Maker</option><option>Goldsmith</option><option>Mason</option><option>Cobbler</option><option>Barber</option><option>Washerman</option><option>Garland Maker</option><option>Doll &amp; Toy Maker</option><option>Sculptor</option><option>Stone Carver</option><option>Basket Maker</option><option>Fishing Net Maker</option><option>Locksmith</option></select></div></div><div class="kpi-grid"><div class="kpi "><div class="num">38,640+</div><div class="lbl">Artisans Enrolled</div><div class="sub"></div></div><div class="kpi green"><div class="num">24,310</div><div class="lbl">Certificates Issued</div><div class="sub"></div></div><div class="kpi "><div class="num">247</div><div class="lbl">Training Centres</div><div class="sub"></div></div><div class="kpi purple"><div class="num">18</div><div class="lbl">Approved Trades</div><div class="sub"></div></div><div class="kpi amber"><div class="num">₹142 Cr</div><div class="lbl">Loan 1 Released</div><div class="sub"></div></div><div class="kpi green"><div class="num">89%</div><div class="lbl">Scheme Health</div><div class="sub"></div></div></div><div class="dash-2"><div><div class="vcard"><h3>National Scheme Funnel</h3><div class="vbody"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div class="donut"><span>89%</span></div><div style="flex:1"><div class="bar-row"><div>Enrolled</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div>38.6k</div></div><div class="bar-row"><div>0-Day Cert.</div><div class="bar-track"><div class="bar-fill " style="width:82%"></div></div><div>31.7k</div></div><div class="bar-row"><div>Basic Cert.</div><div class="bar-track"><div class="bar-fill purple" style="width:63%"></div></div><div>24.3k</div></div><div class="bar-row"><div>Advanced Ready</div><div class="bar-track"><div class="bar-fill amber" style="width:28%"></div></div><div>10.8k</div></div><div class="bar-row"><div>Loan Linked</div><div class="bar-track"><div class="bar-fill red" style="width:21%"></div></div><div>8.1k</div></div></div></div></div></div><div class="vcard"><h3>Top SSCs and Top TPs</h3><div class="vbody"><div class="dash-2"><div><ul class="rank-list"><li><div class="rank-no r1">1</div><div class="rank-main"><div class="rank-title">Construction SSC</div><div class="rank-sub">Mason | Carpenter | Stone</div></div><div class="rank-score">94</div></li><li><div class="rank-no r2">2</div><div class="rank-main"><div class="rank-title">Gem &amp; Jewellery SSC</div><div class="rank-sub">Goldsmith | Sculptor</div></div><div class="rank-score">91</div></li><li><div class="rank-no r3">3</div><div class="rank-main"><div class="rank-title">Apparel SSC</div><div class="rank-sub">Tailor | Textile</div></div><div class="rank-score">89</div></li><li><div class="rank-no r4">4</div><div class="rank-main"><div class="rank-title">Capital Goods SSC</div><div class="rank-sub">Welder | Blacksmith</div></div><div class="rank-score">86</div></li><li><div class="rank-no r5">5</div><div class="rank-main"><div class="rank-title">Handicrafts SSC</div><div class="rank-sub">Doll | Basket | Garland</div></div><div class="rank-score">84</div></li></ul></div><div><ul class="rank-list"><li><div class="rank-no r1">1</div><div class="rank-main"><div class="rank-title">Skill India TP</div><div class="rank-sub">38 TCs | 12 states | Strong governance</div></div><div class="rank-score">96</div></li><li><div class="rank-no r2">2</div><div class="rank-main"><div class="rank-title">Gramin Kaushal TP</div><div class="rank-sub">31 TCs | Rural mobilization</div></div><div class="rank-score">93</div></li><li><div class="rank-no r3">3</div><div class="rank-main"><div class="rank-title">Vidya Skill TP</div><div class="rank-sub">27 TCs | Finance discipline</div></div><div class="rank-score">90</div></li><li><div class="rank-no r4">4</div><div class="rank-main"><div class="rank-title">Jan Skill TP</div><div class="rank-sub">22 TCs | Low dropout</div></div><div class="rank-score">87</div></li><li><div class="rank-no r5">5</div><div class="rank-main"><div class="rank-title">CraftPro TP</div><div class="rank-sub">19 TCs | Assessment readiness</div></div><div class="rank-score">84</div></li></ul></div></div></div></div></div><div><div class="vcard"><h3>National Heat Map</h3><div class="vbody"><div class="heat"><div class="hot">UP</div><div class="hot">RJ</div><div class="hot">MH</div><div class="hot">BR</div><div class="mid">MP</div><div class="mid">GJ</div><div class="mid">DL</div><div class="mid">TN</div><div class="low">KA</div><div class="low">WB</div><div class="low">AS</div><div class="low">OR</div></div></div></div><div class="vcard"><h3>MSDE Admin Alerts</h3><div class="vbody"><div class="insight warn"><strong>Finance</strong><span>₹8.6 Cr pending document validation.</span></div><div class="insight bad"><strong>Monitoring</strong><span>12 TCs need photo refresh.</span></div><div class="insight warn"><strong>Assessment</strong><span>Stone Carver assessor pool needs expansion.</span></div><div class="insight good"><strong>Impact</strong><span>Success stories linked to credit and enterprise.</span></div></div></div></div></div><div class="vcard"><h3 data-hint="1">National Scheme Success Stories<span class="tag-soft">Stories + Photos</span><button class="pev-upbtn" onclick="showToast('Upload dialog (demo)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"></path></svg> Upload</button></h3><div class="vbody"><div class="story-grid"><div class="story-box"><div class="story-img" style="background:linear-gradient(135deg,#1a2f4a,#1a6fc4)"><span>National PMV mela</span></div><div class="story-body"><h4>National PM Vishwakarma Showcase</h4><p>Artisans demonstrate products, training outcomes, toolkits and market linkage stories.</p><div class="story-meta">National Scheme Story</div></div></div><div class="story-box"><div class="story-img" style="background:linear-gradient(135deg,#064e3b,#1a7a45)"><span>Certificate-to-credit journey</span></div><div class="story-body"><h4>Certificate to Enterprise Tracking</h4><p>Certification, toolkit delivery and credit linkage are connected to monitor real outcomes.</p><div class="story-meta">MSDE Admin View</div></div></div><div class="story-box"><div class="story-img" style="background:linear-gradient(135deg,#78350f,#b45309)"><span>Women artisan enterprise</span></div><div class="story-body"><h4>Enterprise Success Monitoring</h4><p>Success stories track artisans converting training and loan support into income generation.</p><div class="story-meta">Impact Monitoring</div></div></div></div></div></div><div class="dash-2"><div><div class="vcard"><h3 data-hint="1">Best Practices to Replicate<button class="pev-upbtn" onclick="showToast('Upload dialog (demo)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"></path></svg> Upload</button></h3><div class="vbody"><div class="practice-grid"><div class="practice"><h4>National control tower</h4><p>MSDE sees scheme health across enrolment, training, certification, toolkit and credit.</p></div><div class="practice"><h4>Impact tracking</h4><p>Success stories linked to certificates, loans and income generation.</p></div><div class="practice"><h4>Risk heatmap</h4><p>Lagging districts, delayed assessments and finance pendency highlighted.</p></div></div></div></div></div><div><div class="vcard"><h3 data-hint="1">Photographic Evidence Gallery<button class="pev-upbtn" onclick="showToast('Upload dialog (demo)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"></path></svg> Upload</button></h3><div class="vbody"><div class="pev-hint">Click any photograph to open full evidence details. Use Upload to add your own.</div><div class="photo-grid2"><div class="photo-tile" style="background:linear-gradient(135deg,#1a2f4a,#1a6fc4)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4-8-4z"></path><path d="M4 7v6c0 2 4 4 8 4s8-2 8-4V7"></path><path d="M20 10v6"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Training</span><span class="pt-zoom">⤢</span><div class="pt-cap">Training activity</div></div><div class="photo-tile" style="background:linear-gradient(135deg,#064e3b,#1a7a45)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"></circle><path d="M8.5 13l-1.5 7 5-3 5 3-1.5-7"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Ceremony</span><span class="pt-zoom">⤢</span><div class="pt-cap">Certificate ceremony</div></div><div class="photo-tile" style="background:linear-gradient(135deg,#78350f,#b45309)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v11H3z"></path><path d="M8 9V6a4 4 0 0 1 8 0v3"></path><path d="M3 14h18"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Toolkit</span><span class="pt-zoom">⤢</span><div class="pt-cap">Toolkit distribution</div></div><div class="photo-tile" style="background:linear-gradient(135deg,#4c1d95,#6d28d9)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Monitoring</span><span class="pt-zoom">⤢</span><div class="pt-cap">Monitoring visit</div></div><div class="photo-tile" style="background:linear-gradient(135deg,#7f1d1d,#b91c1c)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h9l3 3v15H9z"></path><path d="M9 3v18"></path><path d="M3 7h6M3 12h6M3 17h6"></path><path d="M13 12l2 2 4-4"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Assessment</span><span class="pt-zoom">⤢</span><div class="pt-cap">Assessment evidence</div></div><div class="photo-tile" style="background:linear-gradient(135deg,#0c4a6e,#0369a1)" data-pt="1" title="Click to view details"><div class="pt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V10l7-5 7 5v11"></path><path d="M10 21v-6h4v6"></path></svg></div><div class="pt-grad"></div><span class="pt-tag">Success</span><span class="pt-zoom">⤢</span><div class="pt-cap">Business success</div></div></div></div></div></div></div>`;
+
+PMV_PAGES['msde-communications']=`<div class="comm-hero"><div><h2>Communication &amp; Recognition Centre</h2><p>Publish praise, highlights, important information or alerts to everyone, a stakeholder group, or one specific portal user.</p></div><span class="badge badge-green">MSDE Admin Only</span></div><div class="two-col"><div class="card"><div class="card-header"><h3>Create New Message</h3></div><div class="card-body"><div class="form-row"><div class="field"><label>Message Type</label><select id="comm-type"><option value="praise">🏆 Praise / Recognition</option><option value="info">📢 Information / Update</option><option value="alert">⚠ Important Alert</option></select></div><div class="field"><label>Audience</label><select id="comm-scope" onchange="commRecipientControls()"><option value="all">Everyone</option><option value="role">Specific Stakeholder Role</option><option value="user">Particular User / Organisation</option></select></div><div class="field"><label>Priority</label><select id="comm-priority"><option>Normal</option><option>High</option></select></div><div class="field"><label>Display Until (optional)</label><input type="date" id="comm-expiry"></div></div><div id="comm-target-box"></div><div class="field" style="margin-top:12px"><label>Title</label><input id="comm-title" maxlength="100" placeholder="e.g. Outstanding performance by Rampur TC"></div><div class="field" style="margin-top:12px"><label>Message</label><textarea id="comm-body" maxlength="800" placeholder="Write the message that should appear on the recipient dashboard..."></textarea></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:12px;font-weight:600"><input type="checkbox" id="comm-ack"> Require recipient acknowledgement</label><div class="form-actions"><button class="btn btn-primary" onclick="commPublish()">Publish to Dashboard</button></div></div></div><div><div class="card"><div class="card-header"><h3>How It Will Appear</h3></div><div class="card-body"><div class="msg-banner appreciation"><div class="msg-icon">🏆</div><div class="msg-main"><div class="msg-title">Recognition from MSDE</div><div class="msg-text">The message will be prominently displayed at the top of the selected recipient's dashboard and in My Messages.</div><div class="msg-meta">From MSDE Admin • Dashboard notification</div></div></div><div class="alert alert-info">Messages persist in this demo browser using local storage, so you can publish from MSDE login, log out, and verify them in the recipient login.</div></div></div></div></div><div class="card"><div class="card-header"><h3>Published Messages (0)</h3></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Type</th><th>Title</th><th>Audience</th><th>Published</th><th>Read</th><th>Acknowledged</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td colspan="8"><div class="msg-empty">No messages published yet.</div></td></tr></tbody></table></div></div></div>`;
+
+PMV_PAGES['msde-scheme']=`
+  <div class="section-title">Candidate Progress</div>
+  <div class="card"><div class="card-header"><h3>All Candidates</h3><button class="btn btn-outline btn-sm" onclick="showToast('MIS exported')">Export MIS</button></div><div class="card-body"><div class="table-wrap">
+    <table><thead><tr><th>PMV ID</th><th>Name</th><th>Trade</th><th>District</th><th>0-Day</th><th>Basic</th><th>Advanced</th><th>Certificate</th><th>Toolkit</th></tr></thead><tbody>
+    <tr><td>PMV-001234</td><td>Ramesh Kumar</td><td>Carpenter</td><td>Rampur</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-green">Pass</span></td>
+    <td><span class="badge badge-blue">Advanced</span></td><td><span class="badge badge-green">Delivered</span></td></tr><tr><td>PMV-001235</td><td>Sunita Devi</td><td>Welder</td><td>Sitapur</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-gray">-</span></td>
+    <td><span class="badge badge-blue">0-Day</span></td><td><span class="badge badge-green">Delivered</span></td></tr><tr><td>PMV-001236</td><td>Mohan Lal</td><td>Blacksmith</td><td>Lakhimpur</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-amber">Upcoming</span></td>
+    <td><span class="badge badge-blue">Basic</span></td><td><span class="badge badge-green">Delivered</span></td></tr><tr><td>PMV-001237</td><td>Priya Sharma</td><td>Potter</td><td>Hardoi</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-gray">-</span></td>
+    <td><span class="badge badge-blue">0-Day</span></td><td><span class="badge badge-amber">Pending</span></td></tr><tr><td>PMV-001238</td><td>Vijay Singh</td><td>Tailor</td><td>Barabanki</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-green">Pass</span></td>
+    <td><span class="badge badge-blue">Advanced</span></td><td><span class="badge badge-green">Delivered</span></td></tr><tr><td>PMV-001239</td><td>Geeta Rani</td><td>Carpenter</td><td>Rampur</td>
+    <td><span class="badge badge-red">Fail</span></td><td><span class="badge badge-gray">-</span></td><td><span class="badge badge-gray">-</span></td>
+    <td><span class="badge badge-blue">-</span></td><td><span class="badge badge-amber">Pending</span></td></tr><tr><td>PMV-001240</td><td>Anil Verma</td><td>Welder</td><td>Sitapur</td>
+    <td><span class="badge badge-green">Pass</span></td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-gray">-</span></td>
+    <td><span class="badge badge-blue">0-Day</span></td><td><span class="badge badge-green">Delivered</span></td></tr>
+    </tbody></table>
+  </div></div></div>`;
+
+PMV_PAGES['msde-cert']=`
+  <div class="section-title">Certificate Generation</div>
+  <div class="card"><div class="card-header"><h3>Certificates Generated</h3></div><div class="card-body">
+    <div class="table-wrap"><table><thead><tr><th>Cert ID</th><th>Candidate</th><th>Trade</th><th>Type</th><th>Date</th><th>Visible To</th></tr></thead><tbody>
+  <tr><td>CERT-PMV-001234-ADV</td><td>Ramesh Kumar</td><td>Carpenter</td><td>Advanced</td><td>02 Jul 2025</td><td>Candidate, TC, MSDE, NSDC, SSC, AA, DPMU</td></tr><tr><td>CERT-PMV-001235-0DAY</td><td>Sunita Devi</td><td>Welder</td><td>0-Day</td><td>01 Jul 2025</td><td>Candidate, TC, MSDE, NSDC, SSC, AA, DPMU</td></tr><tr><td>CERT-PMV-001238-ADV</td><td>Vijay Singh</td><td>Tailor</td><td>Advanced</td><td>04 Jul 2025</td><td>Candidate, TC, MSDE, NSDC, SSC, AA, DPMU</td></tr></tbody></table></div>
+  </div></div>`;
+
+PMV_PAGES['msde-finance']=`
+  <div class="section-title">Finance &amp; Claims Approval</div>
+  <div class="card"><div class="card-header"><h3>B&amp;L Claims - Pending Approval</h3></div><div class="card-body"><div class="table-wrap">
+    <table><thead><tr><th>Claim ID</th><th>Candidate</th><th>Type</th><th>Amount</th><th>Docs</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    <tr><td>CLM-001</td><td>PMV-001235 - Sunita Devi</td><td>Boarding &amp; Lodging</td><td>₹1125</td><td>Uploaded</td>
+    <td><span class="badge badge-amber">Pending</span></td>
+    <td><button class="btn btn-success btn-sm" onclick="approveClaim('CLM-001')">Approve</button> <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="showToast('Claim rejected')">Reject</button></td></tr><tr><td>CLM-002</td><td>PMV-001237 - Priya Sharma</td><td>Boarding &amp; Lodging</td><td>₹750</td><td>Uploaded</td>
+    <td><span class="badge badge-green">Approved</span></td>
+    <td>-</td></tr><tr><td>CLM-003</td><td>PMV-001236 - Mohan Lal</td><td>Transportation</td><td>₹1000</td><td>N/A</td>
+    <td><span class="badge badge-amber">Pending</span></td>
+    <td><button class="btn btn-success btn-sm" onclick="approveClaim('CLM-003')">Approve</button> <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="showToast('Claim rejected')">Reject</button></td></tr>
+    </tbody></table>
+  </div></div></div>`;
+
+PMV_PAGES['msde-claims']=PMV_PAGES['msde-finance'];
+
+PMV_PAGES['msde-mis']=`
+  <div class="section-title">MIS Reports</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'mis-summary')">Summary</div>
+    <div class="tab" onclick="switchTab(this,'mis-payment')">Payment MIS</div>
+    <div class="tab" onclick="switchTab(this,'mis-cert')">Certificate MIS</div>
+  </div>
+  <div class="tab-panel active" id="mis-summary">
+    <div class="card"><div class="card-header"><h3>Scheme Performance - National MIS</h3><button class="btn btn-outline btn-sm" onclick="showToast('MIS downloaded as Excel')">Download Excel</button></div><div class="card-body">
+      <div class="table-wrap"><table><thead><tr><th>Indicator</th><th>Value</th><th>Target</th><th>% Achievement</th></tr></thead><tbody>
+  <tr><td>Total Candidates Enrolled</td><td>38,640</td><td>50,000</td><td>77%</td></tr><tr><td>0-Day Training Completed</td><td>31,200</td><td>38,640</td><td>81%</td></tr><tr><td>Basic Training Completed</td><td>18,500</td><td>31,200</td><td>59%</td></tr><tr><td>Advanced Training Completed</td><td>11,040</td><td>18,500</td><td>60%</td></tr><tr><td>Certificates Issued</td><td>24,310</td><td>38,640</td><td>63%</td></tr><tr><td>Toolkits Delivered</td><td>28,900</td><td>38,640</td><td>75%</td></tr><tr><td>Loan 1 Availed</td><td>14,200</td><td>38,640</td><td>37%</td></tr><tr><td>Total Disbursements</td><td>₹18.7Cr</td><td>₹40Cr</td><td>47%</td></tr></tbody></table></div>
+    </div></div>
+  </div>
+  <div class="tab-panel" id="mis-payment">
+    <div class="card"><div class="card-header"><h3>Payment MIS</h3></div><div class="card-body">
+    <div class="table-wrap"><table><thead><tr><th>Payment Type</th><th>Eligible</th><th>Processed</th><th>Pending</th></tr></thead><tbody>
+  <tr><td>TC Payments (₹49/hr)</td><td>₹3,12,00,000</td><td>₹1,80,00,000</td><td>₹1,32,00,000</td></tr><tr><td>AA Payments (₹600/candidate)</td><td>₹2,31,84,000</td><td>₹1,56,00,000</td><td>₹75,84,000</td></tr><tr><td>Candidate Stipends</td><td>₹4,80,00,000</td><td>₹2,10,00,000</td><td>₹2,70,00,000</td></tr><tr><td>Transport Allowance</td><td>₹1,60,00,000</td><td>₹90,00,000</td><td>₹70,00,000</td></tr><tr><td>B&amp;L Claims</td><td>₹28,50,000</td><td>₹12,00,000</td><td>₹16,50,000</td></tr></tbody></table></div>
+    </div></div>
+  </div>
+  <div class="tab-panel" id="mis-cert">
+    <div class="card"><div class="card-header"><h3>Certificate MIS</h3></div><div class="card-body">
+    <div class="table-wrap"><table><thead><tr><th>Level</th><th>Assessed</th><th>Pass</th><th>Fail</th><th>Absent</th><th>Certs Issued</th></tr></thead><tbody>
+  <tr><td>0-Day</td><td>31,200</td><td>28,400</td><td>2,100</td><td>700</td><td>28,400</td></tr><tr><td>Basic</td><td>18,500</td><td>16,200</td><td>1,800</td><td>500</td><td>16,200</td></tr><tr><td>Advanced</td><td>11,040</td><td>9,840</td><td>900</td><td>300</td><td>9,840</td></tr></tbody></table></div>
+    </div></div>
+  </div>`;
+
+PMV_PAGES['grievance-admin']=`<div class="grv-hero"><div><h2>Grievance Redressal Command Centre</h2><p>Central intake, routing, status management, escalation and auditable resolution for all PMV stakeholders.</p></div><span class="badge badge-green">MSDE / Central Admin</span></div><div class="grv-kpi"><div><b>0</b><span>Total Registered</span></div><div><b>0</b><span>Open Cases</span></div><div><b>0</b><span>Escalated</span></div><div><b>0</b><span>Resolved</span></div></div><div class="card"><div class="card-header"><h3>Grievance Work Queue</h3><button class="btn btn-outline btn-sm" onclick="showToast('Dashboard refreshed')">Refresh</button></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Stakeholder</th><th>Category</th><th>Subject</th><th>Priority</th><th>Assigned Desk</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead><tbody><tr><td colspan="9"><div class="msg-empty">No grievances registered yet.</div></td></tr></tbody></table></div></div></div>`;
+
+/* ============ Login / navigation ============ */
+window.PMV_ROLES={
+ candidate:['Candidate','Artisan Beneficiary Login'],
+ tc:['Training Centre (TC)','TC Operations Login'],
+ tp:['Training Partner (TP)','TP Management Login'],
+ trainer:['Trainer','Trainer / Master Trainer Login'],
+ assessor:['Assessor','Assessment Login'],
+ mobilisation:['Mobilisation Agency Admin','Mobilisation Agency Login'],
+ 'mob-mobilizer':['Mobilizer','Field Mobilizer Login'],
+ ssc:['Sector Skill Council (SSC)','SSC Governance Login'],
+ aa:['Assessment Agency','Assessment Agency Login'],
+ dpmu:['DPMU','District PMU Login'],
+ rdsde:['RDSDE','Regional Directorate Login'],
+ seo:['SEO','State Education Officer Login'],
+ nsdc:['NSDC','NSDC PMU Login'],
+ msde:['MSDE Admin','MSDE Central Dashboard']
+};
+
+function doLogin(){
+  var role=document.getElementById('hp-role').value;
+  if(!role){showToast('Please select a login role');document.getElementById('hp-role').focus();return;}
+  var meta=PMV_ROLES[role]||['Stakeholder','Portal Login'];
+  document.getElementById('sidebarRole').textContent=meta[0];
+  document.getElementById('sidebarUser').textContent=meta[1];
+  document.getElementById('topbarRole').textContent=meta[0];
+  window.PMV_CURRENT_ROLE=role;
+  document.getElementById('homePage').style.display='none';
+  document.getElementById('portal').style.display='flex';
+  window.scrollTo(0,0);
+  navigateTo('dashboard','Dashboard');
+}
+
+function doLogout(){
+  document.getElementById('portal').style.display='none';
+  document.getElementById('homePage').style.display='block';
+  document.getElementById('hp-pass').value='';
+  window.scrollTo(0,0);
+}
+
+function navigateTo(id,title){
+  document.querySelectorAll('#sidebarNav .nav-item').forEach(function(b){b.classList.toggle('active',b.dataset.id===id)});
+  document.getElementById('topbarTitle').innerHTML=title;
+  var mc=document.getElementById('mainContent');
+  var html=PMV_PAGES[id];
+  if(!html){html='<div class="card"><div class="card-body">This section is not part of the cloned prototype.</div></div>';}
+  if(id==='dashboard'&&window.PMV_CURRENT_ROLE&&window.PMV_CURRENT_ROLE!=='msde'){
+    var meta=PMV_ROLES[window.PMV_CURRENT_ROLE];
+    html='<div class="alert alert-info">This prototype clone ships the full <strong>MSDE Admin</strong> role. You are signed in as <strong>'+meta[0]+'</strong> — the shared dashboard below is shown for layout reference.</div>'+html;
+  }
+  mc.innerHTML=html;
+  mc.style.animation='none';void mc.offsetWidth;mc.style.animation='pmvRise .32s ease both';
+  var nav=document.querySelectorAll('#sidebarNav .nav-item');
+  nav.forEach(function(b,i){b.style.animation='pmvRise .28s ease '+(i*18)+'ms both'});
+  if(id==='msde-communications')setTimeout(commRecipientControls,0);
+  mc.scrollTop=0;
+}
+
+/* ============ Boot ============ */
+function pmvBoot(){pmvRenderHome();sbaFilter();}
+if(document.readyState!=='loading')pmvBoot();else document.addEventListener('DOMContentLoaded',pmvBoot);
+</script>
+</body>
+</html>
